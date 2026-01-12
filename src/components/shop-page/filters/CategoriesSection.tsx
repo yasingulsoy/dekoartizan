@@ -1,48 +1,38 @@
-import Link from "next/link";
-import React from "react";
-import { MdKeyboardArrowRight } from "react-icons/md";
+"use client";
 
-type Category = {
-  title: string;
-  slug: string;
-};
-
-const categoriesData: Category[] = [
-  {
-    title: "Tişörtler",
-    slug: "/shop?category=t-shirts",
-  },
-  {
-    title: "Şortlar",
-    slug: "/shop?category=shorts",
-  },
-  {
-    title: "Gömlekler",
-    slug: "/shop?category=shirts",
-  },
-  {
-    title: "Kapüşonlu",
-    slug: "/shop?category=hoodie",
-  },
-  {
-    title: "Kot Pantolonlar",
-    slug: "/shop?category=jeans",
-  },
-];
+import React, { useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const CategoriesSection = () => {
+  const [isChecked, setIsChecked] = useState(true);
+
   return (
-    <div className="flex flex-col space-y-0.5 text-black/60">
-      {categoriesData.map((category, idx) => (
-        <Link
-          key={idx}
-          href={category.slug}
-          className="flex items-center justify-between py-2"
-        >
-          {category.title} <MdKeyboardArrowRight />
-        </Link>
-      ))}
-    </div>
+    <Accordion type="single" collapsible defaultValue="filter-category">
+      <AccordionItem value="filter-category" className="border-none">
+        <AccordionTrigger className="text-black font-bold text-xl hover:no-underline p-0 py-0.5">
+          Kategori
+        </AccordionTrigger>
+        <AccordionContent className="pt-4 pb-0">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="wallpaper"
+              checked={isChecked}
+              onChange={(e) => setIsChecked(e.target.checked)}
+              className="h-4 w-4 text-black border-gray-300 rounded focus:ring-black"
+            />
+            <label htmlFor="wallpaper" className="text-black/60 cursor-pointer">
+              Duvar Kağıdı
+            </label>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 };
 

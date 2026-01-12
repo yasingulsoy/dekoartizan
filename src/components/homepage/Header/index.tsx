@@ -45,7 +45,7 @@ const Header = () => {
               href="/shop"
               className="w-full md:w-52 mb-5 md:mb-12 inline-block text-center bg-black hover:bg-black/80 transition-all text-white px-14 py-4 rounded-full hover:animate-pulse"
             >
-              Şimdi Alışveriş Yap
+              şimdi Alışveriş Yap
             </Link>
           </motion.div>
           <motion.div

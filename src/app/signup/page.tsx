@@ -149,7 +149,7 @@ export default function SignUpPage() {
                 htmlFor="password"
                 className="block text-sm font-medium text-foreground mb-2"
               >
-                Şifre
+                şifre
               </label>
               <InputGroup className="bg-[#F0F0F0] rounded-full">
                 <InputGroup.Text>
@@ -173,7 +173,7 @@ export default function SignUpPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  placeholder="Şifrenizi girin"
+                  placeholder="şifrenizi girin"
                   value={formData.password}
                   onChange={handleChange}
                   className="bg-transparent placeholder:text-black/40"
@@ -228,7 +228,7 @@ export default function SignUpPage() {
                 htmlFor="confirmPassword"
                 className="block text-sm font-medium text-foreground mb-2"
               >
-                Şifre Tekrar
+                şifre Tekrar
               </label>
               <InputGroup className="bg-[#F0F0F0] rounded-full">
                 <InputGroup.Text>
@@ -252,7 +252,7 @@ export default function SignUpPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  placeholder="Şifrenizi tekrar girin"
+                  placeholder="şifrenizi tekrar girin"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className="bg-transparent placeholder:text-black/40"
@@ -302,7 +302,7 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* Kullanım Şartları */}
+          {/* Kullanım şartları */}
           <div className="flex items-start">
             <div className="flex items-center h-5">
               <input

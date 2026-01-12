@@ -89,7 +89,7 @@ export default function SignInPage() {
                 htmlFor="password"
                 className="block text-sm font-medium text-foreground mb-2"
               >
-                Şifre
+                şifre
               </label>
               <InputGroup className="bg-[#F0F0F0] rounded-full">
                 <InputGroup.Text>
@@ -113,7 +113,7 @@ export default function SignInPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
-                  placeholder="Şifrenizi girin"
+                  placeholder="şifrenizi girin"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-transparent placeholder:text-black/40"
@@ -163,7 +163,7 @@ export default function SignInPage() {
             </div>
           </div>
 
-          {/* Şifremi Unuttum */}
+          {/* şifremi Unuttum */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
@@ -185,7 +185,7 @@ export default function SignInPage() {
                 href="/forgot-password"
                 className="font-medium text-primary hover:text-primary/80"
               >
-                Şifremi unuttum
+                şifremi unuttum
               </Link>
             </div>
           </div>

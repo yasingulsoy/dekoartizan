@@ -85,7 +85,7 @@ export const topSellingData: Product[] = [
   },
   {
     id: 7,
-    title: "Bermuda Şort",
+    title: "Bermuda şort",
     srcUrl: "/images/pic7.png",
     gallery: ["/images/pic7.png"],
     price: 80,
