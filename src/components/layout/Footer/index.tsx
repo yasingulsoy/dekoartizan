@@ -68,17 +68,29 @@ const Footer = () => {
         <div className="max-w-frame mx-auto">
           <nav className="lg:grid lg:grid-cols-12 mb-8">
             <div className="flex flex-col lg:col-span-3 lg:max-w-[248px]">
-              <h1
-                className={cn([
-                  integralCF.className,
-                  "text-[28px] lg:text-[32px] mb-6",
-                ])}
+              <Link
+                href="/"
+                className="flex items-center gap-2 mb-6"
               >
-                dekoartizan
-              </h1>
+                <Image
+                  src="/images/logo.jpeg"
+                  alt="dekoartizan logo"
+                  width={40}
+                  height={40}
+                  className="w-8 h-8 lg:w-10 lg:h-10"
+                />
+                <h1
+                  className={cn([
+                    integralCF.className,
+                    "text-[28px] lg:text-[32px]",
+                  ])}
+                >
+                  dekoartizan
+                </h1>
+              </Link>
               <p className="text-black/60 text-sm mb-9">
-                Tarzınıza uygun ve giymekten gurur duyacağınız kıyafetlerimiz var.
-                Kadından erkeğe.
+                Evinize uygun ve dekorasyonunuzdan gurur duyacağınız duvar kağıtlarımız var.
+                Her mekana uygun.
               </p>
               <div className="flex items-center">
                 {socialsData.map((social) => (

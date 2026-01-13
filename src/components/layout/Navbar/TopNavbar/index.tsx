@@ -17,32 +17,32 @@ import CartBtn from "./CartBtn";
 const data: NavMenu = [
   {
     id: 1,
-    label: "Mağaza",
+    label: "Kategoriler",
     type: "MenuList",
     children: [
       {
         id: 11,
-        label: "Erkek Kıyafetleri",
-        url: "/shop#men-clothes",
-        description: "Cekici ve muhteşem renkler ve tasarımlarla",
+        label: "Oturma Odası Duvar Kağıtları",
+        url: "/shop?category=living-room",
+        description: "Çekici ve muhteşem renkler ve tasarımlarla",
       },
       {
         id: 12,
-        label: "Kadın Kıyafetleri",
-        url: "/shop#women-clothes",
-        description: "Bayanlar, tarzınız ve zevkleriniz bizim için önemli",
+        label: "Yatak Odası Duvar Kağıtları",
+        url: "/shop?category=bedroom",
+        description: "Huzurlu ve şık tasarımlarla yatak odanıza karakter katın",
       },
       {
         id: 13,
-        label: "Cocuk Kıyafetleri",
-        url: "/shop#kids-clothes",
+        label: "Çocuk Odası Duvar Kağıtları",
+        url: "/shop?category=kids-room",
         description: "Tüm yaşlar için, mutlu ve güzel renklerle",
       },
       {
         id: 14,
-        label: "Canta ve Ayakkabı",
-        url: "/shop#bag-shoes",
-        description: "Erkek, kadın ve tüm zevklere ve stillere uygun",
+        label: "Mutfak ve Banyo Duvar Kağıtları",
+        url: "/shop?category=kitchen-bathroom",
+        description: "Pratik ve şık çözümlerle mekanlarınızı güzelleştirin",
       },
     ],
   },
@@ -80,11 +80,25 @@ const TopNavbar = () => {
           <Link
             href="/"
             className={cn([
-              integralCF.className,
-              "text-2xl lg:text-[32px] mb-2 mr-3 lg:mr-10",
+              "flex items-center gap-2 mb-2 mr-3 lg:mr-10",
             ])}
           >
-            dekoartizan
+            <Image
+              src="/images/logo.jpeg"
+              alt="dekoartizan logo"
+              width={40}
+              height={40}
+              className="w-8 h-8 lg:w-10 lg:h-10"
+              priority
+            />
+            <span
+              className={cn([
+                integralCF.className,
+                "text-2xl lg:text-[32px]",
+              ])}
+            >
+              dekoartizan
+            </span>
           </Link>
         </div>
         <NavigationMenu className="hidden md:flex mr-2 lg:mr-7">
@@ -115,7 +129,7 @@ const TopNavbar = () => {
           <InputGroup.Input
             type="search"
             name="search"
-            placeholder="Urün ara..."
+            placeholder="Ürün ara..."
             className="bg-transparent placeholder:text-black/40"
           />
         </InputGroup>

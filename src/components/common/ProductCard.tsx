@@ -14,7 +14,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
       href={`/shop/product/${data.id}/${data.title.split(" ").join("-")}`}
       className="flex flex-col items-start aspect-auto"
     >
-      <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden">
+      <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden flex items-center justify-center p-4">
         <Image
           src={data.srcUrl}
           width={295}
