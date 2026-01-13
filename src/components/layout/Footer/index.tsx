@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { integralCF } from "@/styles/fonts";
 import React from "react";
 import { PaymentBadge, SocialNetworks } from "./footer.types";
-import { FaFacebookF, FaGithub, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import Link from "next/link";
 import LinksSection from "./LinksSection";
 import Image from "next/image";
@@ -24,11 +24,6 @@ const socialsData: SocialNetworks[] = [
     id: 3,
     icon: <FaInstagram />,
     url: "https://instagram.com",
-  },
-  {
-    id: 4,
-    icon: <FaGithub />,
-    url: "https://github.com/mohammadoftadeh",
   },
 ];
 
@@ -114,6 +109,23 @@ const Footer = () => {
 
           <hr className="h-[1px] border-t-black/10 mb-6" />
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-2">
+          </div>
+          <div className="flex justify-center items-center mt-6 mb-4">
+            <Link
+              href="https://www.trendyol.com/magaza/dekoartizan-wallpapers-m-198770?channelId=1&sst=0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <span className="text-sm text-black/60">Trendyol'da bizi ziyaret edin:</span>
+              <Image
+                src="/images/trendyol.png"
+                alt="Trendyol"
+                width={100}
+                height={30}
+                className="h-6 w-auto"
+              />
+            </Link>
           </div>
         </div>
         <LayoutSpacing />

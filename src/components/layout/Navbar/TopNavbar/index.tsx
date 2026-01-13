@@ -73,14 +73,14 @@ const TopNavbar = () => {
   return (
     <nav className="sticky top-0 bg-white z-20">
       <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0 gap-2 md:gap-0">
-        <div className="flex items-center min-w-0 flex-shrink">
+        <div className="flex items-center">
           <div className="block md:hidden mr-2 md:mr-4 flex-shrink-0">
             <ResTopNavbar data={data} />
           </div>
           <Link
             href="/"
             className={cn([
-              "flex items-center gap-2 mb-2 mr-2 md:mr-3 lg:mr-10 min-w-0 flex-shrink",
+              "flex items-center gap-2 mb-2 mr-2 md:mr-3 lg:mr-10 flex-shrink-0",
             ])}
           >
             <Image
@@ -94,7 +94,7 @@ const TopNavbar = () => {
             <span
               className={cn([
                 integralCF.className,
-                "text-lg sm:text-xl md:text-2xl lg:text-[32px] truncate",
+                "text-lg sm:text-xl md:text-2xl lg:text-[32px] whitespace-nowrap",
               ])}
             >
               dekoartizan
