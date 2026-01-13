@@ -72,15 +72,15 @@ const data: NavMenu = [
 const TopNavbar = () => {
   return (
     <nav className="sticky top-0 bg-white z-20">
-      <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0">
-        <div className="flex items-center">
-          <div className="block md:hidden mr-4">
+      <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0 gap-2 md:gap-0">
+        <div className="flex items-center min-w-0 flex-shrink">
+          <div className="block md:hidden mr-2 md:mr-4 flex-shrink-0">
             <ResTopNavbar data={data} />
           </div>
           <Link
             href="/"
             className={cn([
-              "flex items-center gap-2 mb-2 mr-3 lg:mr-10",
+              "flex items-center gap-2 mb-2 mr-2 md:mr-3 lg:mr-10 min-w-0 flex-shrink",
             ])}
           >
             <Image
@@ -88,13 +88,13 @@ const TopNavbar = () => {
               alt="dekoartizan logo"
               width={40}
               height={40}
-              className="w-8 h-8 lg:w-10 lg:h-10"
+              className="w-8 h-8 lg:w-10 lg:h-10 flex-shrink-0"
               priority
             />
             <span
               className={cn([
                 integralCF.className,
-                "text-2xl lg:text-[32px]",
+                "text-lg sm:text-xl md:text-2xl lg:text-[32px] truncate",
               ])}
             >
               dekoartizan
@@ -133,8 +133,8 @@ const TopNavbar = () => {
             className="bg-transparent placeholder:text-black/40"
           />
         </InputGroup>
-        <div className="flex items-center">
-          <Link href="/search" className="block md:hidden mr-[14px] p-1">
+        <div className="flex items-center gap-1 md:gap-0 flex-shrink-0">
+          <Link href="/search" className="block md:hidden p-1">
             <Image
               priority
               src="/icons/search-black.svg"

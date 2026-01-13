@@ -60,7 +60,7 @@ const Header = () => {
                 <AnimatedCounter from={0} to={200} />+
               </span>
               <span className="text-xs xl:text-base text-black/60 text-nowrap">
-                Uluslararası Markalar
+                Farklı Tasarım
               </span>
             </div>
             <Separator
@@ -72,7 +72,7 @@ const Header = () => {
                 <AnimatedCounter from={0} to={2000} />+
               </span>
               <span className="text-xs xl:text-base text-black/60 text-nowrap">
-                Yüksek Kaliteli Urünler
+                Mutlu Müşteri
               </span>
             </div>
             <Separator
@@ -84,7 +84,7 @@ const Header = () => {
                 <AnimatedCounter from={0} to={3000} />+
               </span>
               <span className="text-xs xl:text-base text-black/60 text-nowrap">
-                Mutlu Müşteriler
+                Mutlu Duvarlar
               </span>
             </div>
           </motion.div>
@@ -94,7 +94,7 @@ const Header = () => {
           whileInView={{ y: "0", opacity: 1, rotate: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 2.3, duration: 0.8 }}
-          className="relative md:px-4 min-h-[448px] md:min-h-[428px] bg-cover bg-top xl:bg-[center_top_-1.6rem] bg-no-repeat bg-[url('/images/header-res-homepage.png')] md:bg-[url('/images/header-homepage.webp')]"
+          className="relative md:px-4 min-h-[448px] md:min-h-[428px] bg-cover bg-top xl:bg-[center_top_-1.6rem] bg-no-repeat bg-[url('/images/header-homepage.webp')] md:bg-[url('/images/header-homepage.webp')]"
         >
           <Image
             priority
