@@ -1,0 +1,211 @@
+const express = require('express');
+const compression = require('compression');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
+
+const { sequelize, testConnection, syncDatabase, closeConnection } = require('./config/database');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.set('trust proxy', 1);
+
+// CORS configuration
+const corsOrigins = (() => {
+  if (process.env.CORS_ORIGINS) {
+    return process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return process.env.NODE_ENV === 'production'
+    ? ['https://dekoartizan.com', 'https://www.dekoartizan.com']
+    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001'];
+})();
+
+app.use(cors({
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+app.use(cookieParser());
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 dakika
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Production'da 100, dev'de 1000
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Çok fazla istek. Lütfen daha sonra deneyin.', code: 'TOO_MANY_REQUESTS' }
+});
+
+app.use('/api/', limiter);
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
+// Body parsing middleware
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// HTTP compression
+app.use(compression({
+  threshold: 512,
+}));
+
+// Database initialization with retry logic
+const initializeDatabase = async (retries = 3) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`🔄 Database initialization attempt ${i + 1}/${retries}`);
+      await testConnection();
+      await syncDatabase();
+      console.log('✅ Database initialized successfully');
+      return true;
+    } catch (error) {
+      console.error(`❌ Database initialization attempt ${i + 1} failed:`, error.message);
+      if (i === retries - 1) {
+        console.error('❌ All database initialization attempts failed');
+        throw error;
+      }
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
+    }
+  }
+};
+
+// Health check endpoints
+app.get('/api/live', (req, res) => {
+  res.json({ status: 'OK', message: 'Liveness probe ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/ready', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    return res.json({ status: 'READY', message: 'Readiness probe ok', timestamp: new Date().toISOString() });
+  } catch (e) {
+    return res.status(503).json({ status: 'NOT_READY', error: e.message });
+  }
+});
+
+app.get('/api/health', async (req, res) => {
+  try {
+    let dbStatus = 'disconnected';
+    try {
+      await sequelize.authenticate();
+      dbStatus = 'connected';
+    } catch (_) {
+      dbStatus = 'disconnected';
+    }
+    res.json({ 
+      status: 'OK', 
+      message: 'dekoartizan API is running',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      database: dbStatus,
+      uptime: process.uptime(),
+      memory: process.memoryUsage()
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'ERROR',
+      message: 'Service unavailable',
+      database: 'disconnected',
+      error: error.message
+    });
+  }
+});
+
+// Root health endpoint
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// API routes placeholder
+app.use('/api', (req, res) => {
+  res.json({ message: 'API endpoint', path: req.path });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    error: 'Kaynak bulunamadı',
+    code: 'NOT_FOUND',
+    details: { path: req.originalUrl, method: req.method }
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+    code: err.code || 'INTERNAL_ERROR'
+  });
+});
+
+// Start server
+const startServer = async () => {
+  try {
+    await initializeDatabase();
+    
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 dekoartizan Backend Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
+    });
+
+    server.on('error', (error) => {
+      console.error('❌ Server error:', error);
+      process.exit(1);
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+// Graceful shutdown
+const gracefulShutdown = async (signal) => {
+  console.log(`${signal} signal received, shutting down server gracefully...`);
+  
+  try {
+    await closeConnection();
+    console.log('✅ Database connection closed');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during graceful shutdown:', error);
+    process.exit(1);
+  }
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});

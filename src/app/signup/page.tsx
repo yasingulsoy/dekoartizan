@@ -13,6 +13,7 @@ export default function SignUpPage() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -137,6 +138,44 @@ export default function SignUpPage() {
                   required
                   placeholder="ornek@email.com"
                   value={formData.email}
+                  onChange={handleChange}
+                  className="bg-transparent placeholder:text-black/40"
+                />
+              </InputGroup>
+            </div>
+
+            {/* Phone Input */}
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
+                Telefon Numarası
+              </label>
+              <InputGroup className="bg-[#F0F0F0] rounded-full">
+                <InputGroup.Text>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
+                  </svg>
+                </InputGroup.Text>
+                <InputGroup.Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  placeholder="05XX XXX XX XX"
+                  value={formData.phone}
                   onChange={handleChange}
                   className="bg-transparent placeholder:text-black/40"
                 />
@@ -359,7 +398,7 @@ export default function SignUpPage() {
           </div>
 
           {/* Social Signup Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div>
             <Button
               type="button"
               variant="outline"
@@ -376,20 +415,6 @@ export default function SignUpPage() {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               Google
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full rounded-full py-6 border-black/20 hover:bg-[#F0F0F0] flex items-center justify-center"
-            >
-              <Image
-                src="/icons/facebook.svg"
-                height={20}
-                width={20}
-                alt="Facebook"
-                className="mr-2"
-              />
-              Facebook
             </Button>
           </div>
         </form>

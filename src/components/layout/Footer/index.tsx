@@ -127,6 +127,23 @@ const Footer = () => {
               />
             </Link>
           </div>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 text-sm text-black/60 mt-4">
+            <span>© {new Date().getFullYear()} dekoartizan</span>
+            <span className="hidden sm:inline">•</span>
+            <span>
+              Geliştirici:{" "}
+              <Link
+                href="https://cengaversoft.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-black transition-colors font-medium"
+              >
+                cengaversoft.com
+              </Link>
+            </span>
+            <span className="hidden sm:inline">•</span>
+            <span>Yasin Gülsoy</span>
+          </div>
         </div>
         <LayoutSpacing />
       </div>

@@ -214,7 +214,7 @@ export default function SignInPage() {
           </div>
 
           {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div>
             <Button
               type="button"
               variant="outline"
@@ -231,20 +231,6 @@ export default function SignInPage() {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               Google
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full rounded-full py-6 border-black/20 hover:bg-[#F0F0F0] flex items-center justify-center"
-            >
-              <Image
-                src="/icons/facebook.svg"
-                height={20}
-                width={20}
-                alt="Facebook"
-                className="mr-2"
-              />
-              Facebook
             </Button>
           </div>
         </form>
