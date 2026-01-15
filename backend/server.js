@@ -131,15 +131,18 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// Static files - resimler için
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Root health endpoint
 app.get('/', (req, res) => {
   res.status(200).send('OK');
 });
 
-// API routes placeholder
-app.use('/api', (req, res) => {
-  res.json({ message: 'API endpoint', path: req.path });
-});
+// API routes
+app.use('/api/products', require('./routes/products'));
+app.use('/api/categories', require('./routes/categories'));
+app.use('/api/orders', require('./routes/orders'));
 
 // 404 handler
 app.use('*', (req, res) => {

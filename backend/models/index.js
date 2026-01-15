@@ -1,0 +1,33 @@
+const Product = require('./Product');
+const ProductImage = require('./ProductImage');
+const Category = require('./Category');
+const SubCategory = require('./SubCategory');
+const Order = require('./Order');
+const OrderItem = require('./OrderItem');
+const User = require('./User');
+
+// Model ilişkileri
+Product.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
+Product.belongsTo(SubCategory, { foreignKey: 'sub_category_id', as: 'subCategory' });
+Product.hasMany(ProductImage, { foreignKey: 'product_id', as: 'images' });
+
+Category.hasMany(SubCategory, { foreignKey: 'category_id', as: 'subCategories' });
+SubCategory.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
+
+ProductImage.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
+Order.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Order.hasMany(OrderItem, { foreignKey: 'order_id', as: 'items' });
+
+OrderItem.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
+OrderItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
+module.exports = {
+  Product,
+  ProductImage,
+  Category,
+  SubCategory,
+  Order,
+  OrderItem,
+  User
+};

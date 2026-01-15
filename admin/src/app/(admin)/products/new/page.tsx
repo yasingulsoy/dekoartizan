@@ -1,20 +1,68 @@
-import type { Metadata } from "next";
+"use client";
 import React from "react";
-
-export const metadata: Metadata = {
-  title: "Yeni Ürün - dekoartizan Admin",
-  description: "Yeni ürün ekleyin",
-};
+import { useRouter } from "next/navigation";
+import ProductForm from "@/components/products/ProductForm";
 
 export default function NewProductPage() {
+  const router = useRouter();
+
+  const handleSubmit = async (formData: any, images: File[]) => {
+    try {
+      // Önce ürünü oluştur
+      const productResponse = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const productResult = await productResponse.json();
+
+      if (!productResult.success) {
+        throw new Error(productResult.error || "Ürün oluşturulamadı");
+      }
+
+      const productId = productResult.data.id;
+
+      // Resimleri yükle
+      if (images.length > 0) {
+        const formDataImages = new FormData();
+        images.forEach((image) => {
+          formDataImages.append("images", image);
+        });
+
+        const imagesResponse = await fetch(
+          `http://localhost:5000/api/products/${productId}/images`,
+          {
+            method: "POST",
+            body: formDataImages,
+          }
+        );
+
+        const imagesResult = await imagesResponse.json();
+
+        if (!imagesResult.success) {
+          throw new Error(imagesResult.error || "Resimler yüklenemedi");
+        }
+      }
+
+      // Başarılı, ürünler sayfasına yönlendir
+      router.push("/products");
+      router.refresh();
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
-      <h1 className="text-2xl font-semibold text-gray-800 dark:text-white/90 mb-4">
-        Yeni Ürün Ekle
-      </h1>
-      <p className="text-gray-500 dark:text-gray-400">
-        Ürün ekleme formu yakında eklenecek...
-      </p>
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+        <h1 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-white/90">
+          Yeni Ürün Ekle
+        </h1>
+      </div>
+      <ProductForm onSubmit={handleSubmit} />
     </div>
   );
 }
