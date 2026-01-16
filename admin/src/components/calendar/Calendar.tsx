@@ -44,6 +44,14 @@ const Calendar: React.FC = () => {
     setEvents([]);
   }, []);
 
+  const resetModalFields = () => {
+    setEventTitle("");
+    setEventStartDate("");
+    setEventEndDate("");
+    setEventLevel("");
+    setSelectedEvent(null);
+  };
+
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
     setEventStartDate(selectInfo.startStr);
@@ -91,14 +99,6 @@ const Calendar: React.FC = () => {
     }
     closeModal();
     resetModalFields();
-  };
-
-  const resetModalFields = () => {
-    setEventTitle("");
-    setEventStartDate("");
-    setEventEndDate("");
-    setEventLevel("");
-    setSelectedEvent(null);
   };
 
   return (
