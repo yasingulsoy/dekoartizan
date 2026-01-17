@@ -34,11 +34,8 @@ const Order = sequelize.define('Order', {
     validate: {
       min: 0,
       max: 5
-    },
-    references: {
-      model: 'order_statuses',
-      key: 'code'
     }
+    // Foreign key ilişkisi belongsTo ile yönetiliyor (models/index.js)
   },
   payment_status: {
     type: DataTypes.STRING(50),

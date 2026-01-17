@@ -5,12 +5,28 @@ import { RootState } from "@/lib/store";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { usePathname } from "next/navigation";
+import { useCartSidebar } from "@/context/CartSidebarContext";
 
 const CartBtn = () => {
   const { cart } = useAppSelector((state: RootState) => state.carts);
+  const pathname = usePathname();
+  const { openSidebar } = useCartSidebar();
+  const isHomePage = pathname === "/";
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isHomePage) {
+      e.preventDefault();
+      openSidebar();
+    }
+  };
 
   return (
-    <Link href="/cart" className="relative md:mr-[14px] p-1">
+    <Link
+      href="/cart"
+      onClick={handleClick}
+      className="relative md:mr-[14px] p-1"
+    >
       <Image
         priority
         src="/icons/cart.svg"

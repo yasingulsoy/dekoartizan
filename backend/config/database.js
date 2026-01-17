@@ -52,8 +52,15 @@ const testConnection = async () => {
 
 const syncDatabase = async () => {
   try {
+    // Tüm modelleri import et (ilişkilerin kurulması için)
+    require('../models');
+    
     const options = process.env.NODE_ENV === 'development' 
-      ? { alter: true, logging: console.log }
+      ? { 
+          alter: true, 
+          logging: false, // Çok fazla log çıktısı olmasın
+          force: false // force: true veritabanını siler, dikkatli kullan!
+        }
       : { alter: false, logging: false };
     
     await sequelize.sync(options);
@@ -61,6 +68,7 @@ const syncDatabase = async () => {
     return true;
   } catch (error) {
     console.error('❌ Database sync failed:', error.message);
+    console.error('Full error:', error);
     throw error;
   }
 };

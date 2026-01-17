@@ -25,11 +25,8 @@ const OrderItem = sequelize.define('OrderItem', {
   },
   product_variant_id: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'product_variants',
-      key: 'id'
-    }
+    allowNull: true
+    // product_variants tablosu henüz tanımlı değil, referans kaldırıldı
   },
   product_name: {
     type: DataTypes.STRING(255),
