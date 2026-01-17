@@ -253,10 +253,20 @@ const ProductForm: React.FC<ProductFormProps> = ({
         `${API_URL}/api/products/${productId}/images/reorder`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
           body: JSON.stringify({ imageIds }),
         }
       );
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ 
+          error: `HTTP ${response.status}: ${response.statusText}` 
+        }));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
       
       const result = await response.json();
       
@@ -265,7 +275,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
       }
       
       // Ürünü yeniden yükle ki güncel resim sıralamasını alalım
-      const productResponse = await fetch(`${API_URL}/api/products/${productId}`);
+      const productResponse = await fetch(`${API_URL}/api/products/${productId}`, {
+        credentials: "include",
+      });
+      
+      if (!productResponse.ok) {
+        throw new Error(`Ürün bilgileri alınamadı: ${productResponse.statusText}`);
+      }
+      
       const productResult = await productResponse.json();
       
       if (productResult.success && productResult.data.images) {
@@ -280,6 +297,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         setUploadedImages(sortedImages);
       }
     } catch (err: any) {
+      console.error("Resim sıralama hatası:", err);
       throw err;
     }
   };

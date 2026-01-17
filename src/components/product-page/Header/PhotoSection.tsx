@@ -2,10 +2,22 @@
 
 import { Product } from "@/types/product.types";
 import Image from "next/image";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const PhotoSection = ({ data }: { data: Product }) => {
   const [selected, setSelected] = useState<string>(data.srcUrl);
+  
+  // srcUrl veya gallery değiştiğinde selected'i güncelle
+  useEffect(() => {
+    // Eğer seçili resim gallery'de yoksa, yeni srcUrl'i seç
+    if (data.srcUrl) {
+      const isSelectedInGallery = data.gallery && data.gallery.length > 0 && data.gallery.includes(selected);
+      if (!isSelectedInGallery) {
+        setSelected(data.srcUrl);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.srcUrl, data.gallery]);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   // background-position için yüzde değerleri (0-100)

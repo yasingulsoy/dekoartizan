@@ -465,10 +465,17 @@ router.put('/:id/images/:imageId', async (req, res) => {
 
 router.delete('/:id/images/:imageId', async (req, res) => {
   try {
+    const product = await Product.findByPk(req.params.id);
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
+    }
+    
     const image = await ProductImage.findByPk(req.params.imageId);
     if (!image || image.product_id !== parseInt(req.params.id)) {
       return res.status(404).json({ success: false, error: 'Resim bulunamadı' });
     }
+    
+    const wasPrimary = image.is_primary;
     
     // Göreceli yoldan tam yolu oluştur
     const fullPath = path.join(__dirname, '..', image.file_path);
@@ -477,6 +484,31 @@ router.delete('/:id/images/:imageId', async (req, res) => {
     }
     
     await image.destroy();
+    
+    // Eğer silinen resim ana resimse, kalan resimlerden en küçük display_order'a sahip olanı ana resim yap
+    if (wasPrimary) {
+      const remainingImages = await ProductImage.findAll({
+        where: { product_id: product.id },
+        order: [['display_order', 'ASC']],
+        limit: 1
+      });
+      
+      if (remainingImages.length > 0) {
+        const newPrimaryImage = remainingImages[0];
+        await ProductImage.update(
+          { is_primary: true },
+          { where: { id: newPrimaryImage.id } }
+        );
+        
+        // Ürünün main_image_url'ini güncelle
+        product.main_image_url = newPrimaryImage.image_url;
+        await product.save();
+      } else {
+        // Hiç resim kalmadıysa main_image_url'i null yap
+        product.main_image_url = null;
+        await product.save();
+      }
+    }
     
     res.json({ success: true, message: 'Resim silindi' });
   } catch (error) {
@@ -495,8 +527,16 @@ router.patch('/:id/images/reorder', async (req, res) => {
     
     const { imageIds } = req.body; // [1, 3, 2, 4] gibi sıralı ID'ler
     
+    if (!imageIds) {
+      return res.status(400).json({ success: false, error: 'imageIds gerekli' });
+    }
+    
     if (!Array.isArray(imageIds)) {
       return res.status(400).json({ success: false, error: 'imageIds bir dizi olmalıdır' });
+    }
+    
+    if (imageIds.length === 0) {
+      return res.status(400).json({ success: false, error: 'En az bir resim ID\'si gerekli' });
     }
     
     // Tüm resimlerin bu ürüne ait olduğunu kontrol et
