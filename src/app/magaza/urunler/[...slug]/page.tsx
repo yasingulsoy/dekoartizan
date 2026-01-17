@@ -3,7 +3,7 @@ import ProductListSec from "@/components/common/ProductListSec";
 import BreadcrumbProduct from "@/components/product-page/BreadcrumbProduct";
 import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
-import { getProductById, getRelatedProducts } from "@/lib/products";
+import { getProductBySlug, getRelatedProducts } from "@/lib/products";
 import { notFound } from "next/navigation";
 import { BASE_URL } from "@/lib/api";
 
@@ -13,8 +13,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const productId = Number(slug[0]);
-  const product = await getProductById(productId);
+  const productSlug = slug.join('/');
+  const product = await getProductBySlug(productSlug);
 
   if (!product) {
     return {
@@ -27,11 +27,11 @@ export async function generateMetadata({
   const finalPrice =
     product.discount.percentage > 0
       ? product.price * (1 - product.discount.percentage / 100)
+      : product.discount.amount > 0
+      ? product.discount.amount
       : product.price;
 
-  const productUrl = `${baseUrl}/magaza/urunler/${product.id}/${product.title
-    .split(" ")
-    .join("-")}`;
+  const productUrl = `${baseUrl}/magaza/urunler/${product.slug || product.title.toLowerCase().split(" ").join("-")}`;
   const productImage = `${baseUrl}${product.srcUrl}`;
 
   return {
@@ -71,15 +71,15 @@ export default async function ProductPage({
   params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = await params;
-  const productId = Number(slug[0]);
-  const productData = await getProductById(productId);
+  const productSlug = slug.join('/');
+  const productData = await getProductBySlug(productSlug);
 
   if (!productData?.title) {
     notFound();
   }
 
   // İlgili ürünleri çek (şimdilik tüm ürünlerden, daha sonra kategoriye göre filtreleyebiliriz)
-  const relatedProducts = await getRelatedProducts(undefined, productId);
+  const relatedProducts = await getRelatedProducts(undefined, productData.id);
 
   // JSON-LD Structured Data (Schema.org Product)
   const baseUrl = BASE_URL;
@@ -90,9 +90,7 @@ export default async function ProductPage({
       ? productData.discount.amount
       : productData.price;
 
-  const productUrl = `${baseUrl}/magaza/urunler/${productData.id}/${productData.title
-    .split(" ")
-    .join("-")}`;
+  const productUrl = `${baseUrl}/magaza/urunler/${productData.slug || productData.title.toLowerCase().split(" ").join("-")}`;
   const productImage = `${baseUrl}${productData.srcUrl}`;
 
   const jsonLd = {

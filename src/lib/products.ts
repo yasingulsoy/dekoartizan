@@ -21,7 +21,51 @@ interface BackendProduct {
   is_new?: boolean;
   is_featured?: boolean;
   is_on_sale?: boolean;
+  category?: {
+    id: number;
+    name: string;
+    slug?: string;
+  } | null;
+  subCategory?: {
+    id: number;
+    name: string;
+    slug?: string;
+  } | null;
 }
+
+// Slug oluşturma fonksiyonu (kategori/alt-kategori/urun-adi formatında, küçük harfli)
+const createProductSlug = (
+  categoryName: string | null | undefined,
+  subCategoryName: string | null | undefined,
+  productName: string
+): string => {
+  const normalizeText = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9\s-]/g, '') // Özel karakterleri kaldır
+      .trim()
+      .replace(/\s+/g, '-') // Boşlukları tire ile değiştir
+      .replace(/-+/g, '-') // Çoklu tireleri tek tireye çevir
+      .replace(/^-|-$/g, ''); // Başta ve sonda tire varsa kaldır
+  };
+
+  const categorySlug = categoryName ? normalizeText(categoryName) : '';
+  const subCategorySlug = subCategoryName ? normalizeText(subCategoryName) : '';
+  const productSlug = normalizeText(productName);
+  
+  const parts: string[] = [];
+  if (categorySlug) parts.push(categorySlug);
+  if (subCategorySlug) parts.push(subCategorySlug);
+  parts.push(productSlug);
+  
+  return parts.join('/');
+};
 
 // Backend ürününü frontend Product formatına dönüştür
 const transformProduct = (backendProduct: BackendProduct): Product => {
@@ -68,6 +112,13 @@ const transformProduct = (backendProduct: BackendProduct): Product => {
     gallery.push("/images/placeholder.jpg");
   }
   
+  // Slug oluştur
+  const productSlug = createProductSlug(
+    backendProduct.category?.name,
+    backendProduct.subCategory?.name,
+    backendProduct.name
+  );
+  
   return {
     id: backendProduct.id,
     title: backendProduct.name,
@@ -82,6 +133,8 @@ const transformProduct = (backendProduct: BackendProduct): Product => {
     },
     rating: backendProduct.rating ? parseFloat(backendProduct.rating.toString()) : 0,
     shortDescription: backendProduct.short_description || "",
+    slug: productSlug,
+    categoryName: backendProduct.category?.name || null,
   };
 };
 
@@ -122,6 +175,20 @@ export const getProductById = async (id: number): Promise<Product | null> => {
     return null;
   } catch (error) {
     console.error(`Ürün ${id} yüklenemedi:`, error);
+    return null;
+  }
+};
+
+// API'den slug'a göre ürün çek
+export const getProductBySlug = async (slug: string): Promise<Product | null> => {
+  try {
+    // Tüm ürünleri çek ve slug'a göre filtrele
+    const products = await getAllProducts();
+    const product = products.find((p) => p.slug === slug);
+    
+    return product || null;
+  } catch (error) {
+    console.error(`Ürün slug ${slug} yüklenemedi:`, error);
     return null;
   }
 };

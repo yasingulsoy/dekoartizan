@@ -12,4 +12,6 @@ export type Product = {
   discount: Discount;
   rating: number;
   shortDescription?: string;
+  slug?: string;
+  categoryName?: string | null;
 };

@@ -2,10 +2,46 @@
 
 import { Product } from "@/types/product.types";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 const PhotoSection = ({ data }: { data: Product }) => {
   const [selected, setSelected] = useState<string>(data.srcUrl);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const imageRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return;
+
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Zoom lens boyutu
+    const lensSize = 150;
+    const halfLens = lensSize / 2;
+
+    // Zoom lens pozisyonunu resmin sınırları içinde tut
+    const clampedX = Math.max(halfLens, Math.min(x, rect.width - halfLens));
+    const clampedY = Math.max(halfLens, Math.min(y, rect.height - halfLens));
+
+    setZoomPosition({ x: clampedX, y: clampedY });
+
+    // Büyütülmüş resmin pozisyonu (zoom lens'in gösterdiği kısım)
+    const zoomX = -((clampedX - halfLens) / (rect.width - lensSize)) * 100;
+    const zoomY = -((clampedY - halfLens) / (rect.height - lensSize)) * 100;
+    setImagePosition({ x: zoomX, y: zoomY });
+  };
+
+  const handleMouseEnter = () => {
+    setIsZoomed(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsZoomed(false);
+  };
 
   return (
     <div className="flex flex-col-reverse lg:flex-row lg:space-x-3.5">
@@ -31,16 +67,54 @@ const PhotoSection = ({ data }: { data: Product }) => {
         </div>
       )}
 
-      <div className="flex items-center justify-center bg-[#F0EEED] rounded-[13px] sm:rounded-[20px] w-full sm:w-96 md:w-full mx-auto h-full max-h-[530px] min-h-[330px] lg:min-h-[380px] xl:min-h-[530px] overflow-hidden mb-3 lg:mb-0">
-        <Image
-          src={selected}
-          width={444}
-          height={530}
-          className="rounded-md w-full h-full object-cover hover:scale-110 transition-all duration-500"
-          alt={data.title}
-          priority
-          unoptimized
-        />
+      <div className="relative w-full">
+        <div
+          ref={imageRef}
+          className="relative flex items-center justify-center bg-[#F0EEED] rounded-[13px] sm:rounded-[20px] w-full sm:w-96 md:w-full mx-auto h-full max-h-[530px] min-h-[330px] lg:min-h-[380px] xl:min-h-[530px] overflow-hidden mb-3 lg:mb-0 cursor-zoom-in"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <Image
+            src={selected}
+            width={444}
+            height={530}
+            className="rounded-md w-full h-full object-cover transition-all duration-300"
+            alt={data.title}
+            priority
+            unoptimized
+          />
+          
+          {/* Zoom Lens */}
+          {isZoomed && (
+            <div
+              ref={zoomRef}
+              className="absolute pointer-events-none border-2 border-white shadow-lg rounded-full bg-white/20 backdrop-blur-sm"
+              style={{
+                width: '150px',
+                height: '150px',
+                left: `${zoomPosition.x}px`,
+                top: `${zoomPosition.y}px`,
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          )}
+        </div>
+
+        {/* Zoomed Image Preview */}
+        {isZoomed && (
+          <div className="hidden lg:block absolute top-0 left-full ml-4 w-[444px] h-[530px] bg-[#F0EEED] rounded-[20px] overflow-hidden border-2 border-gray-200 shadow-2xl z-10">
+            <div
+              className="w-full h-full"
+              style={{
+                backgroundImage: `url(${selected})`,
+                backgroundSize: '200%',
+                backgroundPosition: `${imagePosition.x}% ${imagePosition.y}%`,
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

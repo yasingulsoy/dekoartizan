@@ -24,7 +24,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
   return (
     <div className="flex items-start space-x-4">
       <Link
-        href={`/magaza/urunler/${data.id}/${data.name.split(" ").join("-")}`}
+        href={`/magaza/urunler/${data.slug || data.name.toLowerCase().split(" ").join("-")}`}
         className="bg-[#F0EEED] rounded-lg w-full min-w-[100px] max-w-[100px] sm:max-w-[124px] aspect-square overflow-hidden"
       >
         <Image
@@ -39,7 +39,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
       <div className="flex w-full self-stretch flex-col">
         <div className="flex items-center justify-between">
           <Link
-            href={`/magaza/urunler/${data.id}/${data.name.split(" ").join("-")}`}
+            href={`/magaza/urunler/${data.slug || data.name.toLowerCase().split(" ").join("-")}`}
             className="text-black font-bold text-base xl:text-xl"
           >
             {data.name}

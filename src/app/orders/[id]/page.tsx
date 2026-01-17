@@ -311,7 +311,7 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <Link
-                    href={`/magaza/urunler/${item.product.id}/${item.product.slug}`}
+                    href={`/magaza/urunler/${item.product.slug || item.product.name.toLowerCase().split(" ").join("-")}`}
                     className="text-base font-medium text-gray-900 hover:text-gray-600 block mb-1"
                   >
                     {item.product.name}

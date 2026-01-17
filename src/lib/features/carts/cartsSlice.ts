@@ -30,6 +30,7 @@ export type CartItem = {
   attributes: string[];
   discount: Discount;
   quantity: number;
+  slug?: string;
 };
 
 export type Cart = {
