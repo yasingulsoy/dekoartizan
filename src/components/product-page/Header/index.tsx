@@ -47,7 +47,7 @@ const Header = ({ data }: { data: Product }) => {
               </span>
             ) : data.discount.amount > 0 ? (
               <span className="font-bold text-black text-2xl sm:text-[32px]">
-                {`₺${data.price - data.discount.amount}`}
+                {`₺${data.discount.amount.toFixed(2)}`}
               </span>
             ) : (
               <span className="font-bold text-black text-2xl sm:text-[32px]">
@@ -71,15 +71,16 @@ const Header = ({ data }: { data: Product }) => {
             ) : (
               data.discount.amount > 0 && (
                 <span className="font-medium text-[10px] sm:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-                  {`-₺${data.discount.amount}`}
+                  {`-₺${(data.price - data.discount.amount).toFixed(2)}`}
                 </span>
               )
             )}
           </div>
-          <p className="text-sm sm:text-base text-black/60 mb-5">
-            Her duruma uygun bu grafikli tişört. Yumuşak ve nefes alabilir bir
-            kumaştan üretilmiş olup, üstün konfor ve stil sunar.
-          </p>
+          {data.shortDescription && (
+            <p className="text-sm sm:text-base text-black/60 mb-5">
+              {data.shortDescription}
+            </p>
+          )}
           <hr className="h-[1px] border-t-black/10 mb-5" />
           <ColorSelection />
           <hr className="h-[1px] border-t-black/10 my-5" />

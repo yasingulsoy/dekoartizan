@@ -30,13 +30,11 @@ const DressStyle = () => {
           <DressStyleCard
             title="Günlük"
             url="/shop#casual"
-            imageUrl="/images/1_org_zoom.jpg"
             className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px]"
           />
           <DressStyleCard
             title="Resmi"
             url="/shop#formal"
-            imageUrl="/images/1_org_zoom(1).jpg"
             className="md:max-w-[684px] h-[190px]"
           />
         </motion.div>
@@ -50,13 +48,11 @@ const DressStyle = () => {
           <DressStyleCard
             title="Parti"
             url="/shop#party"
-            imageUrl="/images/1_org_zoom(2).jpg"
             className="md:max-w-[684px] h-[190px]"
           />
           <DressStyleCard
             title="Spor"
             url="/shop#gym"
-            imageUrl="/images/1_org_zoom(3).jpg"
             className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px]"
           />
         </motion.div>

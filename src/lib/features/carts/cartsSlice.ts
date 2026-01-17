@@ -9,10 +9,10 @@ const calcAdjustedTotalPrice = (
   quantity?: number
 ): number => {
   return (
-    (totalPrice + data.discount.percentage > 0
+    (data.discount.percentage > 0
       ? Math.round(data.price - (data.price * data.discount.percentage) / 100)
       : data.discount.amount > 0
-      ? Math.round(data.price - data.discount.amount)
+      ? data.discount.amount
       : data.price) * (quantity ? quantity : data.quantity)
   );
 };

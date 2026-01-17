@@ -178,6 +178,19 @@ router.post('/:id/image', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Blog bulunamadı' });
     }
     
+    // Eski resmi sil
+    if (blog.image) {
+      const oldImagePath = path.join(__dirname, '..', blog.image);
+      if (fs.existsSync(oldImagePath)) {
+        try {
+          fs.unlinkSync(oldImagePath);
+          console.log('Eski blog resmi silindi:', oldImagePath);
+        } catch (error) {
+          console.error('Eski resim silme hatası:', error);
+        }
+      }
+    }
+    
     const upload = createBlogUploadMiddleware(blog.id);
     upload.single('image')(req, res, async (err) => {
       if (err) {
@@ -219,6 +232,22 @@ router.put('/:id', async (req, res) => {
     }
     
     const updateData = { ...req.body };
+    
+    // Eğer resim alanı boş/null gönderilirse eski resmi sil
+    if (updateData.image === null || updateData.image === '' || updateData.image === undefined) {
+      if (blog.image) {
+        const oldImagePath = path.join(__dirname, '..', blog.image);
+        if (fs.existsSync(oldImagePath)) {
+          try {
+            fs.unlinkSync(oldImagePath);
+            console.log('Blog resmi silindi:', oldImagePath);
+          } catch (error) {
+            console.error('Resim silme hatası:', error);
+          }
+        }
+        updateData.image = null;
+      }
+    }
     
     // Eğer başlık değiştiyse slug'ı güncelle
     if (updateData.title && updateData.title !== blog.title) {

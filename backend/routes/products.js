@@ -69,7 +69,12 @@ router.get('/:id', async (req, res) => {
       include: [
         { model: Category, as: 'category' },
         { model: SubCategory, as: 'subCategory' },
-        { model: ProductImage, as: 'images', order: [['display_order', 'ASC']] }
+        { 
+          model: ProductImage, 
+          as: 'images',
+          separate: true,
+          order: [['display_order', 'ASC']]
+        }
       ]
     });
     
@@ -164,11 +169,11 @@ router.post('/:id/images', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
     }
     
-    if (!product.sku) {
-      return res.status(400).json({ success: false, error: 'Ürün SKU\'su bulunamadı' });
+    if (!product.slug) {
+      return res.status(400).json({ success: false, error: 'Ürün slug\'ı bulunamadı' });
     }
     
-    const upload = createUploadMiddleware(product.sku, 5);
+    const upload = createUploadMiddleware(product.slug, 5);
     upload.array('images', 5)(req, res, async (err) => {
       if (err) {
         return res.status(400).json({ success: false, error: err.message });
@@ -184,13 +189,26 @@ router.post('/:id/images', async (req, res) => {
         
         for (let i = 0; i < req.files.length; i++) {
           const file = req.files[i];
-          const imageUrl = `/uploads/products/${product.sku.replace(/[^a-zA-Z0-9-_]/g, '_')}/${file.filename}`;
+          const ext = path.extname(file.filename);
+          
+          // Dosya adını slug ile eşleştir: ilk resim slug, diğerleri slug-1, slug-2...
+          const fileName = i === 0 ? `${product.slug}${ext}` : `${product.slug}-${i}${ext}`;
+          const newFilePath = path.join(path.dirname(file.path), fileName);
+          
+          // Dosyayı yeniden adlandır
+          if (file.path !== newFilePath) {
+            fs.renameSync(file.path, newFilePath);
+          }
+          
+          // Göreceli yol oluştur
+          const imageUrl = `/uploads/products/${product.slug}/${fileName}`;
+          const relativePath = `uploads/products/${product.slug}/${fileName}`;
           
           const image = await ProductImage.create({
             product_id: product.id,
             image_url: imageUrl,
-            file_name: file.filename,
-            file_path: file.path,
+            file_name: fileName,
+            file_path: relativePath, // Göreceli yol kaydet
             file_size: file.size,
             mime_type: file.mimetype,
             display_order: i,
@@ -230,28 +248,81 @@ router.put('/:id', async (req, res) => {
     }
     
     const updateData = { ...req.body };
+    let oldSlug = product.slug;
+    let newSlug = product.slug;
     
-    if (updateData.name && updateData.name !== product.name) {
-      updateData.slug = createSlug(updateData.name);
+    // Boş string'leri null'a çevir (integer alanlar için)
+    if (updateData.max_order_quantity === '' || updateData.max_order_quantity === null) {
+      updateData.max_order_quantity = null;
+    } else if (updateData.max_order_quantity !== undefined) {
+      updateData.max_order_quantity = parseInt(updateData.max_order_quantity);
     }
     
-    if (updateData.sku && updateData.sku !== product.sku) {
-      const oldSku = product.sku;
-      const newSku = updateData.sku;
-      
-      const oldDir = path.join(uploadsDir, oldSku.replace(/[^a-zA-Z0-9-_]/g, '_'));
-      const newDir = path.join(uploadsDir, newSku.replace(/[^a-zA-Z0-9-_]/g, '_'));
+    if (updateData.category_id === '' || updateData.category_id === null) {
+      updateData.category_id = null;
+    } else if (updateData.category_id !== undefined) {
+      updateData.category_id = parseInt(updateData.category_id);
+    }
+    
+    if (updateData.sub_category_id === '' || updateData.sub_category_id === null) {
+      updateData.sub_category_id = null;
+    } else if (updateData.sub_category_id !== undefined) {
+      updateData.sub_category_id = parseInt(updateData.sub_category_id);
+    }
+    
+    // Sayısal alanları parse et
+    if (updateData.price !== undefined) updateData.price = parseFloat(updateData.price);
+    if (updateData.discount_price !== undefined && updateData.discount_price !== '' && updateData.discount_price !== null) {
+      updateData.discount_price = parseFloat(updateData.discount_price);
+    } else if (updateData.discount_price === '' || updateData.discount_price === null) {
+      updateData.discount_price = null;
+    }
+    if (updateData.discount_percentage !== undefined) updateData.discount_percentage = parseInt(updateData.discount_percentage) || 0;
+    if (updateData.stock_quantity !== undefined) updateData.stock_quantity = parseInt(updateData.stock_quantity) || 0;
+    if (updateData.min_order_quantity !== undefined) updateData.min_order_quantity = parseInt(updateData.min_order_quantity) || 1;
+    if (updateData.weight !== undefined && updateData.weight !== '' && updateData.weight !== null) {
+      updateData.weight = parseFloat(updateData.weight);
+    } else if (updateData.weight === '' || updateData.weight === null) {
+      updateData.weight = null;
+    }
+    
+    if (updateData.name && updateData.name !== product.name) {
+      newSlug = createSlug(updateData.name);
+      updateData.slug = newSlug;
+    }
+    
+    // Slug değiştiyse klasörü ve resim yollarını güncelle
+    if (newSlug !== oldSlug) {
+      const oldDir = path.join(uploadsDir, oldSlug);
+      const newDir = path.join(uploadsDir, newSlug);
       
       if (fs.existsSync(oldDir)) {
         fs.renameSync(oldDir, newDir);
         
         const images = await ProductImage.findAll({ where: { product_id: product.id } });
         for (const image of images) {
-          image.image_url = image.image_url.replace(
-            `/uploads/products/${oldSku.replace(/[^a-zA-Z0-9-_]/g, '_')}/`,
-            `/uploads/products/${newSku.replace(/[^a-zA-Z0-9-_]/g, '_')}/`
+          const oldImageUrl = image.image_url;
+          const newImageUrl = oldImageUrl.replace(
+            `/uploads/products/${oldSlug}/`,
+            `/uploads/products/${newSlug}/`
           );
-          await image.save();
+          const newFilePath = image.file_path.replace(
+            `uploads/products/${oldSlug}/`,
+            `uploads/products/${newSlug}/`
+          );
+          
+          await image.update({
+            image_url: newImageUrl,
+            file_path: newFilePath
+          });
+        }
+        
+        // Ana resim URL'ini de güncelle
+        if (product.main_image_url) {
+          updateData.main_image_url = product.main_image_url.replace(
+            `/uploads/products/${oldSlug}/`,
+            `/uploads/products/${newSlug}/`
+          );
         }
       }
     }
@@ -321,18 +392,23 @@ router.put('/:id/images/:imageId', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Resim bulunamadı' });
     }
     
-    if (!product.sku) {
-      return res.status(400).json({ success: false, error: 'Ürün SKU\'su bulunamadı' });
+    if (!product.slug) {
+      return res.status(400).json({ success: false, error: 'Ürün slug\'ı bulunamadı' });
     }
     
     const oldFileName = path.basename(image.file_path);
-    const oldFilePath = image.file_path;
+    // Eski dosyanın tam yolunu oluştur
+    const oldFilePath = path.join(__dirname, '..', image.file_path);
     
     if (fs.existsSync(oldFilePath)) {
       fs.unlinkSync(oldFilePath);
     }
     
-    const upload = createUpdateImageMiddleware(product.sku, oldFileName);
+    // Dosya adını koru, sadece uzantıyı güncelle
+    const ext = path.extname(oldFileName);
+    const baseName = path.basename(oldFileName, ext);
+    
+    const upload = createUpdateImageMiddleware(product.slug, oldFileName);
     upload.single('image')(req, res, async (err) => {
       if (err) {
         return res.status(400).json({ success: false, error: err.message });
@@ -343,14 +419,25 @@ router.put('/:id/images/:imageId', async (req, res) => {
       }
       
       try {
-        const cleanSku = product.sku.replace(/[^a-zA-Z0-9-_]/g, '_');
-        const imageUrl = `/uploads/products/${cleanSku}/${req.file.filename}`;
+        // Yeni dosyanın uzantısını al
+        const newExt = path.extname(req.file.filename);
+        // Dosya adını koru, uzantıyı güncelle
+        const finalFileName = `${baseName}${newExt}`;
+        const finalFilePath = path.join(path.dirname(req.file.path), finalFileName);
+        
+        // Dosyayı yeniden adlandır
+        if (req.file.path !== finalFilePath) {
+          fs.renameSync(req.file.path, finalFilePath);
+        }
+        
+        const imageUrl = `/uploads/products/${product.slug}/${finalFileName}`;
+        const relativePath = `uploads/products/${product.slug}/${finalFileName}`;
         
         // Resim bilgilerini güncelle
         await image.update({
           image_url: imageUrl,
-          file_name: req.file.filename,
-          file_path: req.file.path,
+          file_name: finalFileName,
+          file_path: relativePath, // Göreceli yol kaydet
           file_size: req.file.size,
           mime_type: req.file.mimetype
         });
@@ -383,8 +470,10 @@ router.delete('/:id/images/:imageId', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Resim bulunamadı' });
     }
     
-    if (fs.existsSync(image.file_path)) {
-      fs.unlinkSync(image.file_path);
+    // Göreceli yoldan tam yolu oluştur
+    const fullPath = path.join(__dirname, '..', image.file_path);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
     }
     
     await image.destroy();
@@ -396,6 +485,81 @@ router.delete('/:id/images/:imageId', async (req, res) => {
   }
 });
 
+// Resim sıralamasını güncelle
+router.patch('/:id/images/reorder', async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.id);
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
+    }
+    
+    const { imageIds } = req.body; // [1, 3, 2, 4] gibi sıralı ID'ler
+    
+    if (!Array.isArray(imageIds)) {
+      return res.status(400).json({ success: false, error: 'imageIds bir dizi olmalıdır' });
+    }
+    
+    // Tüm resimlerin bu ürüne ait olduğunu kontrol et
+    const images = await ProductImage.findAll({
+      where: { product_id: product.id }
+    });
+    
+    const imageIdsSet = new Set(imageIds);
+    const existingIdsSet = new Set(images.map(img => img.id));
+    
+    // Tüm ID'lerin mevcut olduğunu ve ürüne ait olduğunu kontrol et
+    for (const id of imageIds) {
+      if (!existingIdsSet.has(id)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: `ID ${id} bu ürüne ait değil` 
+        });
+      }
+    }
+    
+    // Sıralamayı güncelle
+    for (let i = 0; i < imageIds.length; i++) {
+      const imageId = imageIds[i];
+      await ProductImage.update(
+        { display_order: i },
+        { where: { id: imageId, product_id: product.id } }
+      );
+    }
+    
+    // İlk resmi ana resim yap
+    if (imageIds.length > 0) {
+      const firstImageId = imageIds[0];
+      const firstImage = await ProductImage.findByPk(firstImageId);
+      
+      // Önceki ana resmi kaldır
+      await ProductImage.update(
+        { is_primary: false },
+        { where: { product_id: product.id, is_primary: true } }
+      );
+      
+      // Yeni ana resmi ayarla
+      await ProductImage.update(
+        { is_primary: true },
+        { where: { id: firstImageId, product_id: product.id } }
+      );
+      
+      // Ürünün main_image_url'ini güncelle
+      if (firstImage) {
+        product.main_image_url = firstImage.image_url;
+        await product.save();
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Resim sıralaması güncellendi' 
+    });
+  } catch (error) {
+    console.error('Resim sıralama hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.delete('/:id', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -403,15 +567,17 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
     }
     
-    if (product.sku) {
+    if (product.slug) {
       const images = await ProductImage.findAll({ where: { product_id: product.id } });
       for (const image of images) {
-        if (fs.existsSync(image.file_path)) {
-          fs.unlinkSync(image.file_path);
+        // Göreceli yoldan tam yolu oluştur
+        const fullPath = path.join(__dirname, '..', image.file_path);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
         }
       }
       
-      deleteProductFolder(product.sku);
+      deleteProductFolder(product.slug);
     }
     
     await product.destroy();

@@ -94,7 +94,7 @@ const Header = () => {
           whileInView={{ y: "0", opacity: 1, rotate: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 2.3, duration: 0.8 }}
-          className="relative md:px-4 min-h-[448px] md:min-h-[428px] bg-cover bg-top xl:bg-[center_top_-1.6rem] bg-no-repeat bg-[url('/images/header-homepage.webp')] md:bg-[url('/images/header-homepage.webp')]"
+          className="relative md:px-4 min-h-[448px] md:min-h-[428px]"
         >
           <Image
             priority

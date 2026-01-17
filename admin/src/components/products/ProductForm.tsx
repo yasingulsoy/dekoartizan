@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Select from "../form/Select";
@@ -45,6 +45,7 @@ interface UploadedImage {
   id: number;
   url: string;
   is_primary?: boolean;
+  display_order?: number;
 }
 
 interface ProductFormProps {
@@ -89,6 +90,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const prevInitialImagesRef = useRef<string>('');
 
   // Kategorileri yükle
   useEffect(() => {
@@ -105,6 +107,50 @@ const ProductForm: React.FC<ProductFormProps> = ({
     };
     fetchCategories();
   }, []);
+
+  // initialData değiştiğinde formData'yı güncelle
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || "",
+        sku: initialData.sku || "",
+        category_id: initialData.category_id || "",
+        sub_category_id: initialData.sub_category_id || "",
+        short_description: initialData.short_description || "",
+        description: initialData.description || "",
+        price: initialData.price || "",
+        discount_price: initialData.discount_price || "",
+        discount_percentage: initialData.discount_percentage || "",
+        stock_quantity: initialData.stock_quantity || "0",
+        min_order_quantity: initialData.min_order_quantity || "1",
+        max_order_quantity: initialData.max_order_quantity || "",
+        weight: initialData.weight || "",
+        dimensions: initialData.dimensions || "",
+        is_featured: initialData.is_featured || false,
+        is_new: initialData.is_new || false,
+        is_on_sale: initialData.is_on_sale || false,
+        meta_title: initialData.meta_title || "",
+        meta_description: initialData.meta_description || "",
+        meta_keywords: initialData.meta_keywords || "",
+      });
+    }
+  }, [initialData]);
+
+  // initialImages değiştiğinde uploadedImages'i güncelle (sadece gerçekten değiştiğinde)
+  useEffect(() => {
+    if (initialImages) {
+      const currentImagesString = JSON.stringify(initialImages.map(img => ({ id: img.id, url: img.url, display_order: img.display_order })));
+      
+      if (prevInitialImagesRef.current !== currentImagesString) {
+        setUploadedImages(initialImages);
+        prevInitialImagesRef.current = currentImagesString;
+      }
+    } else if (prevInitialImagesRef.current !== '') {
+      // initialImages boş olduğunda da temizle
+      setUploadedImages([]);
+      prevInitialImagesRef.current = '';
+    }
+  }, [initialImages]);
 
   // Alt kategorileri yükle
   useEffect(() => {
@@ -194,6 +240,45 @@ const ProductForm: React.FC<ProductFormProps> = ({
       
       // Yüklenmiş resimlerden kaldır
       setUploadedImages((prev) => prev.filter((img) => img.id !== imageId));
+    } catch (err: any) {
+      throw err;
+    }
+  };
+
+  const handleImageReorder = async (imageIds: number[]) => {
+    if (!productId) return;
+    
+    try {
+      const response = await fetch(
+        `${API_URL}/api/products/${productId}/images/reorder`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageIds }),
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || "Resim sıralaması güncellenemedi");
+      }
+      
+      // Ürünü yeniden yükle ki güncel resim sıralamasını alalım
+      const productResponse = await fetch(`${API_URL}/api/products/${productId}`);
+      const productResult = await productResponse.json();
+      
+      if (productResult.success && productResult.data.images) {
+        const sortedImages = productResult.data.images
+          .sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0))
+          .map((img: any) => ({
+            id: img.id,
+            url: img.image_url,
+            is_primary: img.is_primary,
+            display_order: img.display_order,
+          }));
+        setUploadedImages(sortedImages);
+      }
     } catch (err: any) {
       throw err;
     }
@@ -352,7 +437,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               step="0.01"
               min="0"
               required
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -366,7 +451,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -380,7 +465,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               placeholder="0"
               min="0"
               max="100"
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -393,7 +478,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               onChange={handleChange}
               placeholder="0"
               min="0"
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -406,7 +491,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               onChange={handleChange}
               placeholder="1"
               min="1"
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -419,7 +504,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               onChange={handleChange}
               placeholder="Sınırsız"
               min="1"
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         </div>
@@ -441,7 +526,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -472,6 +557,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           productId={productId}
           onImageUpdate={handleImageUpdate}
           onImageDelete={handleImageDelete}
+          onImageReorder={handleImageReorder}
         />
       </div>
 

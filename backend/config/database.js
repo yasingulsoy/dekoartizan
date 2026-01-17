@@ -63,8 +63,18 @@ const syncDatabase = async () => {
         }
       : { alter: false, logging: false };
     
-    await sequelize.sync(options);
-    console.log('✅ Database tables synchronized');
+    try {
+      await sequelize.sync(options);
+      console.log('✅ Database tables synchronized');
+    } catch (syncError) {
+      // Constraint hatalarını ignore et (constraint zaten yoksa sorun değil)
+      if (syncError.name === 'SequelizeUnknownConstraintError') {
+        console.warn('⚠️ Constraint hatası göz ardı edildi (constraint mevcut değil):', syncError.constraint);
+        // Devam et, tablolar zaten senkronize
+      } else {
+        throw syncError;
+      }
+    }
     return true;
   } catch (error) {
     console.error('❌ Database sync failed:', error.message);

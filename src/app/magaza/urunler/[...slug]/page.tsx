@@ -10,9 +10,10 @@ import { BASE_URL } from "@/lib/api";
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
-  const productId = Number(params.slug[0]);
+  const { slug } = await params;
+  const productId = Number(slug[0]);
   const product = await getProductById(productId);
 
   if (!product) {
@@ -28,7 +29,7 @@ export async function generateMetadata({
       ? product.price * (1 - product.discount.percentage / 100)
       : product.price;
 
-  const productUrl = `${baseUrl}/shop/product/${product.id}/${product.title
+  const productUrl = `${baseUrl}/magaza/urunler/${product.id}/${product.title
     .split(" ")
     .join("-")}`;
   const productImage = `${baseUrl}${product.srcUrl}`;
@@ -67,9 +68,10 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>;
 }) {
-  const productId = Number(params.slug[0]);
+  const { slug } = await params;
+  const productId = Number(slug[0]);
   const productData = await getProductById(productId);
 
   if (!productData?.title) {
@@ -84,9 +86,11 @@ export default async function ProductPage({
   const finalPrice =
     productData.discount.percentage > 0
       ? productData.price * (1 - productData.discount.percentage / 100)
+      : productData.discount.amount > 0
+      ? productData.discount.amount
       : productData.price;
 
-  const productUrl = `${baseUrl}/shop/product/${productData.id}/${productData.title
+  const productUrl = `${baseUrl}/magaza/urunler/${productData.id}/${productData.title
     .split(" ")
     .join("-")}`;
   const productImage = `${baseUrl}${productData.srcUrl}`;

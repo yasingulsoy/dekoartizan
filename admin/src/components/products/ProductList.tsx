@@ -247,14 +247,14 @@ const ProductList: React.FC = () => {
                         {product.discount_price ? (
                           <>
                             <span className="text-red-600 line-through">
-                              ₺{product.price.toFixed(2)}
+                              ₺{Number(product.price).toFixed(2)}
                             </span>
                             <span className="ml-2 font-semibold">
-                              ₺{product.discount_price.toFixed(2)}
+                              ₺{Number(product.discount_price).toFixed(2)}
                             </span>
                           </>
                         ) : (
-                          <span>₺{product.price.toFixed(2)}</span>
+                          <span>₺{Number(product.price).toFixed(2)}</span>
                         )}
                       </div>
                     </td>

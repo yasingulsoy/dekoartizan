@@ -7,15 +7,14 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-const getStorage = (sku) => {
+const getStorage = (slug, fileIndex = 0) => {
   return multer.diskStorage({
     destination: (req, file, cb) => {
-      if (!sku) {
-        return cb(new Error('SKU gerekli'));
+      if (!slug) {
+        return cb(new Error('Slug gerekli'));
       }
       
-      const cleanSku = sku.replace(/[^a-zA-Z0-9-_]/g, '_');
-      const productDir = path.join(uploadsDir, cleanSku);
+      const productDir = path.join(uploadsDir, slug);
       
       if (!fs.existsSync(productDir)) {
         fs.mkdirSync(productDir, { recursive: true });
@@ -24,11 +23,10 @@ const getStorage = (sku) => {
       cb(null, productDir);
     },
     filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      // İlk resim slug ile aynı, diğerleri slug-1, slug-2 şeklinde
       const ext = path.extname(file.originalname);
-      const name = path.basename(file.originalname, ext);
-      const cleanName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
-      cb(null, `${cleanName}-${uniqueSuffix}${ext}`);
+      const fileName = fileIndex === 0 ? `${slug}${ext}` : `${slug}-${fileIndex}${ext}`;
+      cb(null, fileName);
     }
   });
 };
@@ -45,9 +43,32 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const createUploadMiddleware = (sku, maxFiles = 5) => {
+const createUploadMiddleware = (slug, maxFiles = 5) => {
+  // Her dosya için farklı index ile storage oluştur
+  // Bu yaklaşım çalışmayacak, multer'ın kendi mekanizmasını kullanmalıyız
+  // Bunun yerine products.js'te dosya adını manuel olarak ayarlayacağız
   return multer({
-    storage: getStorage(sku),
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        if (!slug) {
+          return cb(new Error('Slug gerekli'));
+        }
+        
+        const productDir = path.join(uploadsDir, slug);
+        
+        if (!fs.existsSync(productDir)) {
+          fs.mkdirSync(productDir, { recursive: true });
+        }
+        
+        cb(null, productDir);
+      },
+      filename: (req, file, cb) => {
+        // Dosya adı products.js'te ayarlanacak
+        const ext = path.extname(file.originalname);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `temp-${uniqueSuffix}${ext}`);
+      }
+    }),
     limits: {
       fileSize: 5 * 1024 * 1024, // 5MB
       files: maxFiles
@@ -56,11 +77,10 @@ const createUploadMiddleware = (sku, maxFiles = 5) => {
   });
 };
 
-const deleteProductFolder = (sku) => {
-  if (!sku) return;
+const deleteProductFolder = (slug) => {
+  if (!slug) return;
   
-  const cleanSku = sku.replace(/[^a-zA-Z0-9-_]/g, '_');
-  const productDir = path.join(uploadsDir, cleanSku);
+  const productDir = path.join(uploadsDir, slug);
   
   if (fs.existsSync(productDir)) {
     fs.rmSync(productDir, { recursive: true, force: true });
@@ -86,16 +106,15 @@ const uploadSingle = multer({
   fileFilter: fileFilter
 });
 
-const createUpdateImageMiddleware = (sku, oldFileName) => {
+const createUpdateImageMiddleware = (slug, oldFileName) => {
   return multer({
     storage: multer.diskStorage({
       destination: (req, file, cb) => {
-        if (!sku) {
-          return cb(new Error('SKU gerekli'));
+        if (!slug) {
+          return cb(new Error('Slug gerekli'));
         }
         
-        const cleanSku = sku.replace(/[^a-zA-Z0-9-_]/g, '_');
-        const productDir = path.join(uploadsDir, cleanSku);
+        const productDir = path.join(uploadsDir, slug);
         
         if (!fs.existsSync(productDir)) {
           fs.mkdirSync(productDir, { recursive: true });
@@ -104,15 +123,10 @@ const createUpdateImageMiddleware = (sku, oldFileName) => {
         cb(null, productDir);
       },
       filename: (req, file, cb) => {
-        if (oldFileName) {
-          cb(null, oldFileName);
-        } else {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-          const ext = path.extname(file.originalname);
-          const name = path.basename(file.originalname, ext);
-          const cleanName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
-          cb(null, `${cleanName}-${uniqueSuffix}${ext}`);
-        }
+        // Geçici dosya adı oluştur, products.js'te düzeltilecek
+        const ext = path.extname(file.originalname);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `temp-update-${uniqueSuffix}${ext}`);
       }
     }),
     limits: {

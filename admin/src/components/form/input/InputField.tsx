@@ -8,6 +8,8 @@ interface InputProps {
   defaultValue?: string | number;
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   className?: string;
   min?: string;
   max?: string;
@@ -27,6 +29,8 @@ const Input: FC<InputProps> = ({
   defaultValue,
   value,
   onChange,
+  onKeyPress,
+  onKeyDown,
   className = "",
   min,
   max,
@@ -61,6 +65,8 @@ const Input: FC<InputProps> = ({
         defaultValue={defaultValue}
         value={value}
         onChange={onChange}
+        onKeyPress={onKeyPress}
+        onKeyDown={onKeyDown}
         min={min}
         max={max}
         step={step}

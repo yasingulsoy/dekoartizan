@@ -9,6 +9,7 @@ interface BackendProduct {
   price: number;
   discount_price: number | null;
   discount_percentage: number;
+  short_description?: string | null;
   main_image_url: string | null;
   images?: Array<{
     id: number;
@@ -26,9 +27,27 @@ interface BackendProduct {
 const transformProduct = (backendProduct: BackendProduct): Product => {
   const gallery: string[] = [];
   
+  // Resim URL'lerini API_URL ile birleştir
+  const getImageUrl = (url: string | null | undefined): string => {
+    if (!url) return "";
+    // Eğer zaten tam URL ise (http:// veya https:// ile başlıyorsa) olduğu gibi döndür
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // Göreceli yol ise API_URL ile birleştir
+    // Server-side ve client-side için API_URL'yi dinamik olarak al
+    const apiUrl = typeof window !== 'undefined' 
+      ? (process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
+      : (process.env.BACKEND_URL || process.env.API_URL || 'http://127.0.0.1:5000');
+    return `${apiUrl}${url.startsWith('/') ? url : `/${url}`}`;
+  };
+  
   // Ana resmi ekle
   if (backendProduct.main_image_url) {
-    gallery.push(backendProduct.main_image_url);
+    const mainImageUrl = getImageUrl(backendProduct.main_image_url);
+    if (mainImageUrl) {
+      gallery.push(mainImageUrl);
+    }
   }
   
   // Diğer resimleri ekle
@@ -37,8 +56,9 @@ const transformProduct = (backendProduct: BackendProduct): Product => {
       (a, b) => a.display_order - b.display_order
     );
     sortedImages.forEach((img) => {
-      if (img.image_url && !gallery.includes(img.image_url)) {
-        gallery.push(img.image_url);
+      const imageUrl = getImageUrl(img.image_url);
+      if (imageUrl && !gallery.includes(imageUrl)) {
+        gallery.push(imageUrl);
       }
     });
   }
@@ -61,6 +81,7 @@ const transformProduct = (backendProduct: BackendProduct): Product => {
       percentage: backendProduct.discount_percentage || 0,
     },
     rating: backendProduct.rating ? parseFloat(backendProduct.rating.toString()) : 0,
+    shortDescription: backendProduct.short_description || "",
   };
 };
 

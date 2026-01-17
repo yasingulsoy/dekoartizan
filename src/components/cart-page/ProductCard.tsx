@@ -24,7 +24,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
   return (
     <div className="flex items-start space-x-4">
       <Link
-        href={`/shop/product/${data.id}/${data.name.split(" ").join("-")}`}
+        href={`/magaza/urunler/${data.id}/${data.name.split(" ").join("-")}`}
         className="bg-[#F0EEED] rounded-lg w-full min-w-[100px] max-w-[100px] sm:max-w-[124px] aspect-square overflow-hidden"
       >
         <Image
@@ -39,7 +39,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
       <div className="flex w-full self-stretch flex-col">
         <div className="flex items-center justify-between">
           <Link
-            href={`/shop/product/${data.id}/${data.name.split(" ").join("-")}`}
+            href={`/magaza/urunler/${data.id}/${data.name.split(" ").join("-")}`}
             className="text-black font-bold text-base xl:text-xl"
           >
             {data.name}
@@ -83,7 +83,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
               </span>
             ) : data.discount.amount > 0 ? (
               <span className="font-bold text-black text-xl xl:text-2xl">
-                {`₺${data.price - data.discount.amount}`}
+                {`₺${data.discount.amount.toFixed(2)}`}
               </span>
             ) : (
               <span className="font-bold text-black text-xl xl:text-2xl">
@@ -107,7 +107,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
             ) : (
               data.discount.amount > 0 && (
                 <span className="font-medium text-[10px] xl:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-                  {`-₺${data.discount.amount}`}
+                  {`-₺${(data.price - data.discount.amount).toFixed(2)}`}
                 </span>
               )
             )}

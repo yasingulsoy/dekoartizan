@@ -11,7 +11,7 @@ type ProductCardProps = {
 const ProductCard = ({ data }: ProductCardProps) => {
   return (
     <Link
-      href={`/shop/product/${data.id}/${data.title.split(" ").join("-")}`}
+      href={`/magaza/urunler/${data.id}/${data.title.split(" ").join("-")}`}
       className="flex flex-col items-start aspect-auto"
     >
       <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden flex items-center justify-center p-4">
@@ -48,7 +48,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
           </span>
         ) : data.discount.amount > 0 ? (
           <span className="font-bold text-black text-xl xl:text-2xl">
-            {`₺${data.price - data.discount.amount}`}
+            {`₺${data.discount.amount.toFixed(2)}`}
           </span>
         ) : (
           <span className="font-bold text-black text-xl xl:text-2xl">
@@ -72,7 +72,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
         ) : (
           data.discount.amount > 0 && (
             <span className="font-medium text-[10px] xl:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-              {`-₺${data.discount.amount}`}
+              {`-₺${(data.price - data.discount.amount).toFixed(2)}`}
             </span>
           )
         )}
