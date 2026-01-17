@@ -8,7 +8,8 @@ const PhotoSection = ({ data }: { data: Product }) => {
   const [selected, setSelected] = useState<string>(data.srcUrl);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
-  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  // background-position için yüzde değerleri (0-100)
+  const [imagePosition, setImagePosition] = useState({ x: 50, y: 50 });
   const imageRef = useRef<HTMLDivElement>(null);
   const zoomRef = useRef<HTMLDivElement>(null);
 
@@ -29,14 +30,17 @@ const PhotoSection = ({ data }: { data: Product }) => {
 
     setZoomPosition({ x: clampedX, y: clampedY });
 
-    // Büyütülmüş resmin pozisyonu (zoom lens'in gösterdiği kısım)
-    const zoomX = -((clampedX - halfLens) / (rect.width - lensSize)) * 100;
-    const zoomY = -((clampedY - halfLens) / (rect.height - lensSize)) * 100;
-    setImagePosition({ x: zoomX, y: zoomY });
+    // Büyütülmüş önizleme: lens merkezinin resimdeki konumunu (yüzde) direkt background-position'a bağla.
+    // background-position'da 0% 0% sol-üst, 100% 100% sağ-alt demektir; bu yüzden ekstra ters çevirme yapmıyoruz.
+    const percentX = (clampedX / rect.width) * 100;
+    const percentY = (clampedY / rect.height) * 100;
+    setImagePosition({ x: percentX, y: percentY });
   };
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsZoomed(true);
+    // İlk frame'de (0,0) gözükmesin diye, enter anında pozisyonu da hesapla.
+    handleMouseMove(e);
   };
 
   const handleMouseLeave = () => {
@@ -108,7 +112,7 @@ const PhotoSection = ({ data }: { data: Product }) => {
               className="w-full h-full"
               style={{
                 backgroundImage: `url(${selected})`,
-                backgroundSize: '200%',
+                backgroundSize: '300%',
                 backgroundPosition: `${imagePosition.x}% ${imagePosition.y}%`,
                 backgroundRepeat: 'no-repeat',
               }}

@@ -1,7 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { integralCF } from "@/styles/fonts";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavMenu } from "../navbar.types";
 import { MenuList } from "./MenuList";
 import {
@@ -13,39 +15,24 @@ import Image from "next/image";
 import InputGroup from "@/components/ui/input-group";
 import ResTopNavbar from "./ResTopNavbar";
 import CartBtn from "./CartBtn";
+import { apiGet } from "@/lib/api";
 
-const data: NavMenu = [
-  {
-    id: 1,
-    label: "Kategoriler",
-    type: "MenuList",
-    children: [
-      {
-        id: 11,
-        label: "Oturma Odası Duvar Kağıtları",
-        url: "/shop?category=living-room",
-        description: "Çekici ve muhteşem renkler ve tasarımlarla",
-      },
-      {
-        id: 12,
-        label: "Yatak Odası Duvar Kağıtları",
-        url: "/shop?category=bedroom",
-        description: "Huzurlu ve şık tasarımlarla yatak odanıza karakter katın",
-      },
-      {
-        id: 13,
-        label: "Çocuk Odası Duvar Kağıtları",
-        url: "/shop?category=kids-room",
-        description: "Tüm yaşlar için, mutlu ve güzel renklerle",
-      },
-      {
-        id: 14,
-        label: "Mutfak ve Banyo Duvar Kağıtları",
-        url: "/shop?category=kitchen-bathroom",
-        description: "Pratik ve şık çözümlerle mekanlarınızı güzelleştirin",
-      },
-    ],
-  },
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  subCategories?: SubCategory[];
+}
+
+interface SubCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+}
+
+const staticMenuItems: NavMenu = [
   {
     id: 2,
     type: "MenuItem",
@@ -77,12 +64,51 @@ const data: NavMenu = [
 ];
 
 const TopNavbar = () => {
+  const [menuData, setMenuData] = useState<NavMenu>(staticMenuItems);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiGet<{ success: boolean; data: Category[] }>("/api/categories");
+        
+        if (response.success && response.data && response.data.length > 0) {
+          const categoriesMenu: NavMenu = [
+            {
+              id: 1,
+              label: "Kategoriler",
+              type: "MenuList",
+              children: response.data.map((category) => ({
+                id: category.id,
+                label: category.name,
+                url: `/shop?category=${category.slug}`,
+                description: category.description || "",
+              })),
+            },
+            ...staticMenuItems,
+          ];
+          setMenuData(categoriesMenu);
+        } else {
+          // Kategori yoksa sadece statik menüyü göster
+          setMenuData(staticMenuItems);
+        }
+      } catch (error) {
+        console.error("Kategoriler yüklenirken hata oluştu:", error);
+        // Hata durumunda sadece statik menüyü göster
+        setMenuData(staticMenuItems);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
   return (
     <nav className="sticky top-0 bg-white z-20">
       <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0 gap-2 md:gap-0">
         <div className="flex items-center">
           <div className="block md:hidden mr-2 md:mr-4 flex-shrink-0">
-            <ResTopNavbar data={data} />
+            <ResTopNavbar data={menuData} />
           </div>
           <Link
             href="/"
@@ -110,12 +136,12 @@ const TopNavbar = () => {
         </div>
         <NavigationMenu className="hidden md:flex mr-2 lg:mr-7">
           <NavigationMenuList>
-            {data.map((item) => (
+            {menuData.map((item) => (
               <React.Fragment key={item.id}>
                 {item.type === "MenuItem" && (
                   <MenuItem label={item.label} url={item.url} />
                 )}
-                {item.type === "MenuList" && (
+                {item.type === "MenuList" && item.children.length > 0 && (
                   <MenuList data={item.children} label={item.label} />
                 )}
               </React.Fragment>
