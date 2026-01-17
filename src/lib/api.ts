@@ -3,11 +3,9 @@
  * Backend API URL'ini environment variable'dan alır
  */
 const getApiUrl = () => {
-  // Client-side'da NEXT_PUBLIC_BACKEND_URL kullanılır
   if (typeof window !== 'undefined') {
     return process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.dekoartizan.com';
   }
-  // Server-side'da BACKEND_URL veya API_URL kullanılır (NEXT_PUBLIC prefix'i olmadan)
   return process.env.BACKEND_URL || process.env.API_URL || 'https://api.dekoartizan.com';
 };
 

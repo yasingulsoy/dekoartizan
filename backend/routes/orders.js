@@ -3,7 +3,6 @@ const router = express.Router();
 const { Order, OrderItem, User, Product, OrderStatus } = require('../models');
 const { Op } = require('sequelize');
 
-// Tüm siparişleri listele
 router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 20, status, payment_status, search } = req.query;
@@ -47,7 +46,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Bekleyen siparişleri getir
 router.get('/pending', async (req, res) => {
   try {
     const orders = await Order.findAll({
@@ -66,7 +64,6 @@ router.get('/pending', async (req, res) => {
   }
 });
 
-// Müşteri siparişlerini getir (user_id ile)
 router.get('/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
@@ -100,7 +97,6 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-// Tek sipariş getir
 router.get('/:id', async (req, res) => {
   try {
     const order = await Order.findByPk(req.params.id, {
@@ -122,7 +118,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Sipariş durumunu güncelle
 router.patch('/:id/status', async (req, res) => {
   try {
     const order = await Order.findByPk(req.params.id, {
@@ -138,7 +133,6 @@ router.patch('/:id/status', async (req, res) => {
       order.status = status;
     }
     if (order_status_code !== undefined) {
-      // order_status_code geçerliliğini kontrol et
       if (order_status_code < 0 || order_status_code > 5) {
         return res.status(400).json({ success: false, error: 'Geçersiz sipariş durum kodu' });
       }
@@ -162,7 +156,6 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-// Tüm sipariş durumlarını getir
 router.get('/statuses/list', async (req, res) => {
   try {
     const statuses = await OrderStatus.findAll({
@@ -178,7 +171,6 @@ router.get('/statuses/list', async (req, res) => {
   }
 });
 
-// Ödeme durumunu güncelle
 router.patch('/:id/payment-status', async (req, res) => {
   try {
     const order = await Order.findByPk(req.params.id);

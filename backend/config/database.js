@@ -13,7 +13,6 @@ const sequelize = new Sequelize({
   password: process.env.DB_PASSWORD,
   benchmark: true,
   logging: (sql, timing) => {
-    // timing yalnızca benchmark:true iken gelir
     if (typeof timing === 'number' && timing >= SLOW_QUERY_MS) {
       console.warn(`⚠️ DB Slow Query (${timing}ms):`, sql.substring(0, 200));
     } else if (process.env.DB_LOG_ALL_SQL === 'true') {
@@ -66,7 +65,6 @@ const syncDatabase = async () => {
   }
 };
 
-// Graceful shutdown
 const closeConnection = async () => {
   try {
     await sequelize.close();

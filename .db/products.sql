@@ -1,6 +1,3 @@
--- Products Tablosu
--- Ürün bilgilerini saklar
-
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     category_id INTEGER,
@@ -50,7 +47,6 @@ CREATE TABLE IF NOT EXISTS products (
     CONSTRAINT chk_products_rating CHECK (rating >= 0 AND rating <= 5)
 );
 
--- Index'ler
 CREATE INDEX idx_products_category_id ON products(category_id);
 CREATE INDEX idx_products_sub_category_id ON products(sub_category_id);
 CREATE INDEX idx_products_slug ON products(slug);
@@ -62,7 +58,6 @@ CREATE INDEX idx_products_is_on_sale ON products(is_on_sale);
 CREATE INDEX idx_products_price ON products(price);
 CREATE INDEX idx_products_rating ON products(rating);
 
--- Updated_at otomatik güncelleme trigger'ı
 CREATE OR REPLACE FUNCTION update_products_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN

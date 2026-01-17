@@ -64,6 +64,11 @@ const othersItems: NavItem[] = [
     ],
   },
   {
+    icon: <UserCircleIcon />,
+    name: "Kullanıcılar",
+    path: "/users",
+  },
+  {
     icon: <CalenderIcon />,
     name: "Takvim",
     path: "/calendar",

@@ -6,7 +6,6 @@ const { createUploadMiddleware, createUpdateImageMiddleware, deleteProductFolder
 const { Product, ProductImage, Category, SubCategory } = require('../models');
 const { Op } = require('sequelize');
 
-// Slug oluşturma fonksiyonu
 const createSlug = (text) => {
   return text
     .toLowerCase()
@@ -20,7 +19,6 @@ const createSlug = (text) => {
     .replace(/^-+|-+$/g, '');
 };
 
-// Tüm ürünleri listele
 router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 20, is_active, is_archived, category_id, search } = req.query;
@@ -65,7 +63,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Tek ürün getir
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {
@@ -87,7 +84,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Yeni ürün oluştur (resimlerle birlikte)
 router.post('/', async (req, res) => {
   try {
     const {
@@ -113,21 +109,17 @@ router.post('/', async (req, res) => {
       meta_keywords
     } = req.body;
     
-    // SKU kontrolü
     if (!sku) {
       return res.status(400).json({ success: false, error: 'SKU gerekli' });
     }
     
-    // SKU benzersizlik kontrolü
     const existingProduct = await Product.findOne({ where: { sku } });
     if (existingProduct) {
       return res.status(400).json({ success: false, error: 'Bu SKU zaten kullanılıyor' });
     }
     
-    // Slug oluştur
     const slug = createSlug(name || sku);
     
-    // Ürünü oluştur
     const product = await Product.create({
       name,
       slug,
@@ -165,7 +157,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Resim yükleme endpoint'i
 router.post('/:id/images', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -203,7 +194,7 @@ router.post('/:id/images', async (req, res) => {
             file_size: file.size,
             mime_type: file.mimetype,
             display_order: i,
-            is_primary: i === 0 && !primarySet // İlk resim primary olsun
+            is_primary: i === 0 && !primarySet
           });
           
           if (i === 0 && !primarySet) {
@@ -231,7 +222,6 @@ router.post('/:id/images', async (req, res) => {
   }
 });
 
-// Ürün güncelle
 router.put('/:id', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -241,24 +231,20 @@ router.put('/:id', async (req, res) => {
     
     const updateData = { ...req.body };
     
-    // Slug güncelle
     if (updateData.name && updateData.name !== product.name) {
       updateData.slug = createSlug(updateData.name);
     }
     
-    // SKU değişirse klasör adını güncelle
     if (updateData.sku && updateData.sku !== product.sku) {
       const oldSku = product.sku;
       const newSku = updateData.sku;
       
-      // Eski klasörü yeni isimle taşı
       const oldDir = path.join(uploadsDir, oldSku.replace(/[^a-zA-Z0-9-_]/g, '_'));
       const newDir = path.join(uploadsDir, newSku.replace(/[^a-zA-Z0-9-_]/g, '_'));
       
       if (fs.existsSync(oldDir)) {
         fs.renameSync(oldDir, newDir);
         
-        // Resim URL'lerini güncelle
         const images = await ProductImage.findAll({ where: { product_id: product.id } });
         for (const image of images) {
           image.image_url = image.image_url.replace(
@@ -279,7 +265,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Ürünü arşivle/yayına al
 router.patch('/:id/archive', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -302,7 +287,6 @@ router.patch('/:id/archive', async (req, res) => {
   }
 });
 
-// Ürünü aktif/pasif yap
 router.patch('/:id/status', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -325,7 +309,6 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-// Resim güncelle
 router.put('/:id/images/:imageId', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -342,16 +325,13 @@ router.put('/:id/images/:imageId', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Ürün SKU\'su bulunamadı' });
     }
     
-    // Eski dosya adını al (uzantı dahil)
     const oldFileName = path.basename(image.file_path);
     const oldFilePath = image.file_path;
     
-    // Eski resmi sil
     if (fs.existsSync(oldFilePath)) {
       fs.unlinkSync(oldFilePath);
     }
     
-    // Yeni resmi yükle (aynı klasöre, aynı isimle)
     const upload = createUpdateImageMiddleware(product.sku, oldFileName);
     upload.single('image')(req, res, async (err) => {
       if (err) {
@@ -375,7 +355,6 @@ router.put('/:id/images/:imageId', async (req, res) => {
           mime_type: req.file.mimetype
         });
         
-        // Eğer bu primary image ise, ürünün main_image_url'ini de güncelle
         if (image.is_primary) {
           product.main_image_url = imageUrl;
           await product.save();
@@ -397,7 +376,6 @@ router.put('/:id/images/:imageId', async (req, res) => {
   }
 });
 
-// Resim sil
 router.delete('/:id/images/:imageId', async (req, res) => {
   try {
     const image = await ProductImage.findByPk(req.params.imageId);
@@ -405,7 +383,6 @@ router.delete('/:id/images/:imageId', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Resim bulunamadı' });
     }
     
-    // Dosyayı sil
     if (fs.existsSync(image.file_path)) {
       fs.unlinkSync(image.file_path);
     }
@@ -419,7 +396,6 @@ router.delete('/:id/images/:imageId', async (req, res) => {
   }
 });
 
-// Ürün sil
 router.delete('/:id', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -427,7 +403,6 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
     }
     
-    // Resimleri ve klasörü sil
     if (product.sku) {
       const images = await ProductImage.findAll({ where: { product_id: product.id } });
       for (const image of images) {
@@ -436,11 +411,9 @@ router.delete('/:id', async (req, res) => {
         }
       }
       
-      // Klasörü sil
       deleteProductFolder(product.sku);
     }
     
-    // Ürünü sil (CASCADE ile resimler de silinecek)
     await product.destroy();
     
     res.json({ success: true, message: 'Ürün ve tüm resimleri silindi' });

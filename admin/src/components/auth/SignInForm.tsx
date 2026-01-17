@@ -7,20 +7,30 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [email, setEmail] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Şimdilik basit giriş - herhangi bir email/password ile giriş yapılabilir
-    // Sonra veritabanı entegrasyonu yapılacak
-    if (email && password) {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      await login(usernameOrEmail, password);
       router.push("/");
+    } catch (err: any) {
+      setError(err.message || "Giriş başarısız. Lütfen tekrar deneyin.");
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -47,16 +57,22 @@ export default function SignInForm() {
           <div>
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
+                {error && (
+                  <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                    {error}
+                  </div>
+                )}
                 <div>
                   <Label>
-                    E-posta <span className="text-error-500">*</span>{" "}
+                    Kullanıcı Adı veya E-posta <span className="text-error-500">*</span>{" "}
                   </Label>
                   <Input 
-                    placeholder="ornek@email.com" 
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="kullaniciadi veya ornek@email.com" 
+                    type="text" 
+                    value={usernameOrEmail}
+                    onChange={(e) => setUsernameOrEmail(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 <div>
@@ -70,6 +86,7 @@ export default function SignInForm() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -98,8 +115,8 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm" type="submit">
-                    Giriş Yap
+                  <Button className="w-full" size="sm" type="submit" disabled={isLoading}>
+                    {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
                   </Button>
                 </div>
               </div>

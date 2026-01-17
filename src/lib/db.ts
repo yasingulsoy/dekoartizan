@@ -5,7 +5,6 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
-// Test connection
 pool.on('connect', () => {
   console.log('PostgreSQL bağlantısı başarılı');
 });

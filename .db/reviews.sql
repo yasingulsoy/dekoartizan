@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS reviews (
     id SERIAL PRIMARY KEY,
     product_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    customer_id INTEGER NOT NULL,
     order_id INTEGER, -- Siparişten yorum yapıldıysa
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
     title VARCHAR(255),
@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS reviews (
         REFERENCES products(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT fk_reviews_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
+    CONSTRAINT fk_reviews_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES customers(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     CONSTRAINT fk_reviews_order
@@ -31,12 +31,12 @@ CREATE TABLE IF NOT EXISTS reviews (
         REFERENCES orders(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
-    CONSTRAINT uk_reviews_user_product UNIQUE (user_id, product_id) -- Bir kullanıcı bir ürüne sadece bir yorum yapabilir
+    CONSTRAINT uk_reviews_customer_product UNIQUE (customer_id, product_id) -- Bir müşteri bir ürüne sadece bir yorum yapabilir
 );
 
 -- Index'ler
 CREATE INDEX idx_reviews_product_id ON reviews(product_id);
-CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+CREATE INDEX idx_reviews_customer_id ON reviews(customer_id);
 CREATE INDEX idx_reviews_order_id ON reviews(order_id);
 CREATE INDEX idx_reviews_rating ON reviews(rating);
 CREATE INDEX idx_reviews_is_approved ON reviews(is_approved);

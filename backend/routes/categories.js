@@ -3,7 +3,6 @@ const router = express.Router();
 const { Category, SubCategory } = require('../models');
 const { Op } = require('sequelize');
 
-// Slug oluşturma fonksiyonu
 const createSlug = (text) => {
   return text
     .toLowerCase()
@@ -17,7 +16,6 @@ const createSlug = (text) => {
     .replace(/^-+|-+$/g, '');
 };
 
-// Tüm kategorileri getir
 router.get('/', async (req, res) => {
   try {
     const { include_inactive } = req.query;
@@ -46,7 +44,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Tek kategori getir
 router.get('/:id', async (req, res) => {
   try {
     const category = await Category.findByPk(req.params.id, {
@@ -70,7 +67,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Yeni kategori oluştur
 router.post('/', async (req, res) => {
   try {
     const { name, description, image_url, icon, display_order, is_active, meta_title, meta_description, meta_keywords } = req.body;
@@ -81,7 +77,6 @@ router.post('/', async (req, res) => {
     
     const slug = createSlug(name);
     
-    // Slug benzersizlik kontrolü
     const existingCategory = await Category.findOne({ where: { slug } });
     if (existingCategory) {
       return res.status(400).json({ success: false, error: 'Bu slug zaten kullanılıyor' });
@@ -107,7 +102,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Kategori güncelle
 router.put('/:id', async (req, res) => {
   try {
     const category = await Category.findByPk(req.params.id);
@@ -117,11 +111,9 @@ router.put('/:id', async (req, res) => {
     
     const updateData = { ...req.body };
     
-    // Slug güncelle
     if (updateData.name && updateData.name !== category.name) {
       updateData.slug = createSlug(updateData.name);
       
-      // Slug benzersizlik kontrolü
       const existingCategory = await Category.findOne({ 
         where: { slug: updateData.slug, id: { [Op.ne]: category.id } }
       });
@@ -139,7 +131,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Kategori sil
 router.delete('/:id', async (req, res) => {
   try {
     const category = await Category.findByPk(req.params.id);
@@ -156,7 +147,6 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Alt kategori oluştur
 router.post('/:categoryId/sub-categories', async (req, res) => {
   try {
     const category = await Category.findByPk(req.params.categoryId);
@@ -172,7 +162,6 @@ router.post('/:categoryId/sub-categories', async (req, res) => {
     
     const slug = createSlug(name);
     
-    // Slug benzersizlik kontrolü
     const existingSubCategory = await SubCategory.findOne({ where: { slug } });
     if (existingSubCategory) {
       return res.status(400).json({ success: false, error: 'Bu slug zaten kullanılıyor' });
@@ -199,7 +188,6 @@ router.post('/:categoryId/sub-categories', async (req, res) => {
   }
 });
 
-// Alt kategori güncelle
 router.put('/sub-categories/:id', async (req, res) => {
   try {
     const subCategory = await SubCategory.findByPk(req.params.id);
@@ -209,11 +197,9 @@ router.put('/sub-categories/:id', async (req, res) => {
     
     const updateData = { ...req.body };
     
-    // Slug güncelle
     if (updateData.name && updateData.name !== subCategory.name) {
       updateData.slug = createSlug(updateData.name);
       
-      // Slug benzersizlik kontrolü
       const existingSubCategory = await SubCategory.findOne({ 
         where: { slug: updateData.slug, id: { [Op.ne]: subCategory.id } }
       });
@@ -231,7 +217,6 @@ router.put('/sub-categories/:id', async (req, res) => {
   }
 });
 
-// Alt kategori sil
 router.delete('/sub-categories/:id', async (req, res) => {
   try {
     const subCategory = await SubCategory.findByPk(req.params.id);
