@@ -40,6 +40,14 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    icon: <PageIcon />,
+    name: "Blog",
+    subItems: [
+      { name: "Tüm Blog Yazıları", path: "/blogs", pro: false },
+      { name: "Yeni Blog Yazısı", path: "/blogs/new", pro: false },
+    ],
+  },
+  {
     icon: <TableIcon />,
     name: "Siparişler",
     subItems: [

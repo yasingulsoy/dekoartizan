@@ -8,6 +8,7 @@ const OrderStatus = require('./OrderStatus');
 const User = require('./User');
 const Customer = require('./Customer');
 const Address = require('./Address');
+const Blog = require('./Blog');
 
 // Model ilişkileri
 Product.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
@@ -37,6 +38,8 @@ OrderItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 Customer.hasMany(Address, { foreignKey: 'customer_id', as: 'addresses' });
 Address.belongsTo(Customer, { foreignKey: 'customer_id', as: 'customer' });
 
+Blog.belongsTo(User, { foreignKey: 'author_id', as: 'author' });
+
 module.exports = {
   Product,
   ProductImage,
@@ -47,5 +50,6 @@ module.exports = {
   OrderStatus,
   User,
   Customer,
-  Address
+  Address,
+  Blog
 };
