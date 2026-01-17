@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { BASE_URL } from '@/lib/api';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.SITE_URL || 'https://dekoartizan.com';
+  const baseUrl = BASE_URL;
   
   return {
     rules: [

@@ -19,8 +19,10 @@ const corsOrigins = (() => {
   if (process.env.CORS_ORIGINS) {
     return process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean);
   }
+  // Fallback: Use SITE_URL if available, otherwise default localhost for development
+  const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
   return process.env.NODE_ENV === 'production'
-    ? ['https://dekoartizan.com', 'https://www.dekoartizan.com']
+    ? [siteUrl, siteUrl.replace('https://', 'https://www.')].filter(Boolean)
     : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001'];
 })();
 

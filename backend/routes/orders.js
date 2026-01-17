@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Order, OrderItem, User, Product } = require('../models');
+const { Order, OrderItem, User, Product, OrderStatus } = require('../models');
 const { Op } = require('sequelize');
 
 // Tüm siparişleri listele
@@ -23,6 +23,7 @@ router.get('/', async (req, res) => {
       where,
       include: [
         { model: User, as: 'user', attributes: ['id', 'email', 'first_name', 'last_name'] },
+        { model: OrderStatus, as: 'orderStatus', attributes: ['code', 'name_tr', 'name_en', 'description'] },
         { model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }
       ],
       limit: parseInt(limit),
@@ -65,12 +66,47 @@ router.get('/pending', async (req, res) => {
   }
 });
 
+// Müşteri siparişlerini getir (user_id ile)
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows } = await Order.findAndCountAll({
+      where: { user_id: userId },
+      include: [
+        { model: OrderStatus, as: 'orderStatus', attributes: ['code', 'name_tr', 'name_en', 'description'] },
+        { model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }
+      ],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['created_at', 'DESC']]
+    });
+    
+    res.json({
+      success: true,
+      data: rows,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(count / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Müşteri siparişleri hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Tek sipariş getir
 router.get('/:id', async (req, res) => {
   try {
     const order = await Order.findByPk(req.params.id, {
       include: [
         { model: User, as: 'user' },
+        { model: OrderStatus, as: 'orderStatus', attributes: ['code', 'name_tr', 'name_en', 'description'] },
         { model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }
       ]
     });
@@ -89,21 +125,31 @@ router.get('/:id', async (req, res) => {
 // Sipariş durumunu güncelle
 router.patch('/:id/status', async (req, res) => {
   try {
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findByPk(req.params.id, {
+      include: [{ model: OrderStatus, as: 'orderStatus' }]
+    });
     if (!order) {
       return res.status(404).json({ success: false, error: 'Sipariş bulunamadı' });
     }
     
-    const { status, tracking_number } = req.body;
+    const { status, order_status_code, tracking_number } = req.body;
     
     if (status) {
       order.status = status;
+    }
+    if (order_status_code !== undefined) {
+      // order_status_code geçerliliğini kontrol et
+      if (order_status_code < 0 || order_status_code > 5) {
+        return res.status(400).json({ success: false, error: 'Geçersiz sipariş durum kodu' });
+      }
+      order.order_status_code = order_status_code;
     }
     if (tracking_number !== undefined) {
       order.tracking_number = tracking_number;
     }
     
     await order.save();
+    await order.reload({ include: [{ model: OrderStatus, as: 'orderStatus' }] });
     
     res.json({
       success: true,
@@ -112,6 +158,22 @@ router.patch('/:id/status', async (req, res) => {
     });
   } catch (error) {
     console.error('Sipariş durum güncelleme hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Tüm sipariş durumlarını getir
+router.get('/statuses/list', async (req, res) => {
+  try {
+    const statuses = await OrderStatus.findAll({
+      where: { is_active: true },
+      order: [['sort_order', 'ASC'], ['code', 'ASC']],
+      attributes: ['code', 'name_tr', 'name_en', 'description']
+    });
+    
+    res.json({ success: true, data: statuses });
+  } catch (error) {
+    console.error('Sipariş durumları listesi hatası:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

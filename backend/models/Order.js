@@ -27,6 +27,19 @@ const Order = sequelize.define('Order', {
       isIn: [['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']]
     }
   },
+  order_status_code: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+    validate: {
+      min: 0,
+      max: 5
+    },
+    references: {
+      model: 'order_statuses',
+      key: 'code'
+    }
+  },
   payment_status: {
     type: DataTypes.STRING(50),
     defaultValue: 'pending',

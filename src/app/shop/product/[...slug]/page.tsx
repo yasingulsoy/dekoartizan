@@ -6,6 +6,7 @@ import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
 import { getProductById } from "@/lib/products";
 import { notFound } from "next/navigation";
+import { BASE_URL } from "@/lib/api";
 
 export async function generateMetadata({
   params,
@@ -22,15 +23,16 @@ export async function generateMetadata({
     };
   }
 
+  const baseUrl = process.env.SITE_URL || 'https://dekoartizan.com';
   const finalPrice =
     product.discount.percentage > 0
       ? product.price * (1 - product.discount.percentage / 100)
       : product.price;
 
-  const productUrl = `https://dekoartizan.com/shop/product/${product.id}/${product.title
+  const productUrl = `${baseUrl}/shop/product/${product.id}/${product.title
     .split(" ")
     .join("-")}`;
-  const productImage = `https://dekoartizan.com${product.srcUrl}`;
+  const productImage = `${baseUrl}${product.srcUrl}`;
 
   return {
     title: `${product.title} | dekoartizan`,
@@ -76,15 +78,16 @@ export default function ProductPage({
   }
 
   // JSON-LD Structured Data (Schema.org Product)
+  const baseUrl = BASE_URL;
   const finalPrice =
     productData.discount.percentage > 0
       ? productData.price * (1 - productData.discount.percentage / 100)
       : productData.price;
 
-  const productUrl = `https://dekoartizan.com/shop/product/${productData.id}/${productData.title
+  const productUrl = `${baseUrl}/shop/product/${productData.id}/${productData.title
     .split(" ")
     .join("-")}`;
-  const productImage = `https://dekoartizan.com${productData.srcUrl}`;
+  const productImage = `${baseUrl}${productData.srcUrl}`;
 
   const jsonLd = {
     "@context": "https://schema.org",

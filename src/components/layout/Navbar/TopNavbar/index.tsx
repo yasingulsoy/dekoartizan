@@ -67,6 +67,13 @@ const data: NavMenu = [
     url: "/shop#brands",
     children: [],
   },
+  {
+    id: 5,
+    type: "MenuItem",
+    label: "Blog",
+    url: "/blog",
+    children: [],
+  },
 ];
 
 const TopNavbar = () => {

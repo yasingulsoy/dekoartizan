@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS orders (
     order_number VARCHAR(50) UNIQUE NOT NULL,
     user_id INTEGER NOT NULL,
     status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'
+    order_status_code INTEGER DEFAULT 0, -- 0: alındı, 1: hazırlanıyor, 2: paketleniyor, 3: kargoya verilmek üzere yolda, 4: kargo firmasına ulaştırıldı, 5: teslim edildi
     payment_status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'paid', 'failed', 'refunded', 'partial'
     payment_method VARCHAR(50), -- 'credit_card', 'debit_card', 'paypal', 'bank_transfer', 'cash_on_delivery'
     subtotal DECIMAL(10, 2) NOT NULL,
@@ -39,7 +40,13 @@ CREATE TABLE IF NOT EXISTS orders (
         REFERENCES addresses(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
+    CONSTRAINT fk_orders_order_status
+        FOREIGN KEY (order_status_code)
+        REFERENCES order_statuses(code)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
     CONSTRAINT chk_orders_status CHECK (status IN ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded')),
+    CONSTRAINT chk_orders_order_status_code CHECK (order_status_code >= 0 AND order_status_code <= 5),
     CONSTRAINT chk_orders_payment_status CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded', 'partial')),
     CONSTRAINT chk_orders_amounts CHECK (subtotal >= 0 AND tax_amount >= 0 AND shipping_cost >= 0 AND discount_amount >= 0 AND total_amount >= 0)
 );
@@ -48,6 +55,7 @@ CREATE TABLE IF NOT EXISTS orders (
 CREATE INDEX idx_orders_order_number ON orders(order_number);
 CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_order_status_code ON orders(order_status_code);
 CREATE INDEX idx_orders_payment_status ON orders(payment_status);
 CREATE INDEX idx_orders_created_at ON orders(created_at);
 

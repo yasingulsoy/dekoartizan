@@ -4,6 +4,7 @@ const Category = require('./Category');
 const SubCategory = require('./SubCategory');
 const Order = require('./Order');
 const OrderItem = require('./OrderItem');
+const OrderStatus = require('./OrderStatus');
 const User = require('./User');
 
 // Model ilişkileri
@@ -17,6 +18,7 @@ SubCategory.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
 ProductImage.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 
 Order.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Order.belongsTo(OrderStatus, { foreignKey: 'order_status_code', targetKey: 'code', as: 'orderStatus' });
 Order.hasMany(OrderItem, { foreignKey: 'order_id', as: 'items' });
 
 OrderItem.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
@@ -29,5 +31,6 @@ module.exports = {
   SubCategory,
   Order,
   OrderItem,
+  OrderStatus,
   User
 };
