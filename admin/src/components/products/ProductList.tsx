@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "../ui/button/Button";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/api";
 
 interface Product {
   id: number;
@@ -35,7 +36,7 @@ const ProductList: React.FC = () => {
       if (filter === "archived") params.append("is_archived", "true");
 
       const response = await fetch(
-        `http://localhost:5000/api/products?${params.toString()}`
+        `${API_URL}/api/products?${params.toString()}`
       );
       const result = await response.json();
 
@@ -52,7 +53,7 @@ const ProductList: React.FC = () => {
   const handleArchive = async (productId: number, isArchived: boolean) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/products/${productId}/archive`,
+        `${API_URL}/api/products/${productId}/archive`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -72,7 +73,7 @@ const ProductList: React.FC = () => {
   const handleStatus = async (productId: number, isActive: boolean) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/products/${productId}/status`,
+        `${API_URL}/api/products/${productId}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -96,7 +97,7 @@ const ProductList: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/products/${productId}`,
+        `${API_URL}/api/products/${productId}`,
         {
           method: "DELETE",
         }
@@ -206,7 +207,7 @@ const ProductList: React.FC = () => {
                     <td className="whitespace-nowrap px-6 py-4">
                       {product.main_image_url ? (
                         <img
-                          src={`http://localhost:5000${product.main_image_url}`}
+                          src={`${API_URL}${product.main_image_url}`}
                           alt={product.name}
                           className="h-12 w-12 rounded-lg object-cover"
                         />

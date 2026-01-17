@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { API_URL } from "@/lib/api";
 
 interface UploadedImage {
   id: number;
@@ -104,7 +105,7 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
             <div key={img.id} className="relative group">
               <div className="aspect-square rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700">
                 <img
-                  src={`http://localhost:5000${img.url}`}
+                  src={`${API_URL}${img.url}`}
                   alt={`Yüklenmiş resim ${img.id}`}
                   className="w-full h-full object-cover"
                 />

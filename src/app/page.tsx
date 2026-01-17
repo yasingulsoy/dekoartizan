@@ -5,13 +5,8 @@ import Header from "@/components/homepage/Header";
 import Reviews from "@/components/homepage/Reviews";
 import ProcessSteps from "@/components/homepage/ProcessSteps";
 import CartSidebar from "@/components/cart-sidebar/CartSidebar";
-import { Product } from "@/types/product.types";
 import { Review } from "@/types/review.types";
-
-// Mock ürün verileri kaldırıldı - API'den gelecek
-export const newArrivalsData: Product[] = [];
-export const topSellingData: Product[] = [];
-export const relatedProductData: Product[] = [];
+import { getNewArrivals, getTopSelling } from "@/lib/products";
 
 export const reviewsData: Review[] = [
   {
@@ -59,7 +54,13 @@ export const reviewsData: Review[] = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  // API'den ürünleri çek
+  const [newArrivalsData, topSellingData] = await Promise.all([
+    getNewArrivals(),
+    getTopSelling(),
+  ]);
+
   return (
     <>
       <Header />

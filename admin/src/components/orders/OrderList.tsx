@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "../ui/button/Button";
+import { API_URL } from "@/lib/api";
 
 interface OrderItem {
   id: number;
@@ -46,8 +47,8 @@ const OrderList: React.FC<OrderListProps> = ({ status }) => {
     try {
       setLoading(true);
       const url = status === 'pending' 
-        ? 'http://localhost:5000/api/orders/pending'
-        : `http://localhost:5000/api/orders${status ? `?status=${status}` : ''}`;
+        ? `${API_URL}/api/orders/pending`
+        : `${API_URL}/api/orders${status ? `?status=${status}` : ''}`;
       
       const response = await fetch(url);
       const result = await response.json();
@@ -65,7 +66,7 @@ const OrderList: React.FC<OrderListProps> = ({ status }) => {
   const handleStatusUpdate = async (orderId: number, newStatus: string, trackingNumber?: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${API_URL}/api/orders/${orderId}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

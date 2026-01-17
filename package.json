@@ -7,9 +7,15 @@
     "npm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev": "concurrently -n backend,frontend,admin -c green,cyan,magenta \"npm run dev:backend\" \"npm run dev:frontend:wait\" \"npm run dev:admin:wait\"",
+    "dev:kill": "npx --yes kill-port 3000 3001 3002 5000",
+    "dev:unlock": "node -e \"const fs=require('fs'); const p='.next/dev/lock'; if (fs.existsSync(p)) { fs.unlinkSync(p); console.log('✅ Removed '+p); } else { console.log('ℹ️ No lock file at '+p); }\"",
+    "dev:reset": "npm run dev:kill && npm run dev:unlock",
     "dev:frontend": "next dev",
+    "dev:frontend:wait": "wait-on -t 60000 http://127.0.0.1:5000/api/health && next dev",
     "dev:backend": "cd backend && npm run dev",
+    "dev:admin": "cd admin && npm run dev -- -p 3001",
+    "dev:admin:wait": "wait-on -t 60000 http://127.0.0.1:5000/api/health && npm run dev:admin",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -53,6 +59,8 @@
     "concurrently": "^9.1.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "kill-port": "^2.0.1",
+    "wait-on": "^8.0.5"
   }
 }

@@ -18,10 +18,11 @@ const corsOrigins = (() => {
   if (process.env.CORS_ORIGINS) {
     return process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean);
   }
-  const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.SITE_URL || process.env.FRONTEND_URL || 'http://localhost:3000';
+  const adminUrl = process.env.ADMIN_URL || 'http://localhost:3001';
   return process.env.NODE_ENV === 'production'
     ? [siteUrl, siteUrl.replace('https://', 'https://www.')].filter(Boolean)
-    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001'];
+    : [siteUrl, 'http://127.0.0.1:3000', adminUrl].filter(Boolean);
 })();
 
 app.use(cors({
@@ -132,6 +133,7 @@ app.get('/', (req, res) => {
 app.use('/api/products', require('./routes/products'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/admin', require('./routes/admin'));
 
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -153,10 +155,13 @@ const startServer = async () => {
   try {
     await initializeDatabase();
     
-    const server = app.listen(PORT, '0.0.0.0', () => {
+    const host = process.env.HOST || '0.0.0.0';
+    const server = app.listen(PORT, host, () => {
       console.log(`🚀 dekoartizan Backend Server running on port ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const displayHost = host === '0.0.0.0' ? 'localhost' : host;
+      console.log(`📊 Health Check: ${protocol}://${displayHost}:${PORT}/api/health`);
     });
 
     server.on('error', (error) => {

@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Select from "../form/Select";
 import Button from "../ui/button/Button";
 import ProductImageUpload from "./ProductImageUpload";
+import { API_URL } from "@/lib/api";
 
 interface Category {
   id: number;
@@ -93,7 +94,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/categories");
+        const response = await fetch(`${API_URL}/api/categories`);
         const result = await response.json();
         if (result.success) {
           setCategories(result.data);
@@ -145,7 +146,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       formDataImages.append("image", file);
       
       const response = await fetch(
-        `http://localhost:5000/api/products/${productId}/images/${imageId}`,
+        `${API_URL}/api/products/${productId}/images/${imageId}`,
         {
           method: "PUT",
           body: formDataImages,
@@ -179,7 +180,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     
     try {
       const response = await fetch(
-        `http://localhost:5000/api/products/${productId}/images/${imageId}`,
+        `${API_URL}/api/products/${productId}/images/${imageId}`,
         {
           method: "DELETE",
         }

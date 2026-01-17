@@ -10,8 +10,8 @@ import {
 import MobileFilters from "@/components/shop-page/filters/MobileFilters";
 import Filters from "@/components/shop-page/filters";
 import { FiSliders } from "react-icons/fi";
-import { newArrivalsData, relatedProductData, topSellingData } from "../page";
 import ProductCard from "@/components/common/ProductCard";
+import { getAllProducts } from "@/lib/products";
 import {
   Pagination,
   PaginationContent,
@@ -22,7 +22,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  // API'den tüm ürünleri çek
+  const products = await getAllProducts();
+
   return (
     <main className="pb-20">
       <div className="max-w-frame mx-auto px-4 xl:px-0">
@@ -44,7 +47,7 @@ export default function ShopPage() {
               </div>
               <div className="flex flex-col sm:items-center sm:flex-row">
                 <span className="text-sm md:text-base text-black/60 mr-3">
-                  100 Uründen 1-10 Arası Gösteriliyor
+                  {products.length} Üründen 1-{Math.min(products.length, 10)} Arası Gösteriliyor
                 </span>
                 <div className="flex items-center">
                   Sırala:{" "}
@@ -62,14 +65,15 @@ export default function ShopPage() {
               </div>
             </div>
             <div className="w-full grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-              {/* Mock ürünler kaldırıldı - API'den gelecek */}
-              {[
-                ...relatedProductData.slice(1, 4),
-                ...newArrivalsData.slice(1, 4),
-                ...topSellingData.slice(1, 4),
-              ].map((product) => (
-                <ProductCard key={product.id} data={product} />
-              ))}
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <ProductCard key={product.id} data={product} />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-10 text-black/60">
+                  Henüz ürün bulunmamaktadır.
+                </div>
+              )}
             </div>
             <hr className="border-t-black/10" />
             <Pagination className="justify-between">

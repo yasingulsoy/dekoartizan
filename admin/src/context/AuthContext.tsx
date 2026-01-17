@@ -1,16 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getCurrentUser, getAuthToken, removeAuthToken, setAuthToken, setCurrentUser } from "@/lib/api";
+import { getCurrentUser, getAuthToken, removeAuthToken, setAuthToken, setCurrentUser, API_URL } from "@/lib/api";
 
 interface User {
   id: number;
-  username: string;
+  username?: string; // Email kullanılacak
   email: string;
-  first_name: string;
-  last_name: string;
+  first_name: string | null;
+  last_name: string | null;
   role: 'admin' | 'manager' | 'editor' | 'viewer';
   is_active: boolean;
+  avatar_url?: string | null;
 }
 
 interface AuthContextType {
@@ -45,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (usernameOrEmail: string, password: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/admin/auth/login`, {
+      const response = await fetch(`${API_URL}/api/admin/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,20 +55,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ usernameOrEmail, password }),
       });
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Giriş başarısız' }));
-        throw new Error(error.message || 'Giriş başarısız');
-      }
-
       const data = await response.json();
       
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Giriş başarısız');
+      }
+      
       if (data.success && data.token && data.user) {
+        // Email'i username olarak kullan
+        const userData = {
+          ...data.user,
+          username: data.user.email
+        };
         setAuthToken(data.token);
-        setCurrentUser(data.user);
+        setCurrentUser(userData);
         setToken(data.token);
-        setUser(data.user);
+        setUser(userData);
       } else {
-        throw new Error(data.message || 'Giriş başarısız');
+        throw new Error(data.error || data.message || 'Giriş başarısız');
       }
     } catch (error: any) {
       throw error;

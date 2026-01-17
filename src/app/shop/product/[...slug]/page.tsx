@@ -1,10 +1,9 @@
 import { Metadata } from "next";
-import { relatedProductData } from "@/app/page";
 import ProductListSec from "@/components/common/ProductListSec";
 import BreadcrumbProduct from "@/components/product-page/BreadcrumbProduct";
 import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
-import { getProductById } from "@/lib/products";
+import { getProductById, getRelatedProducts } from "@/lib/products";
 import { notFound } from "next/navigation";
 import { BASE_URL } from "@/lib/api";
 
@@ -14,7 +13,7 @@ export async function generateMetadata({
   params: { slug: string[] };
 }): Promise<Metadata> {
   const productId = Number(params.slug[0]);
-  const product = getProductById(productId);
+  const product = await getProductById(productId);
 
   if (!product) {
     return {
@@ -65,17 +64,20 @@ export async function generateMetadata({
   };
 }
 
-export default function ProductPage({
+export default async function ProductPage({
   params,
 }: {
   params: { slug: string[] };
 }) {
   const productId = Number(params.slug[0]);
-  const productData = getProductById(productId);
+  const productData = await getProductById(productId);
 
   if (!productData?.title) {
     notFound();
   }
+
+  // İlgili ürünleri çek (şimdilik tüm ürünlerden, daha sonra kategoriye göre filtreleyebiliriz)
+  const relatedProducts = await getRelatedProducts(undefined, productId);
 
   // JSON-LD Structured Data (Schema.org Product)
   const baseUrl = BASE_URL;
@@ -138,7 +140,7 @@ export default function ProductPage({
           <Tabs />
         </div>
         <div className="mb-[50px] sm:mb-20">
-          <ProductListSec title="You might also like" data={relatedProductData} />
+          <ProductListSec title="You might also like" data={relatedProducts} />
         </div>
       </main>
     </>

@@ -2,6 +2,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import ProductForm from "@/components/products/ProductForm";
+import { API_URL } from "@/lib/api";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -9,7 +10,7 @@ export default function NewProductPage() {
   const handleSubmit = async (formData: any, images: File[]) => {
     try {
       // Önce ürünü oluştur
-      const productResponse = await fetch("http://localhost:5000/api/products", {
+      const productResponse = await fetch(`${API_URL}/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,7 +34,7 @@ export default function NewProductPage() {
         });
 
         const imagesResponse = await fetch(
-          `http://localhost:5000/api/products/${productId}/images`,
+          `${API_URL}/api/products/${productId}/images`,
           {
             method: "POST",
             body: formDataImages,

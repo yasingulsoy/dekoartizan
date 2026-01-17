@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Button from "../ui/button/Button";
+import { API_URL } from "@/lib/api";
 
 interface SubCategory {
   id: number;
@@ -41,7 +42,7 @@ const CategoryList: React.FC = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/categories?include_inactive=true");
+      const response = await fetch(`${API_URL}/api/categories?include_inactive=true`);
       const result = await response.json();
 
       if (result.success) {
@@ -57,7 +58,7 @@ const CategoryList: React.FC = () => {
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/categories", {
+      const response = await fetch(`${API_URL}/api/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -78,7 +79,7 @@ const CategoryList: React.FC = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:5000/api/categories/${categoryId}/sub-categories`,
+        `${API_URL}/api/categories/${categoryId}/sub-categories`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,7 +101,7 @@ const CategoryList: React.FC = () => {
   const handleUpdateCategory = async (categoryId: number, e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5000/api/categories/${categoryId}`, {
+      const response = await fetch(`${API_URL}/api/categories/${categoryId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -121,7 +122,7 @@ const CategoryList: React.FC = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:5000/api/categories/sub-categories/${subCategoryId}`,
+        `${API_URL}/api/categories/sub-categories/${subCategoryId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -144,7 +145,7 @@ const CategoryList: React.FC = () => {
     if (!confirm("Bu kategoriyi silmek istediğinize emin misiniz?")) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/categories/${categoryId}`, {
+      const response = await fetch(`${API_URL}/api/categories/${categoryId}`, {
         method: "DELETE",
       });
 
@@ -162,7 +163,7 @@ const CategoryList: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/categories/sub-categories/${subCategoryId}`,
+        `${API_URL}/api/categories/sub-categories/${subCategoryId}`,
         {
           method: "DELETE",
         }

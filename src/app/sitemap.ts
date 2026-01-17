@@ -2,11 +2,11 @@ import { MetadataRoute } from 'next';
 import { getAllProducts } from '@/lib/products';
 import { BASE_URL } from '@/lib/api';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = BASE_URL;
   
   // Tüm ürünleri al
-  const products = getAllProducts();
+  const products = await getAllProducts();
   
   // Statik sayfalar
   const staticPages: MetadataRoute.Sitemap = [
