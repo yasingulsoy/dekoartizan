@@ -4,8 +4,8 @@
 CREATE TABLE IF NOT EXISTS addresses (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
-    address_type VARCHAR(20) NOT NULL DEFAULT 'shipping', -- 'shipping', 'billing', 'both'
-    title VARCHAR(100), -- 'Ev', 'İş', 'Anne Evi' vb.
+    address_type VARCHAR(20) NOT NULL DEFAULT 'shipping',
+    title VARCHAR(100),
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     company VARCHAR(255),

@@ -1,13 +1,10 @@
--- Cart Tablosu
--- Sepet bilgilerini saklar
-
 CREATE TABLE IF NOT EXISTS cart (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
     product_variant_id INTEGER,
     quantity INTEGER NOT NULL DEFAULT 1,
-    price DECIMAL(10, 2) NOT NULL, -- Sepete eklendiğindeki fiyat
+    price DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cart_user
