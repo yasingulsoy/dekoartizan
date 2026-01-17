@@ -68,7 +68,7 @@ const createProductSlug = (
 };
 
 // Backend ürününü frontend Product formatına dönüştür
-const transformProduct = (backendProduct: BackendProduct): Product => {
+export const transformProduct = (backendProduct: BackendProduct): Product => {
   const gallery: string[] = [];
   
   // Resim URL'lerini API_URL ile birleştir

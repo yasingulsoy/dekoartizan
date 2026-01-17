@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { integralCF } from "@/styles/fonts";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { NavMenu } from "../navbar.types";
 import { MenuList } from "./MenuList";
@@ -64,8 +65,10 @@ const staticMenuItems: NavMenu = [
 ];
 
 const TopNavbar = () => {
+  const router = useRouter();
   const [menuData, setMenuData] = useState<NavMenu>(staticMenuItems);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -148,24 +151,36 @@ const TopNavbar = () => {
             ))}
           </NavigationMenuList>
         </NavigationMenu>
-        <InputGroup className="hidden md:flex bg-[#F0F0F0] mr-3 lg:mr-10">
-          <InputGroup.Text>
-            <Image
-              priority
-              src="/icons/search.svg"
-              height={20}
-              width={20}
-              alt="search"
-              className="min-w-5 min-h-5"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (searchQuery.trim()) {
+              router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+            }
+          }}
+          className="hidden md:flex bg-[#F0F0F0] mr-3 lg:mr-10 rounded-lg"
+        >
+          <InputGroup className="bg-transparent">
+            <InputGroup.Text>
+              <Image
+                priority
+                src="/icons/search.svg"
+                height={20}
+                width={20}
+                alt="search"
+                className="min-w-5 min-h-5"
+              />
+            </InputGroup.Text>
+            <InputGroup.Input
+              type="search"
+              name="q"
+              placeholder="Kategori veya ürün ara..."
+              className="bg-transparent placeholder:text-black/40"
+              value={searchQuery || ""}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </InputGroup.Text>
-          <InputGroup.Input
-            type="search"
-            name="search"
-            placeholder="Ürün ara..."
-            className="bg-transparent placeholder:text-black/40"
-          />
-        </InputGroup>
+          </InputGroup>
+        </form>
         <div className="flex items-center gap-1 md:gap-0 flex-shrink-0">
           <Link href="/search" className="block md:hidden p-1">
             <Image
