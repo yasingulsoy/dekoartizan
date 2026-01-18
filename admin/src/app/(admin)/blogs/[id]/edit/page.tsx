@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import BlogForm from "@/components/blogs/BlogForm";
-import { API_URL } from "@/lib/api";
-import { getAuthToken } from "@/lib/api";
+import { API_URL, getAuthToken, apiGet } from "@/lib/api";
 
 interface Blog {
   id: number;
@@ -33,8 +32,7 @@ export default function EditBlogPage() {
 
   const fetchBlog = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/blogs/${blogId}`);
-      const result = await response.json();
+      const result = await apiGet<{ success: boolean; data: Blog }>(`/api/blogs/${blogId}`);
 
       if (result.success) {
         setBlog(result.data);
@@ -42,9 +40,9 @@ export default function EditBlogPage() {
         alert("Blog bulunamadı");
         router.push("/blogs");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Blog yüklenemedi:", error);
-      alert("Blog yüklenirken bir hata oluştu");
+      alert(error.message || "Blog yüklenirken bir hata oluştu");
       router.push("/blogs");
     } finally {
       setLoading(false);

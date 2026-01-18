@@ -1,14 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Button from "../ui/button/Button";
+import ReactQuillWrapper from "../form/ReactQuillWrapper";
 import { API_URL } from "@/lib/api";
-
-// React Quill'i dynamic import ile yükle (SSR sorunlarını önlemek için)
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-import "react-quill/dist/quill.snow.css";
 
 interface BlogFormData {
   title: string;
@@ -73,7 +69,6 @@ const BlogForm: React.FC<BlogFormProps> = ({
     "underline",
     "strike",
     "list",
-    "bullet",
     "indent",
     "link",
     "image",
@@ -189,18 +184,15 @@ const BlogForm: React.FC<BlogFormProps> = ({
       {/* İçerik */}
       <div>
         <Label htmlFor="content">İçerik *</Label>
-        {typeof window !== "undefined" && (
-          <ReactQuill
-            theme="snow"
-            value={formData.content}
-            onChange={handleContentChange}
-            modules={modules}
-            formats={formats}
-            placeholder="Blog içeriğini yazın..."
-            className="bg-white dark:bg-gray-800"
-            style={{ minHeight: "400px" }}
-          />
-        )}
+        <ReactQuillWrapper
+          value={formData.content}
+          onChange={handleContentChange}
+          modules={modules}
+          formats={formats}
+          placeholder="Blog içeriğini yazın..."
+          className="bg-white dark:bg-gray-800"
+          style={{ minHeight: "400px" }}
+        />
       </div>
 
       {/* Resim */}

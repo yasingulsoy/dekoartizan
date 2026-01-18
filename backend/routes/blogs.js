@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { createBlogUploadMiddleware, deleteBlogFolder } = require('../middleware/blogUpload');
+const { createBlogUploadMiddleware, createBlogWallUploadMiddleware, deleteBlogFolder, deleteBlogWallFolder } = require('../middleware/blogUpload');
 const { Blog, User } = require('../models');
 const { Op } = require('sequelize');
 
@@ -39,7 +39,12 @@ router.get('/', async (req, res) => {
     const { count, rows } = await Blog.findAndCountAll({
       where,
       include: [
-        { model: User, as: 'author', attributes: ['id', 'name', 'email'] }
+        { 
+          model: User, 
+          as: 'author', 
+          attributes: ['id', 'name', 'email'],
+          required: false
+        }
       ],
       limit: parseInt(limit),
       offset: parseInt(offset),
@@ -67,7 +72,12 @@ router.get('/:id', async (req, res) => {
   try {
     const blog = await Blog.findByPk(req.params.id, {
       include: [
-        { model: User, as: 'author', attributes: ['id', 'name', 'email'] }
+        { 
+          model: User, 
+          as: 'author', 
+          attributes: ['id', 'name', 'email'],
+          required: false
+        }
       ]
     });
     
@@ -88,7 +98,12 @@ router.get('/slug/:slug', async (req, res) => {
     const blog = await Blog.findOne({
       where: { slug: req.params.slug },
       include: [
-        { model: User, as: 'author', attributes: ['id', 'name', 'email'] }
+        { 
+          model: User, 
+          as: 'author', 
+          attributes: ['id', 'name', 'email'],
+          required: false
+        }
       ]
     });
     
@@ -170,7 +185,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Blog resmi yükle
+// Blog resmi yükle (blogsWall/{blogId}/ klasörüne kaydeder)
 router.post('/:id/image', async (req, res) => {
   try {
     const blog = await Blog.findByPk(req.params.id);
@@ -191,7 +206,8 @@ router.post('/:id/image', async (req, res) => {
       }
     }
     
-    const upload = createBlogUploadMiddleware(blog.id);
+    // blogsWall/{blogId}/ klasörüne kaydet
+    const upload = createBlogWallUploadMiddleware(blog.id);
     upload.single('image')(req, res, async (err) => {
       if (err) {
         return res.status(400).json({ success: false, error: err.message });
@@ -202,7 +218,7 @@ router.post('/:id/image', async (req, res) => {
       }
       
       try {
-        const imageUrl = `/uploads/blogs/${blog.id}/${req.file.filename}`;
+        const imageUrl = `/uploads/blogsWall/${blog.id}/${req.file.filename}`;
         
         blog.image = imageUrl;
         await blog.save();
@@ -296,8 +312,9 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Blog bulunamadı' });
     }
     
-    // Blog klasörünü sil
-    deleteBlogFolder(blog.id);
+    // Blog klasörlerini sil
+    deleteBlogFolder(blog.id); // Eski içerik klasörü
+    deleteBlogWallFolder(blog.id); // Kapak resmi klasörü
     
     await blog.destroy();
     

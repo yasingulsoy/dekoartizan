@@ -7,6 +7,20 @@ const User = sequelize.define('User', {
     primaryKey: true,
     autoIncrement: true
   },
+  // DB'de ayrı bir `name` kolonu yok; frontend/backoffice çoğu yerde `author.name` bekliyor.
+  // Bu yüzden `first_name` + `last_name` (yoksa `username`, o da yoksa `email`) üzerinden virtual alan sağlıyoruz.
+  name: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      const firstName = this.getDataValue('first_name');
+      const lastName = this.getDataValue('last_name');
+      const username = this.getDataValue('username');
+      const email = this.getDataValue('email');
+
+      const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+      return fullName || username || email || null;
+    }
+  },
   username: {
     type: DataTypes.STRING(20),
     allowNull: true,
