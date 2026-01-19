@@ -73,6 +73,12 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        gold: {
+          light: "#FCE7A2",
+          DEFAULT: "#D4AF37",
+          medium: "#C5A028",
+          dark: "#8E6E1E",
+        },
       },
       keyframes: {
         "accordion-down": {

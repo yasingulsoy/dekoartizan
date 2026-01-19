@@ -7,7 +7,7 @@ import DressStyleCard from "./DressStyleCard";
 const DressStyle = () => {
   return (
     <div className="px-4 xl:px-0">
-      <section className="max-w-frame mx-auto bg-[#F0F0F0] px-6 pb-6 pt-10 md:p-[70px] rounded-[40px] text-center">
+      <section className="max-w-frame mx-auto px-6 pb-6 pt-10 md:p-[70px] rounded-[40px] text-center" style={{ background: 'linear-gradient(45deg, #8E6E1E 0%, #D4AF37 50%, #FCE7A2 100%)' }}>
         <motion.h2
           initial={{ y: "100px", opacity: 0 }}
           whileInView={{ y: "0", opacity: 1 }}
@@ -15,7 +15,7 @@ const DressStyle = () => {
           transition={{ duration: 0.6 }}
           className={cn([
             integralCF.className,
-            "text-[32px] leading-[36px] md:text-5xl mb-8 md:mb-14 capitalize",
+            "text-[32px] leading-[36px] md:text-5xl mb-8 md:mb-14 capitalize text-white",
           ])}
         >
           dekoartizan TARZINA GORE GOZ AT

@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
 import { integralCF } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { API_URL } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -20,6 +25,9 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -28,10 +36,101 @@ export default function SignUpPage() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Signup işlemi burada yapılacak
-    console.log("Signup:", formData);
+    setError(null);
+
+    // Validasyon
+    if (!formData.firstName || !formData.lastName) {
+      setError("Ad ve soyad gereklidir");
+      return;
+    }
+
+    if (!formData.email) {
+      setError("E-posta adresi gereklidir");
+      return;
+    }
+
+    // Email format kontrolü
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Geçerli bir e-posta adresi giriniz");
+      return;
+    }
+
+    if (!formData.password) {
+      setError("Şifre gereklidir");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Şifre en az 6 karakter olmalıdır");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Şifreler eşleşmiyor");
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setError("Kullanım şartlarını kabul etmelisiniz");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password,
+          first_name: formData.firstName.trim(),
+          last_name: formData.lastName.trim(),
+          phone: formData.phone.trim() || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.token) {
+        // Token'ı AuthContext'e kaydet
+        await login(data.token);
+        // E-posta doğrulama sayfasına yönlendir
+        router.push("/verify-email?message=check_email");
+      } else {
+        setError(data.error || "Kayıt başarısız. Lütfen tekrar deneyin.");
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error("Signup hatası:", error);
+      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setIsGoogleLoading(true);
+      const response = await fetch(`${API_URL}/api/auth/google`);
+      const data = await response.json();
+      
+      if (data.success && data.authUrl) {
+        // Google OAuth sayfasına yönlendir
+        window.location.href = data.authUrl;
+      } else {
+        alert("Google ile giriş başlatılamadı. Lütfen tekrar deneyin.");
+        setIsGoogleLoading(false);
+      }
+    } catch (error) {
+      console.error("Google Sign-Up hatası:", error);
+      alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setIsGoogleLoading(false);
+    }
   };
 
   return (
@@ -64,6 +163,12 @@ export default function SignUpPage() {
 
         {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {/* Hata Mesajı */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
           <div className="space-y-4">
             {/* Isim ve Soyisim */}
             <div className="grid grid-cols-2 gap-4">
@@ -357,14 +462,14 @@ export default function SignUpPage() {
             <div className="ml-3 text-sm">
               <label htmlFor="agree-terms" className="text-foreground">
                 <Link
-                  href="/terms"
+                  href="/kullanim-sartlari"
                   className="font-medium text-primary hover:text-primary/80"
                 >
                   Kullanım şartlarını
                 </Link>{" "}
                 ve{" "}
                 <Link
-                  href="/privacy"
+                  href="/gizlilik-politikasi"
                   className="font-medium text-primary hover:text-primary/80"
                 >
                   gizlilik politikasını
@@ -378,10 +483,11 @@ export default function SignUpPage() {
           <div>
             <Button
               type="submit"
-              className="w-full bg-black text-white hover:bg-black/90 rounded-full py-6 text-base font-medium"
+              disabled={isSubmitting || isGoogleLoading}
+              className="w-full bg-black text-white hover:bg-black/90 rounded-full py-6 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
-              Kayıt Ol
+              {isSubmitting ? "Kayıt yapılıyor..." : "Kayıt Ol"}
             </Button>
           </div>
 
@@ -402,7 +508,9 @@ export default function SignUpPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-full py-6 border-black/20 hover:bg-[#F0F0F0] flex items-center justify-center"
+              onClick={handleGoogleSignUp}
+              disabled={isGoogleLoading}
+              className="w-full rounded-full py-6 border-black/20 hover:bg-[#F0F0F0] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -414,7 +522,7 @@ export default function SignUpPage() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
-              Google
+              {isGoogleLoading ? "Yönlendiriliyor..." : "Google"}
             </Button>
           </div>
         </form>

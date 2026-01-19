@@ -142,7 +142,7 @@ export default async function ProductPage({
           <Tabs />
         </div>
         <div className="mb-[50px] sm:mb-20">
-          <ProductListSec title="You might also like" data={relatedProducts} />
+          <ProductListSec title="Beğenebileceğiniz diğer ürünler" data={relatedProducts} />
         </div>
       </main>
     </>

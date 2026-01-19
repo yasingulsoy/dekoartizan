@@ -32,6 +32,21 @@ DB_POOL_IDLE_MS=10000
 
 # CORS Configuration
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_REDIRECT_URI=http://localhost:5000/api/auth/google/callback
+FRONTEND_URL=http://localhost:3000
+
+# SMTP Configuration (E-posta gönderme için)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=dekoartizan@dekoartizan.com
+SMTP_PASSWORD=your_app_password_here
+SMTP_FROM=dekoartizan@dekoartizan.com
+SMTP_FROM_NAME=dekoartizan
 ```
 
 ## Veritabanı Bağlantısını Test Etme
@@ -65,6 +80,21 @@ Bu proje PostgreSQL kullanır ve Sequelize ORM ile pool yönetimi yapılır. Poo
 
 ## API Endpoints
 
+### Genel
 - `GET /api/health` - Sağlık kontrolü
 - `GET /api/live` - Liveness probe
 - `GET /api/ready` - Readiness probe
+
+### Authentication (Auth)
+- `POST /api/auth/login` - Customer login (e-posta/şifre)
+- `POST /api/auth/register` - Customer kayıt
+- `POST /api/auth/verify` - Token doğrulama
+- `GET /api/auth/google` - Google OAuth başlatma
+- `GET /api/auth/google/callback` - Google OAuth callback
+- `POST /api/auth/test-email` - Test e-postası gönderme (development)
+
+### Diğer Endpoint'ler
+- `GET /api/products` - Ürün listesi
+- `GET /api/products/:id` - Ürün detayı
+- `GET /api/orders` - Sipariş listesi (authenticated)
+- `GET /api/orders/:id` - Sipariş detayı (authenticated)

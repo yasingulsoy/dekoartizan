@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { apiGet } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
@@ -39,26 +41,20 @@ interface Order {
 }
 
 export default function OrdersPage() {
+  const { customer, isAuthenticated, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    // TODO: Kullanıcı ID'sini session/auth'dan al
-    // Şimdilik localStorage veya query parametresinden alabiliriz
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(parseInt(storedUserId));
-    } else {
-      // Eğer userId yoksa, kullanıcıdan al veya signin sayfasına yönlendir
-      setError("Lütfen giriş yapın");
-      setLoading(false);
+    if (!authLoading && !isAuthenticated) {
+      router.push("/signin");
     }
-  }, []);
+  }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!customer?.id) return;
 
     const fetchOrders = async () => {
       try {
@@ -72,7 +68,7 @@ export default function OrdersPage() {
             limit: number;
             pages: number;
           };
-        }>(`/api/orders/user/${userId}`);
+        }>(`/api/orders/user/${customer.id}`);
         
         if (response.success) {
           setOrders(response.data);
@@ -88,7 +84,7 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, [userId]);
+  }, [customer?.id]);
 
   const getStatusColor = (code: number) => {
     switch (code) {
@@ -118,12 +114,12 @@ export default function OrdersPage() {
     });
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-          <p className="mt-4 text-gray-600">Siparişler yükleniyor...</p>
+          <p className="mt-4 text-gray-600">Yükleniyor...</p>
         </div>
       </div>
     );

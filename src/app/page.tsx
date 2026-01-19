@@ -4,6 +4,7 @@ import DressStyle from "@/components/homepage/DressStyle";
 import Header from "@/components/homepage/Header";
 import Reviews from "@/components/homepage/Reviews";
 import ProcessSteps from "@/components/homepage/ProcessSteps";
+import DomeGallery from "@/components/homepage/DomeGallery";
 import CartSidebar from "@/components/cart-sidebar/CartSidebar";
 import { Review } from "@/types/review.types";
 import { getNewArrivals, getTopSelling } from "@/lib/products";
@@ -84,6 +85,19 @@ export default async function Home() {
         </div>
         <div className="mb-[50px] sm:mb-20">
           <DressStyle />
+        </div>
+        <div className="mb-[50px] sm:mb-20">
+          <div className="w-full h-[600px] md:h-[800px]">
+            <DomeGallery
+              fit={0.8}
+              minRadius={600}
+              maxVerticalRotationDeg={0}
+              segments={34}
+              dragDampening={2}
+              grayscale
+              overlayBlurColor="#C5A028"
+            />
+          </div>
         </div>
         <Reviews data={reviewsData} />
       </main>

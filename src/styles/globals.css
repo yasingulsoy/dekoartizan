@@ -93,3 +93,8 @@
     text-rendering: optimizeLegibility;
   }
 }
+
+/* DomeGallery scroll lock */
+.dg-scroll-lock {
+  overflow: hidden;
+}

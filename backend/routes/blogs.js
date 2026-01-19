@@ -5,6 +5,19 @@ const fs = require('fs');
 const { createBlogUploadMiddleware, createBlogWallUploadMiddleware, deleteBlogFolder, deleteBlogWallFolder } = require('../middleware/blogUpload');
 const { Blog, User } = require('../models');
 const { Op } = require('sequelize');
+const { blogsWallDir } = require('../middleware/blogUpload');
+const {
+  normalizeBlogHtml,
+  persistInlineImagesToBlogsWall,
+  cleanupUnreferencedContentImages,
+} = require('../utils/blogContent');
+
+const resolveUploadPath = (urlPath) => {
+  if (!urlPath || typeof urlPath !== 'string') return null;
+  // blog.image gibi alanlar genelde "/uploads/..." başlar; path.join bunu "absolute" sayıp base'i yok sayabilir.
+  const clean = urlPath.replace(/^\/+/, '');
+  return path.join(__dirname, '..', clean);
+};
 
 const createSlug = (text) => {
   return text
@@ -142,6 +155,8 @@ router.post('/', async (req, res) => {
     if (!title || !content) {
       return res.status(400).json({ success: false, error: 'Başlık ve içerik gerekli' });
     }
+
+    const normalizedContent = normalizeBlogHtml(content);
     
     let slug = createSlug(title);
     
@@ -157,7 +172,7 @@ router.post('/', async (req, res) => {
     const blogData = {
       title,
       slug,
-      content,
+      content: normalizedContent,
       excerpt: excerpt || null,
       tags: tags && Array.isArray(tags) ? tags : [],
       is_published: is_published === true || is_published === 'true',
@@ -173,11 +188,30 @@ router.post('/', async (req, res) => {
     };
     
     const blog = await Blog.create(blogData);
+
+    // İçerikte base64 gömülü görseller varsa dosyaya yazıp src'leri URL ile değiştir
+    try {
+      const persisted = persistInlineImagesToBlogsWall({
+        html: blog.content,
+        blogId: blog.id,
+        blogsWallDir,
+      });
+
+      if (persisted.html !== blog.content) {
+        await blog.update({ content: persisted.html });
+      }
+
+      // İlk kayıt sonrası gereksiz content_* dosyası varsa temizle (best-effort)
+      cleanupUnreferencedContentImages({ html: blog.content, blogId: blog.id, blogsWallDir });
+    } catch (e) {
+      console.error('İçerik görsel dönüştürme hatası (create):', e);
+      // Blog kaydını tamamen başarısız yapmıyoruz; kullanıcı tekrar güncelleyebilir.
+    }
     
     res.json({
       success: true,
       data: blog,
-      message: 'Blog oluşturuldu. Şimdi resim yükleyebilirsiniz.'
+      message: 'Blog oluşturuldu.'
     });
   } catch (error) {
     console.error('Blog oluşturma hatası:', error);
@@ -195,7 +229,7 @@ router.post('/:id/image', async (req, res) => {
     
     // Eski resmi sil
     if (blog.image) {
-      const oldImagePath = path.join(__dirname, '..', blog.image);
+      const oldImagePath = resolveUploadPath(blog.image);
       if (fs.existsSync(oldImagePath)) {
         try {
           fs.unlinkSync(oldImagePath);
@@ -239,6 +273,46 @@ router.post('/:id/image', async (req, res) => {
   }
 });
 
+// Blog kapak resmini sil
+router.delete('/:id/image', async (req, res) => {
+  try {
+    const blog = await Blog.findByPk(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ success: false, error: 'Blog bulunamadı' });
+    }
+
+    if (!blog.image) {
+      return res.json({
+        success: true,
+        data: { image: null },
+        message: 'Blog kapağı zaten boş'
+      });
+    }
+
+    const imagePath = resolveUploadPath(blog.image);
+    if (imagePath && fs.existsSync(imagePath)) {
+      try {
+        fs.unlinkSync(imagePath);
+        console.log('Blog kapak resmi silindi:', imagePath);
+      } catch (error) {
+        console.error('Kapak resmi silme hatası:', error);
+      }
+    }
+
+    blog.image = null;
+    await blog.save();
+
+    return res.json({
+      success: true,
+      data: { image: null },
+      message: 'Blog kapağı silindi'
+    });
+  } catch (error) {
+    console.error('Kapak resmi silme hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Blog güncelle
 router.put('/:id', async (req, res) => {
   try {
@@ -248,11 +322,22 @@ router.put('/:id', async (req, res) => {
     }
     
     const updateData = { ...req.body };
+
+    // İçerik normalize + base64 img -> dosya
+    if (updateData.content !== undefined && updateData.content !== null) {
+      const normalized = normalizeBlogHtml(updateData.content);
+      const persisted = persistInlineImagesToBlogsWall({
+        html: normalized,
+        blogId: blog.id,
+        blogsWallDir,
+      });
+      updateData.content = persisted.html;
+    }
     
     // Eğer resim alanı boş/null gönderilirse eski resmi sil
     if (updateData.image === null || updateData.image === '' || updateData.image === undefined) {
       if (blog.image) {
-        const oldImagePath = path.join(__dirname, '..', blog.image);
+        const oldImagePath = resolveUploadPath(blog.image);
         if (fs.existsSync(oldImagePath)) {
           try {
             fs.unlinkSync(oldImagePath);
@@ -296,6 +381,11 @@ router.put('/:id', async (req, res) => {
     }
     
     await blog.update(updateData);
+
+    // Güncelleme sonrası içerikte referans edilmeyen content_* dosyalarını temizle
+    if (updateData.content !== undefined) {
+      cleanupUnreferencedContentImages({ html: blog.content, blogId: blog.id, blogsWallDir });
+    }
     
     res.json({ success: true, data: blog, message: 'Blog güncellendi' });
   } catch (error) {

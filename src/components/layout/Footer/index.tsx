@@ -54,12 +54,12 @@ const Footer = () => {
   return (
     <footer className="mt-10">
       <div className="relative">
-        <div className="absolute bottom-0 w-full h-1/2 bg-[#F0F0F0]"></div>
+        <div className="absolute bottom-0 w-full h-1/2" style={{ background: 'linear-gradient(45deg, #8E6E1E 0%, #C5A028 40%, #D4AF37 85%, #FCE7A2 100%)' }}></div>
         <div className="px-4">
           <NewsLetterSection />
         </div>
       </div>
-      <div className="pt-8 md:pt-[50px] bg-[#F0F0F0] px-4 pb-4">
+      <div className="pt-8 md:pt-[50px] bg-gradient-to-br from-gold-dark via-gold to-gold-light px-4 pb-4" style={{ background: 'linear-gradient(45deg, #8E6E1E 0%, #C5A028 40%, #D4AF37 85%, #FCE7A2 100%)' }}>
         <div className="max-w-frame mx-auto">
           <nav className="lg:grid lg:grid-cols-12 mb-8">
             <div className="flex flex-col lg:col-span-3 lg:max-w-[248px]">
@@ -77,13 +77,13 @@ const Footer = () => {
                 <h1
                   className={cn([
                     integralCF.className,
-                    "text-[28px] lg:text-[32px]",
+                    "text-[28px] lg:text-[32px] text-white",
                   ])}
                 >
                   dekoartizan
                 </h1>
               </Link>
-              <p className="text-black/60 text-sm mb-9">
+              <p className="text-white/90 text-sm mb-9">
                 Evinize uygun ve dekorasyonunuzdan gurur duyacağınız duvar kağıtlarımız var.
                 Her mekana uygun.
               </p>
@@ -92,7 +92,7 @@ const Footer = () => {
                   <Link
                     href={social.url}
                     key={social.id}
-                    className="bg-white hover:bg-black hover:text-white transition-all mr-3 w-7 h-7 rounded-full border border-black/20 flex items-center justify-center p-1.5"
+                    className="bg-white/20 hover:bg-white/30 hover:text-white transition-all mr-3 w-7 h-7 rounded-full border border-white/30 flex items-center justify-center p-1.5 text-white"
                   >
                     {social.icon}
                   </Link>
@@ -107,7 +107,7 @@ const Footer = () => {
             </div>
           </nav>
 
-          <hr className="h-[1px] border-t-black/10 mb-6" />
+          <hr className="h-[1px] border-t-white/20 mb-6" />
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-2">
           </div>
           <div className="flex justify-center items-center mt-6 mb-4">
@@ -117,7 +117,7 @@ const Footer = () => {
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <span className="text-sm text-black/60">Trendyol'da bizi ziyaret edin:</span>
+              <span className="text-sm text-white/90">Trendyol'da bizi ziyaret edin:</span>
               <Image
                 src="/images/trendyol.png"
                 alt="Trendyol"
@@ -127,7 +127,7 @@ const Footer = () => {
               />
             </Link>
           </div>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 text-sm text-black/60 mt-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 text-sm text-white/90 mt-4">
             <span>© {new Date().getFullYear()} dekoartizan</span>
             <span className="hidden sm:inline">•</span>
             <span>
@@ -136,7 +136,7 @@ const Footer = () => {
                 href="https://cengaversoft.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-black transition-colors font-medium"
+                className="hover:text-white transition-colors font-medium"
               >
                 cengaversoft.com
               </Link>

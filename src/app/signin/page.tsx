@@ -1,23 +1,133 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
 import { integralCF } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { API_URL } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignInPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Google OAuth callback kontrolü
+  useEffect(() => {
+    const token = searchParams?.get("token");
+    const success = searchParams?.get("success");
+    const error = searchParams?.get("error");
+
+    if (token && success === "true") {
+      // Token'ı AuthContext'e kaydet
+      login(token).then(() => {
+        setLoginSuccess(true);
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+      });
+    } else if (error) {
+      // Hata mesajını göster
+      alert(`Giriş hatası: ${error}`);
+    }
+  }, [searchParams, router, login]);
+
+  // Zaten giriş yapılmışsa ana sayfaya yönlendir
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Login işlemi burada yapılacak
-    console.log("Login:", { email, password });
+    
+    // Validasyon
+    if (!email || !password) {
+      alert("Lütfen e-posta ve şifre giriniz");
+      return;
+    }
+
+    try {
+      setIsGoogleLoading(true);
+      
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.token) {
+        // Token'ı AuthContext'e kaydet
+        await login(data.token);
+        setLoginSuccess(true);
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+      } else {
+        alert(data.error || "Giriş başarısız. Lütfen tekrar deneyin.");
+        setIsGoogleLoading(false);
+      }
+    } catch (error) {
+      console.error("Login hatası:", error);
+      alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setIsGoogleLoading(false);
+    }
   };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsGoogleLoading(true);
+      const response = await fetch(`${API_URL}/api/auth/google`);
+      const data = await response.json();
+      
+      if (data.success && data.authUrl) {
+        // Google OAuth sayfasına yönlendir
+        window.location.href = data.authUrl;
+      } else {
+        alert("Google ile giriş başlatılamadı. Lütfen tekrar deneyin.");
+        setIsGoogleLoading(false);
+      }
+    } catch (error) {
+      console.error("Google Sign-In hatası:", error);
+      alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setIsGoogleLoading(false);
+    }
+  };
+
+  if (loginSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full text-center">
+          <div className="mb-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Giriş Başarılı!</h2>
+            <p className="text-gray-600">Ana sayfaya yönlendiriliyorsunuz...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -194,10 +304,11 @@ export default function SignInPage() {
           <div>
             <Button
               type="submit"
-              className="w-full bg-black text-white hover:bg-black/90 rounded-full py-6 text-base font-medium"
+              disabled={isGoogleLoading}
+              className="w-full bg-black text-white hover:bg-black/90 rounded-full py-6 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
-              Giriş Yap
+              {isGoogleLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
             </Button>
           </div>
 
@@ -218,7 +329,9 @@ export default function SignInPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-full py-6 border-black/20 hover:bg-[#F0F0F0] flex items-center justify-center"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+              className="w-full rounded-full py-6 border-black/20 hover:bg-[#F0F0F0] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -230,7 +343,7 @@ export default function SignInPage() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
-              Google
+              {isGoogleLoading ? "Yönlendiriliyor..." : "Google"}
             </Button>
           </div>
         </form>

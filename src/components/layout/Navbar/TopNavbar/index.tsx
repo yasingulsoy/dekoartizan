@@ -17,6 +17,7 @@ import InputGroup from "@/components/ui/input-group";
 import ResTopNavbar from "./ResTopNavbar";
 import CartBtn from "./CartBtn";
 import { apiGet } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 interface Category {
   id: number;
@@ -66,6 +67,7 @@ const staticMenuItems: NavMenu = [
 
 const TopNavbar = () => {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [menuData, setMenuData] = useState<NavMenu>(staticMenuItems);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -193,7 +195,7 @@ const TopNavbar = () => {
             />
           </Link>
           <CartBtn />
-          <Link href="/signin" className="p-1">
+          <Link href={isAuthenticated ? "/profil" : "/signin"} className="p-1">
             <Image
               priority
               src="/icons/user.svg"

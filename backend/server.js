@@ -7,6 +7,13 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// SMTP bağlantısını test et (server başlatıldığında)
+try {
+  require('./utils/email');
+} catch (error) {
+  console.warn('⚠️ Email utility yüklenemedi:', error.message);
+}
+
 const { sequelize, testConnection, syncDatabase, closeConnection } = require('./config/database');
 
 const app = express();
@@ -135,6 +142,7 @@ app.use('/api/categories', require('./routes/categories'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/blogs', require('./routes/blogs'));
+app.use('/api/auth', require('./routes/auth'));
 
 app.use('*', (req, res) => {
   res.status(404).json({
