@@ -10,15 +10,31 @@ const nextConfig: NextConfig = {
     return config;
   },
     
-    turbopack: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
+  },
   
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '5000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.dekoartizan.com',
+        pathname: '/uploads/**',
+      },
+    ],
+    unoptimized: process.env.NODE_ENV === 'development',
+  },
 };
 
 export default nextConfig;

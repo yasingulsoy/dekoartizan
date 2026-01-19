@@ -348,8 +348,8 @@ export default function DomeGallery({
       onDrag: ({ event, last, velocity = [0, 0], direction = [0, 0], movement }) => {
         if (focusedElRef.current || !draggingRef.current || !startPosRef.current) return;
         const evt = event as MouseEvent | TouchEvent;
-        const clientX = 'touches' in evt ? evt.touches[0]?.clientX ?? evt.clientX : evt.clientX;
-        const clientY = 'touches' in evt ? evt.touches[0]?.clientY ?? evt.clientY : evt.clientY;
+        const clientX = 'touches' in evt ? evt.touches[0]?.clientX ?? 0 : (evt as MouseEvent).clientX;
+        const clientY = 'touches' in evt ? evt.touches[0]?.clientY ?? 0 : (evt as MouseEvent).clientY;
         const dxTotal = clientX - startPosRef.current.x;
         const dyTotal = clientY - startPosRef.current.y;
         if (!movedRef.current) {

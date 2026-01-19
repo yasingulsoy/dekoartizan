@@ -12,6 +12,11 @@ const nextConfig = {
         port: '5000',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.dekoartizan.com',
+        pathname: '/uploads/**',
+      },
     ],
     unoptimized: process.env.NODE_ENV === 'development',
   },
