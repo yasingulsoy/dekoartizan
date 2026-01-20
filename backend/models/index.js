@@ -9,6 +9,8 @@ const User = require('./User');
 const Customer = require('./Customer');
 const Address = require('./Address');
 const Blog = require('./Blog');
+const Wishlist = require('./Wishlist');
+const PaperType = require('./PaperType');
 
 // Model ilişkileri
 Product.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
@@ -38,6 +40,11 @@ OrderItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 Customer.hasMany(Address, { foreignKey: 'customer_id', as: 'addresses' });
 Address.belongsTo(Customer, { foreignKey: 'customer_id', as: 'customer' });
 
+Customer.hasMany(Wishlist, { foreignKey: 'customer_id', as: 'wishlist' });
+Wishlist.belongsTo(Customer, { foreignKey: 'customer_id', as: 'customer' });
+Wishlist.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+Product.hasMany(Wishlist, { foreignKey: 'product_id', as: 'wishlistItems' });
+
 Blog.belongsTo(User, { foreignKey: 'author_id', as: 'author' });
 
 module.exports = {
@@ -51,5 +58,7 @@ module.exports = {
   User,
   Customer,
   Address,
-  Blog
+  Blog,
+  Wishlist,
+  PaperType
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import Image from "next/image";
 import React from "react";
 import * as motion from "framer-motion/client";
@@ -31,7 +31,7 @@ const ComingSoon = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6 }}
           className={cn([
-            integralCF.className,
+            poppins.className,
             "text-4xl md:text-6xl lg:text-7xl mb-6 md:mb-8",
           ])}
         >
@@ -76,7 +76,7 @@ const ComingSoon = () => {
         >
           <div className="inline-block bg-[#F0F0F0] px-8 py-6 rounded-[40px]">
             <p className={cn([
-              integralCF.className,
+              poppins.className,
               "text-xl md:text-2xl text-black/80"
             ])}>
               dekoartizan

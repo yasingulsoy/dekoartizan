@@ -3,7 +3,7 @@
 import React from "react";
 import * as motion from "framer-motion/client";
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import {
   Carousel,
   CarouselContent,
@@ -64,7 +64,7 @@ const Reviews = ({ data }: ReviewsProps) => {
               viewport={{ once: true }}
               transition={{ delay: 0.6, duration: 0.6 }}
               className={cn([
-                integralCF.className,
+                poppins.className,
                 "text-[32px] leading-[36px] md:text-5xl capitalize mr-auto",
               ])}
             >

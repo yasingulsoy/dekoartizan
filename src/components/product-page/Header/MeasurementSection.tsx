@@ -6,9 +6,10 @@ import { Product } from "@/types/product.types";
 interface MeasurementSectionProps {
   data: Product;
   onTotalPriceChange?: (totalPrice: number, area: number) => void;
+  onMeasurementChange?: (width: string, height: string) => void;
 }
 
-const MeasurementSection = ({ data, onTotalPriceChange }: MeasurementSectionProps) => {
+const MeasurementSection = ({ data, onTotalPriceChange, onMeasurementChange }: MeasurementSectionProps) => {
   const [width, setWidth] = useState<string>("");
   const [height, setHeight] = useState<string>("");
   const [area, setArea] = useState<number>(0);
@@ -38,6 +39,11 @@ const MeasurementSection = ({ data, onTotalPriceChange }: MeasurementSectionProp
     const widthNum = parseNumber(width);
     const heightNum = parseNumber(height);
 
+    // Ölçü değişikliklerini parent'a bildir
+    if (onMeasurementChange) {
+      onMeasurementChange(width, height);
+    }
+
     if (widthNum > 0 && heightNum > 0) {
       // m² hesaplama (cm'den m²'ye çevirme)
       const areaInM2 = (widthNum * heightNum) / 10000;
@@ -57,7 +63,7 @@ const MeasurementSection = ({ data, onTotalPriceChange }: MeasurementSectionProp
         onTotalPriceChange(0, 0);
       }
     }
-  }, [width, height, unitPrice, onTotalPriceChange]);
+  }, [width, height, unitPrice, onTotalPriceChange, onMeasurementChange]);
 
   // Input değişikliğini handle et (virgül ve nokta kabul et)
   const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,13 +85,13 @@ const MeasurementSection = ({ data, onTotalPriceChange }: MeasurementSectionProp
   return (
     <div className="flex flex-col mb-5">
       <h3 className="text-sm sm:text-base font-semibold text-black mb-4">
-        Duvar Ölçülerini Giriniz
+        Duvar Ölçülerini Giriniz <span className="text-red-500">*</span>
       </h3>
       
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
           <label className="block text-xs sm:text-sm text-black/60 mb-2">
-            Genişlik
+            Genişlik <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -104,7 +110,7 @@ const MeasurementSection = ({ data, onTotalPriceChange }: MeasurementSectionProp
         
         <div>
           <label className="block text-xs sm:text-sm text-black/60 mb-2">
-            Yükseklik
+            Yükseklik <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input

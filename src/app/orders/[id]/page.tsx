@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { apiGet } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 
 interface OrderStatus {
@@ -19,6 +19,9 @@ interface OrderItem {
   id: number;
   quantity: number;
   price: number;
+  cropped_image_url?: string;
+  crop_width?: number;
+  crop_height?: number;
   product: {
     id: number;
     name: string;
@@ -181,7 +184,7 @@ export default function OrderDetailPage() {
         <div className="mb-8">
           <h1
             className={cn([
-              integralCF.className,
+              poppins.className,
               "text-3xl lg:text-4xl font-bold mb-2",
             ])}
           >
@@ -282,8 +285,16 @@ export default function OrderDetailPage() {
                 key={item.id}
                 className="flex gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0"
               >
-                <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                  {item.product.images && item.product.images[0] ? (
+                <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                  {item.cropped_image_url ? (
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${item.cropped_image_url}`}
+                      alt={item.product.name}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : item.product.images && item.product.images[0] ? (
                     <Image
                       src={item.product.images[0].url}
                       alt={item.product.name}
@@ -308,6 +319,11 @@ export default function OrderDetailPage() {
                       </svg>
                     </div>
                   )}
+                  {item.cropped_image_url && (
+                    <div className="absolute top-1 right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded">
+                      Kırpılmış
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <Link
@@ -319,6 +335,11 @@ export default function OrderDetailPage() {
                   <p className="text-sm text-gray-500">
                     Adet: {item.quantity}
                   </p>
+                  {item.crop_width && item.crop_height && (
+                    <p className="text-xs text-gray-500">
+                      Ölçü: {item.crop_width}cm × {item.crop_height}cm
+                    </p>
+                  )}
                   <p className="text-sm font-medium text-gray-900 mt-1">
                     ₺{parseFloat(item.price.toString()).toFixed(2)}
                   </p>

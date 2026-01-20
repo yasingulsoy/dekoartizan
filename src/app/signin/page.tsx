@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { API_URL } from "@/lib/api";
@@ -137,11 +137,11 @@ export default function SignInPage() {
           <Link
             href="/"
             className={cn([
-              integralCF.className,
+              poppins.className,
               "text-3xl lg:text-4xl mb-2 inline-block",
             ])}
           >
-            dekoartizan
+            DEKOARTİZAN
           </Link>
           <h2 className="mt-6 text-2xl font-bold text-foreground">
             Hesabınıza Giriş Yapın

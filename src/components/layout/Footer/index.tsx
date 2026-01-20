@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import React from "react";
 import { PaymentBadge, SocialNetworks } from "./footer.types";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
@@ -76,7 +76,7 @@ const Footer = () => {
                 />
                 <h1
                   className={cn([
-                    integralCF.className,
+                    poppins.className,
                     "text-[28px] lg:text-[32px] text-white",
                   ])}
                 >

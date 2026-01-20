@@ -31,6 +31,9 @@ export type CartItem = {
   discount: Discount;
   quantity: number;
   slug?: string;
+  croppedImageUrl?: string;
+  cropWidth?: number;
+  cropHeight?: number;
 };
 
 export type Cart = {

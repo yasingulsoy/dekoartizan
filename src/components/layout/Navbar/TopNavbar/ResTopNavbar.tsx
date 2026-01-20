@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { NavMenu } from "../navbar.types";
 import {
   Accordion,
@@ -44,7 +44,7 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
                   height={32}
                   className="w-8 h-8"
                 />
-                <span className={cn([integralCF.className, "text-2xl"])}>
+                <span className={cn([poppins.className, "text-2xl"])}>
                   dekoartizan
                 </span>
               </Link>

@@ -7,7 +7,7 @@ import { RootState } from "@/lib/store";
 import ProductCard from "@/components/cart-page/ProductCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import Link from "next/link";
 import { FaArrowRight, FaXmark } from "react-icons/fa6";
 import { TbBasketExclamation } from "react-icons/tb";
@@ -45,7 +45,7 @@ const CartSidebar = () => {
           <div className="flex items-center justify-between p-6 border-b border-black/10">
             <h2
               className={cn([
-                integralCF.className,
+                poppins.className,
                 "font-bold text-2xl text-black uppercase",
               ])}
             >

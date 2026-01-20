@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { API_URL } from "@/lib/api";
@@ -141,7 +141,7 @@ export default function SignUpPage() {
           <Link
             href="/"
             className={cn([
-              integralCF.className,
+              poppins.className,
               "text-3xl lg:text-4xl mb-2 inline-block",
             ])}
           >

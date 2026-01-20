@@ -9,11 +9,13 @@ import React from "react";
 const AddToCartBtn = ({ 
   data, 
   totalPrice = 0,
-  calculatedArea = 0
+  calculatedArea = 0,
+  onCustomizeClick
 }: { 
   data: Product & { quantity: number };
   totalPrice?: number;
   calculatedArea?: number;
+  onCustomizeClick?: () => void;
 }) => {
   const dispatch = useAppDispatch();
   const { sizeSelection } = useAppSelector(
@@ -35,28 +37,44 @@ const AddToCartBtn = ({
   };
 
   const finalPrice = getFinalPrice();
+  const buttonText = calculatedArea > 0 ? "ÖNİZLEME & SATIN AL" : "Sepete Ekle";
+
+  const handleClick = () => {
+    // Ölçü girilmeden sepete ekleme yapılamaz - modal açılmalı
+    if (calculatedArea === 0 && onCustomizeClick) {
+      onCustomizeClick();
+      return;
+    }
+
+    // Eğer buton metni "ÖNİZLEME & SATIN AL" ise ve modal açma fonksiyonu varsa, modal aç
+    if (buttonText === "ÖNİZLEME & SATIN AL" && onCustomizeClick) {
+      onCustomizeClick();
+      return;
+    }
+
+    // Normal sepete ekleme (ölçü girilmediyse ve modal yoksa)
+    dispatch(
+      addToCart({
+        id: data.id,
+        name: data.title,
+        srcUrl: data.srcUrl,
+        price: finalPrice,
+        attributes: [sizeSelection || ""],
+        discount: data.discount,
+        quantity: data.quantity,
+        slug: data.slug,
+      })
+    );
+  };
 
   return (
     <button
       type="button"
       className="bg-black w-full ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:bg-black/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      onClick={() =>
-        dispatch(
-          addToCart({
-            id: data.id,
-            name: data.title,
-            srcUrl: data.srcUrl,
-            price: finalPrice,
-            attributes: [sizeSelection || ""],
-            discount: data.discount,
-            quantity: data.quantity,
-            slug: data.slug,
-          })
-        )
-      }
-      disabled={calculatedArea > 0 && totalPrice === 0}
+      onClick={handleClick}
+      disabled={calculatedArea === 0}
     >
-      {calculatedArea > 0 ? "ÖNİZLEME & SATIN AL" : "Sepete Ekle"}
+      {buttonText}
     </button>
   );
 };

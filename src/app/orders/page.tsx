@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { apiGet } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 
 interface OrderStatus {
@@ -148,7 +148,7 @@ export default function OrdersPage() {
         <div className="mb-8">
           <h1
             className={cn([
-              integralCF.className,
+              poppins.className,
               "text-3xl lg:text-4xl font-bold mb-2",
             ])}
           >

@@ -18,7 +18,7 @@ export function MenuItem({ label, url }: MenuItemProps) {
       <NavigationMenuLink asChild>
         <Link
           href={url ?? "/"}
-          className={cn([navigationMenuTriggerStyle(), "font-normal px-3"])}
+          className={cn([navigationMenuTriggerStyle(), "font-normal px-3 text-base"])}
         >
           {label}
         </Link>

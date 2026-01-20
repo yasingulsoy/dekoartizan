@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -38,7 +38,7 @@ const staticMenuItems: NavMenu = [
   {
     id: 2,
     type: "MenuItem",
-    label: "Indirimde",
+    label: "İndirimde",
     url: "/shop#on-sale",
     children: [],
   },
@@ -118,24 +118,24 @@ const TopNavbar = () => {
           <Link
             href="/"
             className={cn([
-              "flex items-center gap-2 mb-2 mr-2 md:mr-3 lg:mr-10 flex-shrink-0",
+              "flex items-center gap-3 md:gap-4 mb-2 mr-2 md:mr-3 lg:mr-10 flex-shrink-0",
             ])}
           >
             <Image
               src="/images/logo.jpeg"
               alt="dekoartizan logo"
-              width={40}
-              height={40}
-              className="w-8 h-8 lg:w-10 lg:h-10 flex-shrink-0"
+              width={60}
+              height={60}
+              className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex-shrink-0"
               priority
             />
             <span
               className={cn([
-                integralCF.className,
+                poppins.className,
                 "text-lg sm:text-xl md:text-2xl lg:text-[32px] whitespace-nowrap",
               ])}
             >
-              dekoartizan
+              DEKOARTİZAN
             </span>
           </Link>
         </div>
@@ -193,6 +193,25 @@ const TopNavbar = () => {
               alt="search"
               className="max-w-[22px] max-h-[22px]"
             />
+          </Link>
+          <Link href={isAuthenticated ? "/favorilerim" : "/signin"} className="p-1 md:mr-[14px]">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="max-w-[22px] max-h-[22px]"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
           </Link>
           <CartBtn />
           <Link href={isAuthenticated ? "/profil" : "/signin"} className="p-1">

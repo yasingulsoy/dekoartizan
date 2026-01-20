@@ -15,3 +15,12 @@ export type Product = {
   slug?: string;
   categoryName?: string | null;
 };
+
+export type PaperType = {
+  id: number;
+  name: string;
+  price: number;
+  pricePerM2: number;
+  description: string[];
+  image?: string;
+};

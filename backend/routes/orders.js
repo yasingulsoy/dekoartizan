@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Order, OrderItem, User, Product, OrderStatus } = require('../models');
 const { Op } = require('sequelize');
+const { upload } = require('../middleware/orderImageUpload');
 
 router.get('/', async (req, res) => {
   try {
@@ -152,6 +153,29 @@ router.patch('/:id/status', async (req, res) => {
     });
   } catch (error) {
     console.error('Sipariş durum güncelleme hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Kırpılmış resim yükleme endpoint'i
+router.post('/upload-cropped-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'Resim dosyası gerekli' });
+    }
+
+    const imageUrl = `/uploads/orders/${req.file.filename}`;
+    
+    res.json({
+      success: true,
+      data: {
+        url: imageUrl,
+        filename: req.file.filename
+      },
+      message: 'Resim başarıyla yüklendi'
+    });
+  } catch (error) {
+    console.error('Resim yükleme hatası:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

@@ -8,11 +8,13 @@ import { Product } from "@/types/product.types";
 const AddToCardSection = ({ 
   data, 
   totalPrice = 0,
-  calculatedArea = 0
+  calculatedArea = 0,
+  onCustomizeClick
 }: { 
   data: Product;
   totalPrice?: number;
   calculatedArea?: number;
+  onCustomizeClick?: () => void;
 }) => {
   const [quantity, setQuantity] = useState<number>(1);
 
@@ -23,6 +25,7 @@ const AddToCardSection = ({
         data={{ ...data, quantity }} 
         totalPrice={totalPrice}
         calculatedArea={calculatedArea}
+        onCustomizeClick={onCustomizeClick}
       />
     </div>
   );

@@ -5,7 +5,7 @@ import ProductCard from "@/components/cart-page/ProductCard";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { FaArrowRight } from "react-icons/fa6";
 import { MdOutlineLocalOffer } from "react-icons/md";
 import { TbBasketExclamation } from "react-icons/tb";
@@ -13,11 +13,34 @@ import React from "react";
 import { RootState } from "@/lib/store";
 import { useAppSelector } from "@/lib/hooks/redux";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
+  const router = useRouter();
   const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
     (state: RootState) => state.carts
   );
+
+  const handleCheckout = () => {
+    // Sepetteki ürünlerin cm bilgisi olup olmadığını kontrol et
+    if (cart && cart.items.length > 0) {
+      const itemsWithoutMeasurements = cart.items.filter(item => {
+        // Attributes'tan genişlik ve yükseklik bilgisini kontrol et
+        const hasWidth = item.attributes.some(attr => attr.includes("Genişlik:"));
+        const hasHeight = item.attributes.some(attr => attr.includes("Yükseklik:"));
+        // Veya cropWidth ve cropHeight varsa
+        const hasCropDimensions = item.cropWidth && item.cropHeight;
+        return !hasWidth && !hasHeight && !hasCropDimensions;
+      });
+
+      if (itemsWithoutMeasurements.length > 0) {
+        alert("Lütfen tüm ürünler için genişlik ve yükseklik ölçülerini giriniz (cm cinsinden). Ölçü girmek için ürün detay sayfasından 'ÖNİZLEME & SATIN AL' butonunu kullanın.");
+        return;
+      }
+    }
+    
+    router.push("/checkout");
+  };
 
   return (
     <main className="pb-20">
@@ -27,7 +50,7 @@ export default function CartPage() {
             <BreadcrumbCart />
             <h2
               className={cn([
-                integralCF.className,
+                poppins.className,
                 "font-bold text-[32px] md:text-[40px] text-black uppercase mb-5 md:mb-6",
               ])}
             >
@@ -100,13 +123,11 @@ export default function CartPage() {
                 </div>
                 <Button
                   type="button"
+                  onClick={handleCheckout}
                   className="text-sm md:text-base font-medium bg-black rounded-full w-full py-4 h-[54px] md:h-[60px] group"
-                  asChild
                 >
-                  <Link href="/checkout">
-                    Odemeye Geç{" "}
-                    <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />
-                  </Link>
+                  Odemeye Geç{" "}
+                  <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />
                 </Button>
               </div>
             </div>

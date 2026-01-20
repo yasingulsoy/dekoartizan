@@ -9,6 +9,8 @@ type ProductCardProps = {
 };
 
 const ProductCard = ({ data }: ProductCardProps) => {
+  const rating = typeof data.rating === 'number' ? data.rating : parseFloat(String(data.rating || 0));
+  
   return (
     <Link
       href={`/magaza/urunler/${data.slug || data.title.toLowerCase().split(" ").join("-")}`}
@@ -27,7 +29,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
       <strong className="text-black xl:text-xl">{data.title}</strong>
       <div className="flex items-end mb-1 xl:mb-2">
         <Rating
-          initialValue={data.rating}
+          initialValue={rating}
           allowFraction
           SVGclassName="inline-block"
           emptyClassName="fill-gray-50"
@@ -35,7 +37,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
           readonly
         />
         <span className="text-black text-xs xl:text-sm ml-[11px] xl:ml-[13px] pb-0.5 xl:pb-0">
-          {data.rating.toFixed(1)}
+          {rating.toFixed(1)}
           <span className="text-black/60">/5</span>
         </span>
       </div>

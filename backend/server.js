@@ -144,6 +144,8 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/blogs', require('./routes/blogs'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/addresses', require('./routes/addresses'));
+app.use('/api/wishlist', require('./routes/wishlist'));
+app.use('/api/paper-types', require('./routes/paperTypes'));
 
 app.use('*', (req, res) => {
   res.status(404).json({

@@ -6,7 +6,7 @@ import BreadcrumbCheckout from "@/components/checkout-page/BreadcrumbCheckout";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { RootState } from "@/lib/store";
 import { useAppSelector } from "@/lib/hooks/redux";
 import { FaCreditCard, FaMoneyBillWave, FaLock } from "react-icons/fa";
@@ -143,6 +143,24 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Sepetteki ürünlerin cm bilgisi olup olmadığını kontrol et
+    if (cart && cart.items.length > 0) {
+      const itemsWithoutMeasurements = cart.items.filter(item => {
+        // Attributes'tan genişlik ve yükseklik bilgisini kontrol et
+        const hasWidth = item.attributes.some(attr => attr.includes("Genişlik:"));
+        const hasHeight = item.attributes.some(attr => attr.includes("Yükseklik:"));
+        // Veya cropWidth ve cropHeight varsa
+        const hasCropDimensions = item.cropWidth && item.cropHeight;
+        return !hasWidth && !hasHeight && !hasCropDimensions;
+      });
+
+      if (itemsWithoutMeasurements.length > 0) {
+        alert("Lütfen tüm ürünler için genişlik ve yükseklik ölçülerini giriniz (cm cinsinden). Ölçü girmek için ürün detay sayfasından 'ÖNİZLEME & SATIN AL' butonunu kullanın.");
+        return;
+      }
+    }
+    
     // Ödeme işlemi burada yapılacak
     console.log("Checkout:", { formData, billingData, cart });
     // Başarılı ödeme sonrası yönlendirme
@@ -170,7 +188,7 @@ export default function CheckoutPage() {
         <BreadcrumbCheckout />
         <h2
           className={cn([
-            integralCF.className,
+            poppins.className,
             "font-bold text-[32px] md:text-[40px] text-black uppercase mb-5 md:mb-6",
           ])}
         >

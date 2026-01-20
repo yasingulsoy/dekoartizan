@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,7 @@ export default function NewAddressPage() {
         <div className="mb-8">
           <h1
             className={cn([
-              integralCF.className,
+              poppins.className,
               "text-3xl lg:text-4xl font-bold mb-2",
             ])}
           >

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import React from "react";
 import * as motion from "framer-motion/client";
 import DressStyleCard from "./DressStyleCard";
@@ -14,7 +14,7 @@ const DressStyle = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className={cn([
-            integralCF.className,
+            poppins.className,
             "text-[32px] leading-[36px] md:text-5xl mb-8 md:mb-14 capitalize text-white",
           ])}
         >

@@ -10,6 +10,13 @@ interface OrderItem {
   quantity: number;
   unit_price: number;
   total_price: number;
+  cropped_image_url?: string;
+  crop_width?: number;
+  crop_height?: number;
+  product?: {
+    id: number;
+    main_image_url?: string;
+  };
 }
 
 interface Order {
@@ -210,6 +217,11 @@ const OrderList: React.FC<OrderListProps> = ({ status }) => {
                         {order.items[0]?.product_name}
                         {order.items.length > 1 && ` +${order.items.length - 1}`}
                       </div>
+                      {order.items.some(item => item.cropped_image_url) && (
+                        <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                          Kırpılmış resim var
+                        </div>
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white/90">
                       {order.total_amount.toFixed(2)} {order.currency}
@@ -279,6 +291,12 @@ const OrderList: React.FC<OrderListProps> = ({ status }) => {
                             {order.tracking_number}
                           </span>
                         )}
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          Detay
+                        </Link>
                       </div>
                     </td>
                   </tr>

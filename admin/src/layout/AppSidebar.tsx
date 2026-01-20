@@ -7,6 +7,7 @@ import {
   BoxCubeIcon,
   CalenderIcon,
   ChevronDownIcon,
+  FileIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
@@ -37,6 +38,14 @@ const navItems: NavItem[] = [
       { name: "Tüm Ürünler", path: "/products", pro: false },
       { name: "Yeni Ürün", path: "/products/new", pro: false },
       { name: "Kategoriler", path: "/categories", pro: false },
+    ],
+  },
+  {
+    icon: <FileIcon />,
+    name: "Kağıt Türleri",
+    subItems: [
+      { name: "Tüm Kağıt Türleri", path: "/paper-types", pro: false },
+      { name: "Yeni Kağıt Türü", path: "/paper-types/new", pro: false },
     ],
   },
   {
@@ -228,7 +237,12 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => path === pathname;
-   const isActive = useCallback((path: string) => path === pathname, [pathname]);
+   const isActive = useCallback((path: string) => {
+     if (path === pathname) return true;
+     // Alt sayfalar için kontrol (örn: /paper-types/new veya /paper-types/1/edit)
+     if (pathname?.startsWith(path + "/")) return true;
+     return false;
+   }, [pathname]);
 
   useEffect(() => {
     // Check if the current path matches any submenu item

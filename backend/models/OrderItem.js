@@ -67,6 +67,21 @@ const OrderItem = sequelize.define('OrderItem', {
     validate: {
       min: 0
     }
+  },
+  cropped_image_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    comment: 'Kırpılmış ürün resmi URL\'si'
+  },
+  crop_width: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    comment: 'Kırpma genişliği (cm)'
+  },
+  crop_height: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    comment: 'Kırpma yüksekliği (cm)'
   }
 }, {
   tableName: 'order_items',

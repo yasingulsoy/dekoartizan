@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { API_URL } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
@@ -130,7 +130,7 @@ export default function VerifyEmailPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className={`${integralCF.className} text-3xl font-bold mb-2`}>
+          <h1 className={`${poppins.className} text-3xl font-bold mb-2`}>
             E-posta Doğrulama
           </h1>
         </div>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import * as motion from "framer-motion/client";
 import { 
   Palette, 
@@ -70,12 +70,9 @@ const ProcessSteps = () => {
               </div>
               <h3
                 className={cn([
-                  integralCF.className,
+                  poppins.className,
                   "text-lg md:text-xl lg:text-2xl font-bold text-[#FF6B35] mb-2 md:mb-3",
                 ])}
-                style={{
-                  fontFamily: `${integralCF.style.fontFamily}, "Arial Unicode MS", Arial, Helvetica, sans-serif`,
-                }}
               >
                 {step.title}
               </h3>

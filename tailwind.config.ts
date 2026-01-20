@@ -12,6 +12,7 @@ const config: Config = {
       fontFamily: {
         integralCF: ["var(--font-integralCF)"],
         satoshi: ["var(--font-satoshi)"],
+        poppins: ["var(--font-poppins)"],
       },
       screens: {
         xs: "375px",

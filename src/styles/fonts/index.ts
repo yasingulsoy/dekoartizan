@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import { Poppins } from "next/font/google";
 
 const integralCF = localFont({
   src: [
@@ -38,4 +39,12 @@ const satoshi = localFont({
   preload: true,
 });
 
-export { integralCF, satoshi };
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  display: "swap",
+  fallback: ["Arial", "Helvetica", "sans-serif"],
+});
+
+export { integralCF, satoshi, poppins };

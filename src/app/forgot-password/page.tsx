@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
-import { integralCF } from "@/styles/fonts";
+import { poppins } from "@/styles/fonts";
 import { API_URL } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className={`${integralCF.className} text-3xl font-bold mb-2`}>
+          <h1 className={`${poppins.className} text-3xl font-bold mb-2`}>
             Şifremi Unuttum
           </h1>
           <p className="text-gray-600">
