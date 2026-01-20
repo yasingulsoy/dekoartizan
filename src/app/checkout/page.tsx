@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import BreadcrumbCheckout from "@/components/checkout-page/BreadcrumbCheckout";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,38 @@ import { useAppSelector } from "@/lib/hooks/redux";
 import { FaCreditCard, FaMoneyBillWave, FaLock } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { API_URL } from "@/lib/api";
+
+interface Address {
+  id: number;
+  address_type: string;
+  title: string | null;
+  first_name: string;
+  last_name: string;
+  company: string | null;
+  phone: string;
+  address_line1: string;
+  address_line2: string | null;
+  district: string | null;
+  city: string;
+  state: string | null;
+  postal_code: string;
+  country: string;
+  is_default: boolean;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
     (state: RootState) => state.carts
   );
+  const { isAuthenticated, token, customer } = useAuth();
+
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  const [useSavedAddress, setUseSavedAddress] = useState(false);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -38,6 +64,64 @@ export default function CheckoutPage() {
     city: "",
     postalCode: "",
   });
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchAddresses();
+    }
+  }, [isAuthenticated, token]);
+
+  useEffect(() => {
+    if (customer) {
+      setFormData({
+        ...formData,
+        firstName: customer.first_name || "",
+        lastName: customer.last_name || "",
+        email: customer.email || "",
+      });
+    }
+  }, [customer]);
+
+  useEffect(() => {
+    if (selectedAddressId && addresses.length > 0) {
+      const address = addresses.find((a) => a.id === selectedAddressId);
+      if (address) {
+        setFormData({
+          ...formData,
+          firstName: address.first_name,
+          lastName: address.last_name,
+          phone: address.phone,
+          address: address.address_line1 + (address.address_line2 ? `, ${address.address_line2}` : ""),
+          city: address.city,
+          postalCode: address.postal_code,
+        });
+      }
+    }
+  }, [selectedAddressId]);
+
+  const fetchAddresses = async () => {
+    try {
+      setLoadingAddresses(true);
+      const response = await fetch(`${API_URL}/api/addresses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data.length > 0) {
+        setAddresses(data.data);
+        setUseSavedAddress(true);
+        const defaultAddress = data.data.find((a: Address) => a.is_default) || data.data[0];
+        setSelectedAddressId(defaultAddress.id);
+      }
+    } catch (err) {
+      console.error("Adres yükleme hatası:", err);
+    } finally {
+      setLoadingAddresses(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -99,9 +183,59 @@ export default function CheckoutPage() {
             <div className="w-full lg:flex-1 space-y-6">
               {/* Teslimat Bilgileri */}
               <div className="p-5 md:p-6 rounded-[20px] border border-black/10">
-                <h3 className="text-xl md:text-2xl font-bold text-black mb-5">
-                  Teslimat Bilgileri
-                </h3>
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-xl md:text-2xl font-bold text-black">
+                    Teslimat Bilgileri
+                  </h3>
+                  {isAuthenticated && addresses.length > 0 && (
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={useSavedAddress}
+                        onChange={(e) => {
+                          setUseSavedAddress(e.target.checked);
+                          if (!e.target.checked) {
+                            setSelectedAddressId(null);
+                          } else {
+                            const defaultAddress = addresses.find((a) => a.is_default) || addresses[0];
+                            setSelectedAddressId(defaultAddress.id);
+                          }
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm text-black/60">
+                        Kayıtlı adreslerimden seç
+                      </span>
+                    </label>
+                  )}
+                </div>
+
+                {isAuthenticated && addresses.length > 0 && useSavedAddress && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-black mb-2">
+                      Adres Seçin <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={selectedAddressId || ""}
+                      onChange={(e) => setSelectedAddressId(Number(e.target.value))}
+                      className="w-full px-4 py-2 bg-[#F0F0F0] rounded-full border-none focus:outline-none focus:ring-2 focus:ring-black"
+                    >
+                      {addresses.map((address) => (
+                        <option key={address.id} value={address.id}>
+                          {address.title || `${address.first_name} ${address.last_name}`} - {address.address_line1}, {address.city}
+                          {address.is_default && " (Varsayılan)"}
+                        </option>
+                      ))}
+                    </select>
+                    <Link
+                      href="/profil/adreslerim/yeni"
+                      className="text-sm text-black/60 hover:text-black mt-2 inline-block"
+                    >
+                      + Yeni adres ekle
+                    </Link>
+                  </div>
+                )}
+
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>

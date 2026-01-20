@@ -1,7 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { getCurrentUser, getAuthToken, removeAuthToken, setAuthToken, setCurrentUser, API_URL } from "@/lib/api";
+
+// 6 saat = 6 * 60 * 60 * 1000 milisaniye
+const AUTO_LOGOUT_INTERVAL = 6 * 60 * 60 * 1000; // 6 saat
+const LOGIN_TIME_KEY = 'admin_login_time';
 
 interface User {
   id: number;
@@ -30,6 +34,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const autoLogoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Otomatik logout işlemi
+  const handleAutoLogout = React.useCallback(() => {
+    if (typeof window === 'undefined') return;
+    
+    removeAuthToken();
+    localStorage.removeItem(LOGIN_TIME_KEY);
+    setToken(null);
+    setUser(null);
+    
+    // Sadece admin panel sayfalarındaysa signin'e yönlendir
+    if (window.location.pathname && !window.location.pathname.includes('/signin')) {
+      window.location.href = '/signin';
+    }
+  }, []);
+
+  // Otomatik logout zamanlayıcısı
+  const scheduleAutoLogout = React.useCallback((delay: number) => {
+    // Önceki timer'ı temizle
+    if (autoLogoutTimerRef.current) {
+      clearTimeout(autoLogoutTimerRef.current);
+    }
+
+    // Yeni timer kur
+    autoLogoutTimerRef.current = setTimeout(() => {
+      handleAutoLogout();
+    }, delay);
+  }, [handleAutoLogout]);
+
+  // Otomatik logout kontrolü
+  const checkAutoLogout = React.useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    const loginTimeStr = localStorage.getItem(LOGIN_TIME_KEY);
+    if (!loginTimeStr) return;
+
+    const loginTime = parseInt(loginTimeStr, 10);
+    const now = Date.now();
+    const timeElapsed = now - loginTime;
+
+    // 6 saat geçtiyse logout yap
+    if (timeElapsed >= AUTO_LOGOUT_INTERVAL) {
+      handleAutoLogout();
+    } else {
+      // Kalan süreyi hesapla ve timer kur
+      const remainingTime = AUTO_LOGOUT_INTERVAL - timeElapsed;
+      scheduleAutoLogout(remainingTime);
+    }
+  }, [handleAutoLogout, scheduleAutoLogout]);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -39,12 +93,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(storedUser);
+      
+      // Login zamanını kontrol et ve otomatik logout zamanla
+      checkAutoLogout();
+    } else {
+      // Eğer giriş yapılmamışsa login zamanını temizle
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(LOGIN_TIME_KEY);
+      }
     }
     
     setIsLoading(false);
-  }, []);
 
-  const login = async (usernameOrEmail: string, password: string) => {
+    // Cleanup function
+    return () => {
+      if (autoLogoutTimerRef.current) {
+        clearTimeout(autoLogoutTimerRef.current);
+      }
+    };
+  }, [checkAutoLogout]);
+
+  const login = React.useCallback(async (usernameOrEmail: string, password: string) => {
     try {
       const response = await fetch(`${API_URL}/api/admin/auth/login`, {
         method: 'POST',
@@ -71,20 +140,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setCurrentUser(userData);
         setToken(data.token);
         setUser(userData);
+        
+        // Login zamanını kaydet
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
+        }
+        
+        // 6 saat sonra otomatik logout zamanla
+        scheduleAutoLogout(AUTO_LOGOUT_INTERVAL);
       } else {
         throw new Error(data.error || data.message || 'Giriş başarısız');
       }
     } catch (error: any) {
       throw error;
     }
-  };
+  }, [scheduleAutoLogout]);
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
+    // Timer'ı temizle
+    if (autoLogoutTimerRef.current) {
+      clearTimeout(autoLogoutTimerRef.current);
+    }
+    
     removeAuthToken();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(LOGIN_TIME_KEY);
+    }
     setToken(null);
     setUser(null);
-    window.location.href = '/signin';
-  };
+    if (typeof window !== 'undefined') {
+      window.location.href = '/signin';
+    }
+  }, []);
 
   const hasPermission = (requiredRoles: string[]): boolean => {
     if (!user) return false;

@@ -31,7 +31,8 @@ router.get('/', async (req, res) => {
           model: SubCategory,
           as: 'subCategories',
           required: false,
-          where: include_inactive !== 'true' ? { is_active: true } : undefined
+          where: include_inactive !== 'true' ? { is_active: true } : undefined,
+          order: [['display_order', 'ASC']]
         }
       ],
       order: [['display_order', 'ASC']]
@@ -98,6 +99,32 @@ router.post('/', async (req, res) => {
     res.json({ success: true, data: category, message: 'Kategori oluşturuldu' });
   } catch (error) {
     console.error('Kategori oluşturma hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Toplu kategori sıralama güncellemesi - /:id route'undan ÖNCE tanımlanmalı
+router.put('/reorder', async (req, res) => {
+  try {
+    const { categoryOrders } = req.body;
+    
+    if (!Array.isArray(categoryOrders)) {
+      return res.status(400).json({ success: false, error: 'Kategori sıralaması array olmalı' });
+    }
+    
+    // Tüm kategorileri toplu güncelle
+    const updatePromises = categoryOrders.map(({ id, display_order }) => {
+      return Category.update(
+        { display_order },
+        { where: { id } }
+      );
+    });
+    
+    await Promise.all(updatePromises);
+    
+    res.json({ success: true, message: 'Kategori sıralaması güncellendi' });
+  } catch (error) {
+    console.error('Kategori sıralama güncelleme hatası:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -184,6 +211,32 @@ router.post('/:categoryId/sub-categories', async (req, res) => {
     res.json({ success: true, data: subCategory, message: 'Alt kategori oluşturuldu' });
   } catch (error) {
     console.error('Alt kategori oluşturma hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Toplu alt kategori sıralama güncellemesi - /sub-categories/:id route'undan ÖNCE tanımlanmalı
+router.put('/sub-categories/reorder', async (req, res) => {
+  try {
+    const { subCategoryOrders } = req.body;
+    
+    if (!Array.isArray(subCategoryOrders)) {
+      return res.status(400).json({ success: false, error: 'Alt kategori sıralaması array olmalı' });
+    }
+    
+    // Tüm alt kategorileri toplu güncelle
+    const updatePromises = subCategoryOrders.map(({ id, display_order }) => {
+      return SubCategory.update(
+        { display_order },
+        { where: { id } }
+      );
+    });
+    
+    await Promise.all(updatePromises);
+    
+    res.json({ success: true, message: 'Alt kategori sıralaması güncellendi' });
+  } catch (error) {
+    console.error('Alt kategori sıralama güncelleme hatası:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

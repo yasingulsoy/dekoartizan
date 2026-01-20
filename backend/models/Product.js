@@ -50,7 +50,8 @@ const Product = sequelize.define('Product', {
     allowNull: false,
     validate: {
       min: 0
-    }
+    },
+    comment: 'Price per square meter (m²) for products sold by area'
   },
   discount_price: {
     type: DataTypes.DECIMAL(10, 2),

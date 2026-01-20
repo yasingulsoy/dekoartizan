@@ -131,6 +131,12 @@ export default function ProfilePage() {
                   📦 Siparişlerim
                 </Link>
                 <Link
+                  href="/profil/adreslerim"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  📍 Adreslerim
+                </Link>
+                <Link
                   href="/cart"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                 >
