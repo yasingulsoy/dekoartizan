@@ -9,8 +9,10 @@ interface FlowingMenuProps {
   items?: Array<{
     link: string;
     text: string;
+    subTexts?: string[];
     image: string;
   }>;
+  layout?: 'default' | 'leftMerged3';
   speed?: number;
   textColor?: string;
   bgColor?: string;
@@ -22,7 +24,9 @@ interface FlowingMenuProps {
 interface MenuItemProps {
   link: string;
   text: string;
+  subTexts?: string[];
   image: string;
+  className?: string;
   speed: number;
   textColor: string;
   marqueeBgColor: string;
@@ -32,6 +36,7 @@ interface MenuItemProps {
 
 function FlowingMenu({
   items = [],
+  layout = 'default',
   speed = 15,
   textColor = '#fff',
   bgColor = '#060010',
@@ -41,11 +46,18 @@ function FlowingMenu({
 }: FlowingMenuProps) {
   return (
     <div className="menu-wrap" style={{ backgroundColor: bgColor }}>
-      <nav className="menu">
+      <nav className={`menu ${layout === 'leftMerged3' ? 'menu--leftMerged3' : ''}`}>
         {items.map((item, idx) => (
           <MenuItem
             key={idx}
             {...item}
+            className={
+              layout === 'leftMerged3'
+                ? idx === 0
+                  ? 'menu__item--merged'
+                  : `menu__item--right menu__item--right-${idx}`
+                : undefined
+            }
             speed={speed}
             textColor={textColor}
             marqueeBgColor={marqueeBgColor}
@@ -58,12 +70,25 @@ function FlowingMenu({
   );
 }
 
-function MenuItem({ link, text, image, speed, textColor, marqueeBgColor, marqueeTextColor, borderColor }: MenuItemProps) {
+function MenuItem({
+  link,
+  text,
+  subTexts,
+  image,
+  className,
+  speed,
+  textColor,
+  marqueeBgColor,
+  marqueeTextColor,
+  borderColor
+}: MenuItemProps) {
   const itemRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeInnerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.core.Tween | null>(null);
   const [repetitions, setRepetitions] = useState(4);
+  const isStacked = !!subTexts?.length;
+  const marqueeText = [text, ...(subTexts ?? [])].join(' • ');
 
   const animationDefaults = { duration: 0.6, ease: 'expo' };
 
@@ -99,7 +124,7 @@ function MenuItem({ link, text, image, speed, textColor, marqueeBgColor, marquee
     calculateRepetitions();
     window.addEventListener('resize', calculateRepetitions);
     return () => window.removeEventListener('resize', calculateRepetitions);
-  }, [text, image]);
+  }, [marqueeText, image]);
 
   useEffect(() => {
     const setupMarquee = () => {
@@ -133,7 +158,7 @@ function MenuItem({ link, text, image, speed, textColor, marqueeBgColor, marquee
         animationRef.current.kill();
       }
     };
-  }, [text, image, repetitions, speed]);
+  }, [marqueeText, image, repetitions, speed]);
 
   const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
@@ -163,22 +188,27 @@ function MenuItem({ link, text, image, speed, textColor, marqueeBgColor, marquee
   };
 
   return (
-    <div className="menu__item" ref={itemRef} style={{ borderColor }}>
+    <div className={`menu__item ${className ?? ''}`.trim()} ref={itemRef} style={{ borderColor }}>
       <a
-        className="menu__item-link"
+        className={`menu__item-link ${isStacked ? 'menu__item-link--stacked' : ''}`.trim()}
         href={link}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{ color: textColor }}
       >
-        {text}
+        <span className="menu__item-text">{text}</span>
+        {subTexts?.map((t, i) => (
+          <span key={i} className="menu__item-subtext">
+            {t}
+          </span>
+        ))}
       </a>
       <div className="marquee" ref={marqueeRef} style={{ backgroundColor: marqueeBgColor }}>
         <div className="marquee__inner-wrap">
           <div className="marquee__inner" ref={marqueeInnerRef} aria-hidden="true">
             {[...Array(repetitions)].map((_, idx) => (
               <div className="marquee__part" key={idx} style={{ color: marqueeTextColor }}>
-                <span>{text}</span>
+                <span>{marqueeText}</span>
                 <div className="marquee__img" style={{ backgroundImage: `url(${image})` }} />
               </div>
             ))}
