@@ -7,7 +7,7 @@
 .menu {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   height: 100%;
   margin: 0;
   padding: 0;
@@ -27,7 +27,7 @@
   border-right: none;
 }
 
-.menu__item:nth-child(n+3) {
+.menu__item:nth-child(n+5) {
   border-bottom: none;
 }
 
@@ -110,7 +110,7 @@
 @media (max-width: 768px) {
   .menu {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-rows: repeat(6, 1fr);
   }
 
   .menu__item {
