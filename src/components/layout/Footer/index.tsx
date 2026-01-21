@@ -110,6 +110,32 @@ const Footer = () => {
           <hr className="h-[1px] border-t-white/20 mb-6" />
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-2">
           </div>
+          
+          {/* Footer Alt Linkler */}
+          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 text-xs md:text-sm text-white/80 mb-6 pb-6 border-b border-white/20">
+            <Link href="/gizlilik-ve-guvenlik" className="hover:text-white transition-colors">
+              GİZLİLİK VE GÜVENLİK
+            </Link>
+            <Link href="/iade-ve-degisim-bilgileri" className="hover:text-white transition-colors">
+              İADE VE DEĞİŞİM BİLGİLERİ
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors">
+              KARGO BİLGİLERİ
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors">
+              KİŞİSEL VERİLERİN KORUNMASI
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors">
+              MESAFELİ SATIŞ SÖZLEŞMESİ
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors">
+              SIKÇA SORULAN SORULAR
+            </Link>
+            <Link href="#" className="hover:text-white transition-colors">
+              UYGULAMA TALİMATLARI
+            </Link>
+          </div>
+          
           <div className="flex justify-center items-center mt-6 mb-4">
             <Link
               href="https://www.trendyol.com/magaza/dekoartizan-wallpapers-m-198770?channelId=1&sst=0"

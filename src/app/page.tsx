@@ -96,6 +96,8 @@ export default async function Home() {
               dragDampening={2}
               grayscale
               overlayBlurColor="#C5A028"
+              openedImageWidth="80vw"
+              openedImageHeight="80vh"
             />
           </div>
         </div>

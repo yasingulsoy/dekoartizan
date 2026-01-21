@@ -54,6 +54,16 @@ const footerLinksData: FooterLinks[] = [
         label: "gizlilik politikası",
         url: "/gizlilik-politikasi",
       },
+      {
+        id: 25,
+        label: "iade ve değişim bilgileri",
+        url: "/iade-ve-degisim-bilgileri",
+      },
+      {
+        id: 26,
+        label: "gizlilik ve güvenlik",
+        url: "/gizlilik-ve-guvenlik",
+      },
     ],
   },
   {

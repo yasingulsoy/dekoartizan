@@ -13,7 +13,7 @@ const TopBanner = () => {
   }
 
   return (
-    <div className="bg-black text-white text-center py-2 px-2 sm:px-4 xl:px-0">
+    <div className="text-white text-center py-2 px-2 sm:px-4 xl:px-0" style={{ backgroundColor: '#060010' }}>
       <div className="relative max-w-frame mx-auto">
         <p className="text-xs sm:text-sm">
           Kayıt olun ve ilk siparişinizde %20 indirim kazanın.{" "}
