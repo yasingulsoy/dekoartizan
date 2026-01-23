@@ -38,11 +38,11 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
             <SheetClose asChild>
               <Link href="/" className="flex items-center gap-2">
                 <Image
-                  src="/images/logo.jpeg"
+                  src="/images/LOGO.svg"
                   alt="dekoartizan logo"
-                  width={32}
-                  height={32}
-                  className="w-8 h-8"
+                  width={1000}
+                  height={1000}
+                  className="w-[50px] h-[50px]"
                 />
                 <span className={cn([poppins.className, "text-2xl"])}>
                   dekoartizan

@@ -17,10 +17,10 @@ const ComingSoon = () => {
           className="mb-8 flex justify-center"
         >
           <Image
-            src="/images/logo.jpeg"
+            src="/images/LOGO.svg"
             alt="dekoartizan logo"
-            width={120}
-            height={120}
+            width={1000}
+            height={1000}
             className="w-24 h-24 md:w-32 md:h-32 rounded-full"
             priority
           />

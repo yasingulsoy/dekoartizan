@@ -129,11 +129,11 @@ const TopNavbar = () => {
             ])}
           >
             <Image
-              src="/images/logo.jpeg"
+              src="/images/LOGO.svg"
               alt="dekoartizan logo"
-              width={60}
-              height={60}
-              className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex-shrink-0"
+              width={1000}
+              height={1000}
+              className="w-[60px] md:w-20 lg:w-[100px] h-[60px] md:h-20 lg:h-[100px] flex-shrink-0"
               priority
             />
             <span

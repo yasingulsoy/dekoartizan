@@ -119,11 +119,11 @@ router.post('/', authenticateToken, async (req, res) => {
       is_default
     } = req.body;
 
-    // Zorunlu alanları kontrol et
-    if (!first_name || !last_name || !phone || !address_line1 || !province || !district || !city || !postal_code) {
+    // Zorunlu alanları kontrol et (eyalet ve bölge hariç)
+    if (!title || !first_name || !last_name || !phone || !address_line1 || !address_line2 || !province || !neighborhood || !city || !postal_code) {
       return res.status(400).json({
         success: false,
-        error: 'Ad, soyad, telefon, adres satırı, il, ilçe, şehir ve posta kodu gereklidir'
+        error: 'Adres başlığı, ad, soyad, telefon, adres satırları, il, mahalle, şehir ve posta kodu gereklidir'
       });
     }
 
@@ -143,15 +143,15 @@ router.post('/', authenticateToken, async (req, res) => {
     const address = await Address.create({
       customer_id: req.customerId,
       address_type: address_type || 'shipping',
-      title: title || null,
+      title,
       first_name,
       last_name,
       phone,
       address_line1,
-      address_line2: address_line2 || null,
+      address_line2,
       province,
-      district,
-      neighborhood: neighborhood || null,
+      district: district || null,
+      neighborhood,
       city,
       state: state || null,
       postal_code,
@@ -209,6 +209,31 @@ router.put('/:id', authenticateToken, async (req, res) => {
       country,
       is_default
     } = req.body;
+
+    // Zorunlu alanları kontrol et (eyalet ve bölge hariç)
+    // Eğer güncelleme yapılıyorsa, gönderilen alanları kontrol et
+    const fieldsToCheck = {
+      title: title !== undefined ? title : address.title,
+      first_name: first_name !== undefined ? first_name : address.first_name,
+      last_name: last_name !== undefined ? last_name : address.last_name,
+      phone: phone !== undefined ? phone : address.phone,
+      address_line1: address_line1 !== undefined ? address_line1 : address.address_line1,
+      address_line2: address_line2 !== undefined ? address_line2 : address.address_line2,
+      province: province !== undefined ? province : address.province,
+      neighborhood: neighborhood !== undefined ? neighborhood : address.neighborhood,
+      city: city !== undefined ? city : address.city,
+      postal_code: postal_code !== undefined ? postal_code : address.postal_code
+    };
+
+    if (!fieldsToCheck.title || !fieldsToCheck.first_name || !fieldsToCheck.last_name || 
+        !fieldsToCheck.phone || !fieldsToCheck.address_line1 || !fieldsToCheck.address_line2 || 
+        !fieldsToCheck.province || !fieldsToCheck.neighborhood || !fieldsToCheck.city || 
+        !fieldsToCheck.postal_code) {
+      return res.status(400).json({
+        success: false,
+        error: 'Adres başlığı, ad, soyad, telefon, adres satırları, il, mahalle, şehir ve posta kodu gereklidir'
+      });
+    }
 
     // Eğer varsayılan adres olarak işaretleniyorsa, diğer adreslerin varsayılanını kaldır
     if (is_default && !address.is_default) {

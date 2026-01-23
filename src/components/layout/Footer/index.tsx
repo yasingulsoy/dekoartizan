@@ -68,11 +68,11 @@ const Footer = () => {
                 className="flex items-center gap-2 mb-6"
               >
                 <Image
-                  src="/images/logo.jpeg"
+                  src="/images/LOGO.svg"
                   alt="dekoartizan logo"
-                  width={40}
-                  height={40}
-                  className="w-8 h-8 lg:w-10 lg:h-10"
+                  width={1000}
+                  height={1000}
+                  className="w-10 h-10 lg:w-[50px] lg:h-[50px]"
                 />
                 <h1
                   className={cn([

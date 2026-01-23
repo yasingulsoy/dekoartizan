@@ -165,12 +165,13 @@ export default function NewAddressPage() {
           {/* Adres Başlığı */}
           <div>
             <label className="block text-sm font-medium text-black mb-2">
-              Adres Başlığı (Opsiyonel)
+              Adres Başlığı <span className="text-red-500">*</span>
             </label>
             <InputGroup className="bg-[#F0F0F0] rounded-full">
               <InputGroup.Input
                 name="title"
                 type="text"
+                required
                 placeholder="Örn: Ev, İş, Anne Evi"
                 value={formData.title}
                 onChange={handleChange}
@@ -270,12 +271,13 @@ export default function NewAddressPage() {
           {/* Adres Satırı 2 */}
           <div>
             <label className="block text-sm font-medium text-black mb-2">
-              Adres Satırı 2 (Opsiyonel)
+              Adres Satırı 2 <span className="text-red-500">*</span>
             </label>
             <InputGroup className="bg-[#F0F0F0] rounded-full">
               <InputGroup.Input
                 name="address_line2"
                 type="text"
+                required
                 placeholder="Daire, Kat, vb."
                 value={formData.address_line2}
                 onChange={handleChange}
@@ -309,16 +311,15 @@ export default function NewAddressPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-black mb-2">
-                İlçe <span className="text-red-500">*</span>
+                İlçe
               </label>
               <Select
                 value={ilceler.find(ilce => ilce.name === formData.district)?.id.toString() || ""}
                 onValueChange={handleIlceChange}
                 disabled={!formData.province || ilceler.length === 0}
-                required
               >
                 <SelectTrigger className="bg-[#F0F0F0] rounded-full border-none h-10">
-                  <SelectValue placeholder={formData.province ? "İlçe seçiniz" : "Önce il seçiniz"} />
+                  <SelectValue placeholder={formData.province ? "İlçe seçiniz (Opsiyonel)" : "Önce il seçiniz"} />
                 </SelectTrigger>
                 <SelectContent>
                   {ilceler.map((ilce) => (
@@ -331,12 +332,13 @@ export default function NewAddressPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-black mb-2">
-                Mahalle (Opsiyonel)
+                Mahalle <span className="text-red-500">*</span>
               </label>
               <Select
                 value={mahalleler.find(m => m.name === formData.neighborhood)?.id.toString() || ""}
                 onValueChange={handleMahalleChange}
                 disabled={!formData.district || mahalleler.length === 0}
+                required
               >
                 <SelectTrigger className="bg-[#F0F0F0] rounded-full border-none h-10">
                   <SelectValue placeholder={formData.district ? "Mahalle seçiniz" : "Önce ilçe seçiniz"} />
