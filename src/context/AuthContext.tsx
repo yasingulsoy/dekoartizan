@@ -10,6 +10,8 @@ interface Customer {
   first_name: string | null;
   last_name: string | null;
   phone: string | null;
+  birth_date: string | null;
+  gender: "male" | "female" | "other" | null;
   avatar_url: string | null;
   auth_provider: "email" | "google";
   is_email_verified: boolean;
@@ -92,7 +94,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const refreshCustomer = async () => {
-    if (token) {
+    if (token && customer) {
+      try {
+        const response = await fetch(`${API_URL}/api/customers/${customer.id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          // Sequelize model instance'ını plain object'e çevir
+          const customerData = data.data.toJSON ? data.data.toJSON() : data.data;
+          console.log("Güncellenmiş customer verisi:", customerData);
+          setCustomer(customerData);
+        } else {
+          console.error("refreshCustomer: Başarısız response", data);
+        }
+      } catch (error) {
+        console.error("Kullanıcı bilgileri yenileme hatası:", error);
+        // Hata durumunda token ile tekrar dene
+        if (token) {
+          await verifyToken(token);
+        }
+      }
+    } else if (token) {
       await verifyToken(token);
     }
   };

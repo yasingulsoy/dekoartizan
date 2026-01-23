@@ -146,6 +146,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/addresses', require('./routes/addresses'));
 app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/paper-types', require('./routes/paperTypes'));
+app.use('/api/customers', require('./routes/customers'));
 
 app.use('*', (req, res) => {
   res.status(404).json({

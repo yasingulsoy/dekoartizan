@@ -45,6 +45,33 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Slug ile kategori getir
+router.get('/slug/:slug', async (req, res) => {
+  try {
+    const category = await Category.findOne({
+      where: { slug: req.params.slug },
+      include: [
+        {
+          model: SubCategory,
+          as: 'subCategories',
+          required: false,
+          where: { is_active: true },
+          order: [['display_order', 'ASC']]
+        }
+      ]
+    });
+    
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Kategori bulunamadı' });
+    }
+    
+    res.json({ success: true, data: category });
+  } catch (error) {
+    console.error('Kategori getirme hatası:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const category = await Category.findByPk(req.params.id, {

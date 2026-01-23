@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { API_URL } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function SignInPage() {
       });
     } else if (error) {
       // Hata mesajını göster
-      alert(`Giriş hatası: ${error}`);
+      toast.error("Giriş hatası oluştu");
     }
   }, [searchParams, router, login]);
 
@@ -53,7 +54,7 @@ export default function SignInPage() {
     
     // Validasyon
     if (!email || !password) {
-      alert("Lütfen e-posta ve şifre giriniz");
+      toast.error("Lütfen e-posta ve şifre giriniz");
       return;
     }
 
@@ -81,12 +82,12 @@ export default function SignInPage() {
           router.push("/");
         }, 1500);
       } else {
-        alert(data.error || "Giriş başarısız. Lütfen tekrar deneyin.");
+        toast.error(data.error || "Giriş başarısız. Lütfen tekrar deneyin.");
         setIsGoogleLoading(false);
       }
     } catch (error) {
       console.error("Login hatası:", error);
-      alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+      toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
       setIsGoogleLoading(false);
     }
   };
@@ -101,12 +102,12 @@ export default function SignInPage() {
         // Google OAuth sayfasına yönlendir
         window.location.href = data.authUrl;
       } else {
-        alert("Google ile giriş başlatılamadı. Lütfen tekrar deneyin.");
+        toast.error("Google ile giriş başlatılamadı. Lütfen tekrar deneyin.");
         setIsGoogleLoading(false);
       }
     } catch (error) {
       console.error("Google Sign-In hatası:", error);
-      alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+      toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
       setIsGoogleLoading(false);
     }
   };

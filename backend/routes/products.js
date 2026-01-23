@@ -21,13 +21,60 @@ const createSlug = (text) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 20, is_active, is_archived, category_id, search } = req.query;
+    const { page = 1, limit = 20, is_active, is_archived, category_id, category_slug, subcategory_slug, search } = req.query;
     const offset = (page - 1) * limit;
     
     const where = {};
+    const include = [
+      { model: Category, as: 'category' },
+      { model: SubCategory, as: 'subCategory' },
+      { model: ProductImage, as: 'images' }
+    ];
+    
     if (is_active !== undefined) where.is_active = is_active === 'true';
     if (is_archived !== undefined) where.is_archived = is_archived === 'true';
     if (category_id) where.category_id = category_id;
+    
+    // Slug ile kategori filtresi
+    if (category_slug) {
+      const category = await Category.findOne({ where: { slug: category_slug } });
+      if (category) {
+        where.category_id = category.id;
+      } else {
+        // Kategori bulunamazsa boş sonuç döndür
+        return res.json({
+          success: true,
+          data: [],
+          pagination: {
+            total: 0,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            pages: 0
+          }
+        });
+      }
+    }
+    
+    // Alt kategori slug filtresi
+    if (subcategory_slug) {
+      const subCategory = await SubCategory.findOne({ where: { slug: subcategory_slug } });
+      if (subCategory) {
+        where.sub_category_id = subCategory.id;
+      } else {
+        // Alt kategori bulunamazsa boş sonuç döndür
+        return res.json({
+          success: true,
+          data: [],
+          pagination: {
+            total: 0,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            pages: 0
+          }
+        });
+      }
+    }
+    
     if (search) {
       where[Op.or] = [
         { name: { [Op.iLike]: `%${search}%` } },
@@ -37,11 +84,7 @@ router.get('/', async (req, res) => {
     
     const { count, rows } = await Product.findAndCountAll({
       where,
-      include: [
-        { model: Category, as: 'category' },
-        { model: SubCategory, as: 'subCategory' },
-        { model: ProductImage, as: 'images' }
-      ],
+      include,
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [['created_at', 'DESC']]

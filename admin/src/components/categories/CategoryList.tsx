@@ -19,6 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import Button from "../ui/button/Button";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
+import { EyeIcon, EyeCloseIcon } from "@/icons";
 
 interface SubCategory {
   id: number;
@@ -78,6 +79,7 @@ const SortableCategoryItem: React.FC<{
   onSetShowAddSubCategory,
   onRefresh,
 }) => {
+  const [showSubCategories, setShowSubCategories] = useState(false);
   const {
     attributes,
     listeners,
@@ -152,6 +154,20 @@ const SortableCategoryItem: React.FC<{
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                     {category.name}
                   </h3>
+                  {/* Alt Kategorileri Gizle/Göster İkonu */}
+                  {category.subCategories && category.subCategories.length > 0 && (
+                    <button
+                      onClick={() => setShowSubCategories(!showSubCategories)}
+                      className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      title={showSubCategories ? "Alt kategorileri gizle" : "Alt kategorileri göster"}
+                    >
+                      {showSubCategories ? (
+                        <EyeIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      ) : (
+                        <EyeCloseIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      )}
+                    </button>
+                  )}
                 </div>
                 <span
                   className={`rounded-full px-2 py-1 text-xs font-semibold ${
@@ -186,21 +202,23 @@ const SortableCategoryItem: React.FC<{
             </div>
 
             {/* Alt Kategoriler */}
-            <SortableSubCategoryList
-              categoryId={category.id}
-              subCategories={category.subCategories || []}
-              editingSubCategory={editingSubCategory}
-              showAddSubCategory={showAddSubCategory === category.id}
-              formData={formData}
-              onStartEditSubCategory={onStartEditSubCategory}
-              onUpdateSubCategory={onUpdateSubCategory}
-              onDeleteSubCategory={onDeleteSubCategory}
-              onAddSubCategory={(e) => onAddSubCategory(category.id, e)}
-              onSetFormData={onSetFormData}
-              onSetEditingSubCategory={onSetEditingSubCategory}
-              onSetShowAddSubCategory={onSetShowAddSubCategory}
-              onRefresh={onRefresh}
-            />
+            {showSubCategories && (
+              <SortableSubCategoryList
+                categoryId={category.id}
+                subCategories={category.subCategories || []}
+                editingSubCategory={editingSubCategory}
+                showAddSubCategory={showAddSubCategory === category.id}
+                formData={formData}
+                onStartEditSubCategory={onStartEditSubCategory}
+                onUpdateSubCategory={onUpdateSubCategory}
+                onDeleteSubCategory={onDeleteSubCategory}
+                onAddSubCategory={(e) => onAddSubCategory(category.id, e)}
+                onSetFormData={onSetFormData}
+                onSetEditingSubCategory={onSetEditingSubCategory}
+                onSetShowAddSubCategory={onSetShowAddSubCategory}
+                onRefresh={onRefresh}
+              />
+            )}
           </>
         )}
       </div>

@@ -180,7 +180,7 @@ router.post('/login', async (req, res) => {
     if (!customer.password_hash) {
       return res.status(401).json({
         success: false,
-        error: 'Bu hesap için şifre tanımlanmamış. Lütfen Google ile giriş yapın veya şifre sıfırlama yapın.'
+        error: 'Kullanıcı bulunamadı'
       });
     }
 
@@ -210,6 +210,9 @@ router.post('/login', async (req, res) => {
       email: customer.email,
       first_name: customer.first_name,
       last_name: customer.last_name,
+      phone: customer.phone,
+      birth_date: customer.birth_date,
+      gender: customer.gender,
       avatar_url: customer.avatar_url,
       auth_provider: customer.auth_provider,
       is_email_verified: customer.is_email_verified,
@@ -320,6 +323,8 @@ router.post('/register', async (req, res) => {
       first_name: customer.first_name,
       last_name: customer.last_name,
       phone: customer.phone,
+      birth_date: customer.birth_date,
+      gender: customer.gender,
       avatar_url: customer.avatar_url,
       auth_provider: customer.auth_provider,
       is_email_verified: customer.is_email_verified,
@@ -381,6 +386,8 @@ router.post('/verify', async (req, res) => {
       first_name: customer.first_name,
       last_name: customer.last_name,
       phone: customer.phone,
+      birth_date: customer.birth_date,
+      gender: customer.gender,
       avatar_url: customer.avatar_url,
       auth_provider: customer.auth_provider,
       is_email_verified: customer.is_email_verified,
@@ -432,6 +439,8 @@ router.post('/google/verify', async (req, res) => {
       first_name: customer.first_name,
       last_name: customer.last_name,
       phone: customer.phone,
+      birth_date: customer.birth_date,
+      gender: customer.gender,
       avatar_url: customer.avatar_url,
       auth_provider: customer.auth_provider,
       is_email_verified: customer.is_email_verified,
@@ -615,7 +624,7 @@ router.post('/forgot-password', async (req, res) => {
     if (customer.auth_provider === 'google') {
       return res.status(400).json({
         success: false,
-        error: 'Google ile giriş yapan hesaplar için şifre sıfırlama yapılamaz'
+        error: 'Kullanıcı bulunamadı'
       });
     }
 

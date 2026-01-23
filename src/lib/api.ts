@@ -20,23 +20,83 @@ export const BASE_URL = typeof window !== 'undefined'
   : process.env.SITE_URL || 'https://dekoartizan.com';
 
 /**
- * API helper function for making requests
+ * Retry configuration
+ */
+interface RetryOptions {
+  retries?: number;
+  retryDelay?: number;
+  retryOn?: (response: Response) => boolean;
+}
+
+const defaultRetryOptions: RetryOptions = {
+  retries: 3,
+  retryDelay: 1000,
+  retryOn: (response) => {
+    // Retry on network errors or 5xx server errors
+    return !response.ok && response.status >= 500;
+  },
+};
+
+/**
+ * Sleep function for retry delays
+ */
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * API helper function for making requests with retry mechanism
  */
 export const apiRequest = async (
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retryOptions: RetryOptions = {}
 ): Promise<Response> => {
   const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  
+  // Get token from localStorage if available
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
   
   const defaultOptions: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
     ...options,
   };
 
-  return fetch(url, defaultOptions);
+  const retryConfig = { ...defaultRetryOptions, ...retryOptions };
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= (retryConfig.retries || 3); attempt++) {
+    try {
+      const response = await fetch(url, defaultOptions);
+      
+      // If response is ok or not retryable, return it
+      if (response.ok || !retryConfig.retryOn?.(response)) {
+        return response;
+      }
+
+      // If this is the last attempt, throw error
+      if (attempt === (retryConfig.retries || 3)) {
+        return response;
+      }
+
+      // Wait before retrying
+      await sleep(retryConfig.retryDelay || 1000 * (attempt + 1));
+    } catch (error) {
+      lastError = error as Error;
+      
+      // If this is the last attempt, throw error
+      if (attempt === (retryConfig.retries || 3)) {
+        throw lastError;
+      }
+
+      // Wait before retrying
+      await sleep(retryConfig.retryDelay || 1000 * (attempt + 1));
+    }
+  }
+
+  throw lastError || new Error('Request failed after retries');
 };
 
 /**

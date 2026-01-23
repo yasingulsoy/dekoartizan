@@ -24,6 +24,7 @@ interface Category {
   name: string;
   slug: string;
   description: string | null;
+  image_url?: string | null;
   subCategories?: SubCategory[];
 }
 
@@ -75,7 +76,11 @@ const TopNavbar = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        // Tüm aktif kategorileri çek (is_active=true olanlar)
         const response = await apiGet<{ success: boolean; data: Category[] }>("/api/categories");
+        
+        // Debug: Gelen kategorileri konsola yazdır
+        console.log("Gelen kategoriler:", response.data?.map(c => ({ id: c.id, name: c.name, is_active: (c as any).is_active })));
         
         if (response.success && response.data && response.data.length > 0) {
           const categoriesMenu: NavMenu = [
@@ -86,8 +91,10 @@ const TopNavbar = () => {
               children: response.data.map((category) => ({
                 id: category.id,
                 label: category.name,
-                url: `/shop?category=${category.slug}`,
+                url: `/kategori/${category.slug}`,
                 description: category.description || "",
+                image_url: category.image_url || null,
+                subCategories: category.subCategories || [],
               })),
             },
             ...staticMenuItems,
@@ -147,7 +154,13 @@ const TopNavbar = () => {
                   <MenuItem label={item.label} url={item.url} />
                 )}
                 {item.type === "MenuList" && item.children.length > 0 && (
-                  <MenuList data={item.children} label={item.label} />
+                  <MenuList 
+                    data={item.children.map(child => ({
+                      ...child,
+                      subCategories: (child as any).subCategories || []
+                    }))} 
+                    label={item.label} 
+                  />
                 )}
               </React.Fragment>
             ))}

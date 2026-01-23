@@ -35,10 +35,6 @@ const Address = sequelize.define('Address', {
     type: DataTypes.STRING(100),
     allowNull: false
   },
-  company: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
   phone: {
     type: DataTypes.STRING(20),
     allowNull: false
@@ -51,9 +47,20 @@ const Address = sequelize.define('Address', {
     type: DataTypes.STRING(255),
     allowNull: true
   },
+  province: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    comment: 'İl (Province)'
+  },
   district: {
     type: DataTypes.STRING(100),
-    allowNull: true
+    allowNull: false,
+    comment: 'İlçe (District)'
+  },
+  neighborhood: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Mahalle (Neighborhood)'
   },
   city: {
     type: DataTypes.STRING(100),

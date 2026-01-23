@@ -12,8 +12,16 @@ export type MenuItem = {
     | [];
 };
 
+export type SubCategoryItem = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
 export type MenuListData = (Omit<MenuItem, "children" | "type"> & {
   description?: string | React.ReactNode;
+  image_url?: string | null;
+  subCategories?: SubCategoryItem[];
 })[];
 
 export type NavMenu = MenuItem[];

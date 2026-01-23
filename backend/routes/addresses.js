@@ -106,11 +106,12 @@ router.post('/', authenticateToken, async (req, res) => {
       title,
       first_name,
       last_name,
-      company,
       phone,
       address_line1,
       address_line2,
+      province,
       district,
+      neighborhood,
       city,
       state,
       postal_code,
@@ -119,10 +120,10 @@ router.post('/', authenticateToken, async (req, res) => {
     } = req.body;
 
     // Zorunlu alanları kontrol et
-    if (!first_name || !last_name || !phone || !address_line1 || !city || !postal_code) {
+    if (!first_name || !last_name || !phone || !address_line1 || !province || !district || !city || !postal_code) {
       return res.status(400).json({
         success: false,
-        error: 'Ad, soyad, telefon, adres satırı, şehir ve posta kodu gereklidir'
+        error: 'Ad, soyad, telefon, adres satırı, il, ilçe, şehir ve posta kodu gereklidir'
       });
     }
 
@@ -145,11 +146,12 @@ router.post('/', authenticateToken, async (req, res) => {
       title: title || null,
       first_name,
       last_name,
-      company: company || null,
       phone,
       address_line1,
       address_line2: address_line2 || null,
-      district: district || null,
+      province,
+      district,
+      neighborhood: neighborhood || null,
       city,
       state: state || null,
       postal_code,
@@ -195,11 +197,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
       title,
       first_name,
       last_name,
-      company,
       phone,
       address_line1,
       address_line2,
+      province,
       district,
+      neighborhood,
       city,
       state,
       postal_code,
@@ -226,11 +229,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
     if (title !== undefined) updateData.title = title;
     if (first_name !== undefined) updateData.first_name = first_name;
     if (last_name !== undefined) updateData.last_name = last_name;
-    if (company !== undefined) updateData.company = company;
     if (phone !== undefined) updateData.phone = phone;
     if (address_line1 !== undefined) updateData.address_line1 = address_line1;
     if (address_line2 !== undefined) updateData.address_line2 = address_line2;
+    if (province !== undefined) updateData.province = province;
     if (district !== undefined) updateData.district = district;
+    if (neighborhood !== undefined) updateData.neighborhood = neighborhood;
     if (city !== undefined) updateData.city = city;
     if (state !== undefined) updateData.state = state;
     if (postal_code !== undefined) updateData.postal_code = postal_code;

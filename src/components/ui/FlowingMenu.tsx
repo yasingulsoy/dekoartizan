@@ -109,7 +109,7 @@ function MenuItem({
       if (!marqueeInnerRef.current) return;
 
       // Get the first marquee part to measure content width
-      const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part');
+      const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part') as HTMLElement;
       if (!marqueeContent) return;
 
       const contentWidth = marqueeContent.offsetWidth;

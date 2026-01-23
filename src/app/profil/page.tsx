@@ -8,10 +8,52 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { API_URL } from "@/lib/api";
+import toast from "react-hot-toast";
+import { Package, MapPin, ShoppingCart, LogOut } from "lucide-react";
 
 export default function ProfilePage() {
-  const { customer, isAuthenticated, isLoading, logout } = useAuth();
+  const { customer, isAuthenticated, isLoading, logout, refreshCustomer, token } = useAuth();
   const router = useRouter();
+  
+  // Form states
+  const [isEditing, setIsEditing] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Profile form data
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    phone: "",
+    birth_date: "",
+    gender: "",
+  });
+  
+  // Password form data
+  const [passwordData, setPasswordData] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  
+  // Email form data
+  const [emailData, setEmailData] = useState({
+    new_email: "",
+  });
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -19,12 +61,52 @@ export default function ProfilePage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  useEffect(() => {
+    if (customer) {
+      setFormData({
+        first_name: customer.first_name || "",
+        last_name: customer.last_name || "",
+        phone: customer.phone || "",
+        birth_date: customer.birth_date ? new Date(customer.birth_date).toISOString().split('T')[0] : "",
+        gender: customer.gender || "",
+      });
+    }
+  }, [customer]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-          <p className="mt-4 text-gray-600">Yükleniyor...</p>
+      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Skeleton className="h-10 w-64 mb-2" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="text-center mb-6">
+                  <Skeleton className="w-24 h-24 rounded-full mx-auto mb-4" />
+                  <Skeleton className="h-6 w-32 mx-auto mb-2" />
+                  <Skeleton className="h-4 w-40 mx-auto" />
+                </div>
+                <div className="space-y-2 border-t pt-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <Skeleton className="h-6 w-48 mb-4" />
+                <div className="space-y-4">
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -35,6 +117,173 @@ export default function ProfilePage() {
   }
 
   const fullName = [customer.first_name, customer.last_name].filter(Boolean).join(" ") || "Kullanıcı";
+
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/customers/${customer.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Profil başarıyla güncellendi");
+        setIsEditing(false);
+        // Customer bilgilerini güncelle (refreshCustomer içinde formData da güncellenecek)
+        await refreshCustomer();
+      } else {
+        if (data.errors && Array.isArray(data.errors)) {
+          data.errors.forEach((err: any) => {
+            toast.error(err.msg || err.error || "Geçersiz veri");
+          });
+        } else {
+          toast.error(data.error || "Profil güncellenirken bir hata oluştu");
+        }
+      }
+    } catch (error: any) {
+      console.error("Profil güncelleme hatası:", error);
+      if (error.response) {
+        const data = await error.response.json();
+        toast.error(data.error || "Profil güncellenirken bir hata oluştu");
+      } else {
+        toast.error("Profil güncellenirken bir hata oluştu");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/customers/${customer.id}/password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          current_password: passwordData.current_password,
+          new_password: passwordData.new_password,
+          confirm_password: passwordData.confirm_password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Şifre başarıyla değiştirildi");
+        setIsPasswordDialogOpen(false);
+        setPasswordData({
+          current_password: "",
+          new_password: "",
+          confirm_password: "",
+        });
+      } else {
+        if (data.errors && Array.isArray(data.errors)) {
+          data.errors.forEach((err: any) => {
+            toast.error(err.msg || err.error);
+          });
+        } else {
+          toast.error(data.error || "Şifre değiştirilirken bir hata oluştu");
+        }
+      }
+    } catch (error: any) {
+      console.error("Şifre değiştirme hatası:", error);
+      if (error.response) {
+        try {
+          const data = await error.response.json();
+          toast.error(data.error || "Şifre değiştirilirken bir hata oluştu");
+        } catch {
+          toast.error("Şifre değiştirilirken bir hata oluştu");
+        }
+      } else {
+        toast.error("Şifre değiştirilirken bir hata oluştu");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/customers/${customer.id}/email`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("E-posta değiştirildi. Lütfen yeni e-posta adresinize gönderilen doğrulama linkine tıklayın.");
+        setIsEmailDialogOpen(false);
+        setEmailData({ new_email: "" });
+        await refreshCustomer();
+      } else {
+        if (data.errors && Array.isArray(data.errors)) {
+          data.errors.forEach((err: any) => {
+            toast.error(err.msg || err.error);
+          });
+        } else {
+          toast.error(data.error || "E-posta değiştirilirken bir hata oluştu");
+        }
+      }
+    } catch (error: any) {
+      console.error("E-posta değiştirme hatası:", error);
+      if (error.response) {
+        try {
+          const data = await error.response.json();
+          toast.error(data.error || "E-posta değiştirilirken bir hata oluştu");
+        } catch {
+          toast.error("E-posta değiştirilirken bir hata oluştu");
+        }
+      } else {
+        toast.error("E-posta değiştirilirken bir hata oluştu");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/customers/${customer.id}/resend-email-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Doğrulama e-postası tekrar gönderildi");
+      } else {
+        toast.error(data.error || "E-posta gönderilirken bir hata oluştu");
+      }
+    } catch (error: any) {
+      console.error("E-posta gönderme hatası:", error);
+      toast.error("E-posta gönderilirken bir hata oluştu");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -80,12 +329,12 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <div className="mt-4">
-                  <Link
-                    href="/verify-email"
+                  <button
+                    onClick={handleResendVerification}
                     className="text-sm font-medium text-yellow-800 hover:text-yellow-900 underline"
                   >
                     Doğrulama E-postasını Tekrar Gönder →
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -126,27 +375,31 @@ export default function ProfilePage() {
               <div className="space-y-2 border-t pt-4">
                 <Link
                   href="/orders"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group"
                 >
-                  📦 Siparişlerim
+                  <Package className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                  <span>Siparişlerim</span>
                 </Link>
                 <Link
                   href="/profil/adreslerim"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group"
                 >
-                  📍 Adreslerim
+                  <MapPin className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                  <span>Adreslerim</span>
                 </Link>
                 <Link
                   href="/cart"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group"
                 >
-                  🛒 Sepetim
+                  <ShoppingCart className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                  <span>Sepetim</span>
                 </Link>
                 <button
                   onClick={logout}
-                  className="w-full mt-4 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors text-left"
+                  className="w-full mt-4 flex items-center gap-3 px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                 >
-                  🚪 Çıkış Yap
+                  <LogOut className="w-5 h-5" />
+                  <span>Çıkış Yap</span>
                 </button>
               </div>
             </div>
@@ -156,25 +409,232 @@ export default function ProfilePage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Kişisel Bilgiler */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">Kişisel Bilgiler</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Kişisel Bilgiler</h3>
+                {!isEditing && (
+                  <Button
+                    onClick={() => setIsEditing(true)}
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                  >
+                    Düzenle
+                  </Button>
+                )}
+              </div>
+
+              {isEditing ? (
+                <form onSubmit={handleProfileUpdate} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ad
+                      </label>
+                      <Input
+                        type="text"
+                        value={formData.first_name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, first_name: e.target.value })
+                        }
+                        placeholder="Adınız"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Soyad
+                      </label>
+                      <Input
+                        type="text"
+                        value={formData.last_name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, last_name: e.target.value })
+                        }
+                        placeholder="Soyadınız"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Telefon
+                    </label>
+                    <Input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      placeholder="Telefon numaranız"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Doğum Tarihi
+                      </label>
+                      <Input
+                        type="date"
+                        value={formData.birth_date}
+                        onChange={(e) =>
+                          setFormData({ ...formData, birth_date: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cinsiyet
+                      </label>
+                      <select
+                        value={formData.gender}
+                        onChange={(e) =>
+                          setFormData({ ...formData, gender: e.target.value })
+                        }
+                        className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2"
+                      >
+                        <option value="">Seçiniz</option>
+                        <option value="male">Erkek</option>
+                        <option value="female">Kadın</option>
+                        <option value="other">Diğer</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <LoadingButton 
+                      type="submit" 
+                      loading={isSubmitting}
+                      loadingText="Kaydediliyor..."
+                      className="w-full sm:w-auto"
+                    >
+                      Kaydet
+                    </LoadingButton>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                      onClick={() => {
+                        setIsEditing(false);
+                        if (customer) {
+                          setFormData({
+                            first_name: customer.first_name || "",
+                            last_name: customer.last_name || "",
+                            phone: customer.phone || "",
+                            birth_date: customer.birth_date ? new Date(customer.birth_date).toISOString().split('T')[0] : "",
+                            gender: customer.gender || "",
+                          });
+                        }
+                      }}
+                    >
+                      İptal
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ad
+                    </label>
+                    <p className="text-gray-900">{customer.first_name || "-"}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Soyad
+                    </label>
+                    <p className="text-gray-900">{customer.last_name || "-"}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Telefon
+                    </label>
+                    <p className="text-gray-900">{customer.phone || "-"}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Doğum Tarihi
+                    </label>
+                    <p className="text-gray-900">
+                      {customer.birth_date
+                        ? new Date(customer.birth_date).toLocaleDateString("tr-TR")
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Cinsiyet
+                    </label>
+                    <p className="text-gray-900">
+                      {customer.gender === "male"
+                        ? "Erkek"
+                        : customer.gender === "female"
+                        ? "Kadın"
+                        : customer.gender === "other"
+                        ? "Diğer"
+                        : "-"}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Hesap Bilgileri */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold mb-4">Hesap Bilgileri</h3>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ad
-                  </label>
-                  <p className="text-gray-900">{customer.first_name || "-"}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Soyad
-                  </label>
-                  <p className="text-gray-900">{customer.last_name || "-"}</p>
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     E-posta
                   </label>
-                  <p className="text-gray-900">{customer.email}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <p className="text-gray-900 break-all">{customer.email}</p>
+                    <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                          Değiştir
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <form onSubmit={handleEmailChange}>
+                          <DialogHeader>
+                            <DialogTitle>E-posta Değiştir</DialogTitle>
+                            <DialogDescription>
+                              Yeni e-posta adresinizi girin. Doğrulama için yeni e-posta adresinize bir link gönderilecektir.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="py-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Yeni E-posta
+                            </label>
+                            <Input
+                              type="email"
+                              value={emailData.new_email}
+                              onChange={(e) =>
+                                setEmailData({ new_email: e.target.value })
+                              }
+                              placeholder="yeni@email.com"
+                              required
+                            />
+                          </div>
+                          <DialogFooter className="flex-col sm:flex-row gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full sm:w-auto"
+                              onClick={() => setIsEmailDialogOpen(false)}
+                            >
+                              İptal
+                            </Button>
+                            <LoadingButton 
+                              type="submit" 
+                              loading={isSubmitting}
+                              loadingText="Gönderiliyor..."
+                              className="w-full sm:w-auto"
+                            >
+                              Değiştir
+                            </LoadingButton>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -184,13 +644,105 @@ export default function ProfilePage() {
                     {customer.auth_provider === "google" ? "Google" : "E-posta"}
                   </p>
                 </div>
-              </div>
-            </div>
-
-            {/* Hesap Bilgileri */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">Hesap Bilgileri</h3>
-              <div className="space-y-4">
+                {customer.auth_provider === "email" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Şifre
+                    </label>
+                    <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                          Şifre Değiştir
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <form onSubmit={handlePasswordChange}>
+                          <DialogHeader>
+                            <DialogTitle>Şifre Değiştir</DialogTitle>
+                            <DialogDescription>
+                              Şifrenizi değiştirmek için mevcut şifrenizi girin.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="py-4 space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Mevcut Şifre
+                              </label>
+                              <Input
+                                type="password"
+                                value={passwordData.current_password}
+                                onChange={(e) =>
+                                  setPasswordData({
+                                    ...passwordData,
+                                    current_password: e.target.value,
+                                  })
+                                }
+                                placeholder="Mevcut şifreniz"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Yeni Şifre
+                              </label>
+                              <Input
+                                type="password"
+                                value={passwordData.new_password}
+                                onChange={(e) =>
+                                  setPasswordData({
+                                    ...passwordData,
+                                    new_password: e.target.value,
+                                  })
+                                }
+                                placeholder="Yeni şifreniz (min. 6 karakter)"
+                                required
+                                minLength={6}
+                              />
+                              <p className="mt-1 text-xs text-gray-500">
+                                En az bir büyük harf, bir küçük harf ve bir rakam içermelidir
+                              </p>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Yeni Şifre (Tekrar)
+                              </label>
+                              <Input
+                                type="password"
+                                value={passwordData.confirm_password}
+                                onChange={(e) =>
+                                  setPasswordData({
+                                    ...passwordData,
+                                    confirm_password: e.target.value,
+                                  })
+                                }
+                                placeholder="Yeni şifrenizi tekrar girin"
+                                required
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter className="flex-col sm:flex-row gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full sm:w-auto"
+                              onClick={() => setIsPasswordDialogOpen(false)}
+                            >
+                              İptal
+                            </Button>
+                            <LoadingButton 
+                              type="submit" 
+                              loading={isSubmitting}
+                              loadingText="Değiştiriliyor..."
+                              className="w-full sm:w-auto"
+                            >
+                              Değiştir
+                            </LoadingButton>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Hesap Oluşturma Tarihi

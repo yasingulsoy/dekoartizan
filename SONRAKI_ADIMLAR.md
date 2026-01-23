@@ -1,27 +1,5 @@
-1. [Öncelik Matrisi](#öncelik-matrisi)
-2. [Kritik Özellikler](#kritik-özellikler)
-3. [Güvenlik İyileştirmeleri](#güvenlik-iyileştirmeleri)
-4. [Kullanıcı Deneyimi](#kullanıcı-deneyimi)
-5. [Performans ve Optimizasyon](#performans-ve-optimizasyon)
-6. [Ek Özellikler](#ek-özellikler)
+## 🛒 Sepet ve Checkout Tamamlama
 
----
-
-## 🎯 Öncelik Matrisi
-
-| Öncelik | Özellik | Durum | Tahmini Süre |
-|---------|---------|-------|--------------|
-| 🔴 **KRİTİK** | Sepet ve Checkout Tamamlama | ⏳ Beklemede | 4-5 saat |
-| 🔴 **KRİTİK** | Güvenlik İyileştirmeleri | ⏳ Beklemede | 2-3 saat |
-| 🟡 **YÜKSEK** | Profil Güncelleme | ⏳ Beklemede | 2-3 saat |
-| 🟢 **ORTA** | UI/UX İyileştirmeleri | ⏳ Beklemede | 3-4 saat |
-| 🔵 **DÜŞÜK** | Ek Özellikler | 💡 Planlama | Değişken |
-
----
-
-## 🛒 Kritik Özellikler
-
-### 1. Sepet ve Checkout Tamamlama
 **Öncelik:** 🔴 KRİTİK  
 **Durum:** ⏳ Beklemede  
 **Tahmini Süre:** 4-5 saat
@@ -65,41 +43,6 @@
 - [ ] Giriş yapınca sepet senkronizasyonu
 - [ ] Sipariş oluşturma akışı
 - [ ] Ödeme işlemi simülasyonu
-
----
-
-### 2. Profil Güncelleme
-**Öncelik:** 🟡 YÜKSEK  
-**Durum:** ⏳ Beklemede  
-**Tahmini Süre:** 2-3 saat
-
-#### Mevcut Durum
-- ✅ Profil görüntüleme sayfası var
-- ✅ Kullanıcı bilgileri gösteriliyor
-- ❌ Profil düzenleme formu yok
-- ❌ Backend update endpoint'i yok
-- ❌ Şifre değiştirme yok
-
-#### Yapılacaklar
-
-**Backend:**
-- [ ] Profil güncelleme endpoint'i (`PUT /api/customers/:id`)
-- [ ] Authentication middleware ekle
-- [ ] Şifre değiştirme endpoint'i (`PUT /api/customers/:id/password`)
-- [ ] Input validasyonu (express-validator)
-- [ ] Şifre hash kontrolü (bcrypt)
-
-**Frontend:**
-- [ ] Profil düzenleme formu
-- [ ] Form validasyonu
-- [ ] Şifre değiştirme modal/formu
-- [ ] Success/error mesajları (toast)
-- [ ] Loading states
-
-**Güvenlik:**
-- [ ] Sadece kendi profilini güncelleyebilme kontrolü
-- [ ] Şifre değiştirmede mevcut şifre kontrolü
-- [ ] Rate limiting (şifre değiştirme için)
 
 ---
 
@@ -151,43 +94,6 @@
 
 ---
 
-## 🎨 Kullanıcı Deneyimi
-
-**Öncelik:** 🟢 ORTA  
-**Durum:** ⏳ Beklemede  
-**Tahmini Süre:** 3-4 saat
-
-#### Yapılacaklar
-
-**Loading States:**
-- [ ] Skeleton loaders ekle
-- [ ] Button loading states
-- [ ] Form submission loading
-- [ ] Sayfa yükleme spinners
-
-**Error Handling:**
-- [ ] Global error boundary
-- [ ] API error handling (try-catch)
-- [ ] Kullanıcı dostu hata mesajları
-- [ ] Retry mekanizması (network hataları için)
-
-**Success Mesajları:**
-- [ ] Toast notification sistemi
-- [ ] Form başarı mesajları
-- [ ] İşlem onay mesajları
-
-**Responsive Tasarım:**
-- [ ] Mobile-first yaklaşım kontrolü
-- [ ] Tablet görünümü testleri
-- [ ] Touch-friendly butonlar
-
-**Dark Mode (Opsiyonel):**
-- [ ] Theme context
-- [ ] Dark mode toggle
-- [ ] Sistem tercihini algılama
-
----
-
 ## ⚡ Performans ve Optimizasyon
 
 **Öncelik:** 🟢 ORTA  
@@ -200,17 +106,69 @@
 - [ ] Code splitting
 - [ ] Lazy loading
 - [ ] Bundle size analizi
+- [ ] Mega-menu performans optimizasyonu (çok kategori varsa)
 
 **Backend:**
 - [ ] Database query optimization
 - [ ] Index'ler kontrolü
 - [ ] Caching stratejisi (Redis - opsiyonel)
 - [ ] API response compression (zaten var)
+- [ ] Kategori ve ürün listeleri için pagination iyileştirmeleri
 
 **Monitoring:**
 - [ ] Performance monitoring
 - [ ] Error tracking (Sentry gibi)
 - [ ] Analytics entegrasyonu
+
+---
+
+## 🎨 UI/UX İyileştirmeleri
+
+**Öncelik:** 🟡 ORTA-DÜŞÜK  
+**Durum:** 💡 Planlama
+
+#### Yapılacaklar
+
+**Kategori ve Ürün Sayfaları:**
+- [ ] Kategori sayfasında filtreleme sidebar'ı
+- [ ] Ürün sıralama seçenekleri (fiyat, popülerlik, yenilik)
+- [ ] Ürün karşılaştırma özelliği
+- [ ] Ürün detay sayfasında benzer ürünler önerisi
+- [ ] Ürün görselleri için lightbox/galeri
+
+**Sepet ve Checkout:**
+- [ ] Sepet sayfasında ürün önizleme
+- [ ] Kargo hesaplama entegrasyonu
+- [ ] Kupon/indirim kodu uygulama
+- [ ] Checkout adımlarında progress indicator
+
+**Kullanıcı Deneyimi:**
+- [ ] Arama sonuçlarında filtreleme
+- [ ] Ürün arama otomatik tamamlama
+- [ ] Breadcrumb navigasyon iyileştirmeleri
+- [ ] Mobil uyumluluk testleri ve iyileştirmeleri
+
+---
+
+## 📧 E-posta ve Bildirimler
+
+**Öncelik:** 🟡 ORTA  
+**Durum:** ⏳ Beklemede
+
+#### Yapılacaklar
+
+**E-posta Şablonları:**
+- [ ] Sipariş onay e-postası
+- [ ] Kargo bilgilendirme e-postası
+- [ ] Sipariş teslim e-postası
+- [ ] Şifre sıfırlama e-postası
+- [ ] E-posta doğrulama e-postası
+- [ ] Hoş geldin e-postası
+
+**Bildirimler:**
+- [ ] Kullanıcı bildirim sistemi (in-app)
+- [ ] Push notification desteği (opsiyonel)
+- [ ] SMS bildirimleri (opsiyonel)
 
 ---
 
@@ -226,85 +184,74 @@
 - [ ] Favoriler/İstek Listesi
 - [ ] Ürün yorumları ve puanlama sistemi
 - [ ] Ürün filtreleme geliştirmeleri
+- [ ] Stok durumu bildirimleri
 
 **Sipariş Özellikleri:**
 - [ ] Sipariş takip sistemi
 - [ ] Sipariş iptal etme
 - [ ] Sipariş geçmişi filtreleme
 - [ ] Tekrar sipariş verme
+- [ ] Sipariş iade sistemi
 
 **Kullanıcı Özellikleri:**
 - [ ] Bildirim sistemi (e-posta, push)
 - [ ] Kullanıcı puanları/loyalty programı
 - [ ] Referans sistemi
 - [ ] Sosyal medya girişi genişletme (Facebook, Apple)
+- [ ] Profil fotoğrafı yükleme
 
 **Admin Özellikleri:**
-- [ ] Dashboard analytics
-- [ ] Stok yönetimi
+- [ ] Dashboard analytics ve grafikler
+- [ ] Stok yönetimi ve uyarılar
 - [ ] Sipariş yönetimi geliştirmeleri
 - [ ] Kullanıcı yönetimi
+- [ ] Toplu ürün işlemleri (import/export)
+- [ ] Raporlama modülü
+
+**Diğer:**
+- [ ] Çoklu dil desteği (i18n)
+- [ ] Çoklu para birimi desteği
+- [ ] Blog modülü
+- [ ] SSS (Sık Sorulan Sorular) sayfası
+- [ ] İletişim formu ve canlı destek
 
 ---
 
-## 📊 İlerleme Takibi
+## 🐛 Bug Fixes ve İyileştirmeler
 
-### Tamamlananlar ✅
-- [x] Temel authentication sistemi
-- [x] Ürün listeleme ve detay sayfaları
-- [x] Sepet UI (local state)
-- [x] Checkout sayfası UI
-- [x] Profil görüntüleme
-- [x] Adres yönetimi
-- [x] Rate limiting ve güvenlik temelleri
+**Öncelik:** 🟡 ORTA  
+**Durum:** 🔄 Devam Ediyor
 
-### Devam Edenler 🚧
-- [ ] Sepet ve checkout tamamlama
-- [ ] Güvenlik iyileştirmeleri
+#### Yapılacaklar
 
-### Bekleyenler ⏳
-- [ ] Profil güncelleme
-- [ ] UI/UX iyileştirmeleri
-- [ ] Performans optimizasyonları
+**Frontend:**
+- [ ] Form validasyon mesajlarını iyileştir
+- [ ] Loading state'lerini tutarlı hale getir
+- [ ] Error boundary'ler ekle
+- [ ] Accessibility (a11y) iyileştirmeleri
 
----
-
-## 🎯 Önerilen Geliştirme Sırası
-
-### Faz 1: Kritik Özellikler (1-2 Hafta)
-1. ✅ **Sepet ve Checkout Tamamlama** - E-ticaret için kritik
-2. ✅ **Güvenlik İyileştirmeleri** - Her şeyden önce güvenlik
-
-### Faz 2: Kullanıcı Deneyimi (1 Hafta)
-3. ✅ **Profil Güncelleme** - Temel kullanıcı ihtiyacı
-4. ✅ **UI/UX İyileştirmeleri** - Kullanıcı memnuniyeti
-
-### Faz 3: Optimizasyon ve Ek Özellikler (Devam Eden)
-5. ✅ **Performans Optimizasyonları**
-6. ✅ **Ek Özellikler** (ihtiyaca göre)
+**Backend:**
+- [ ] API error response formatını standardize et
+- [ ] Logging sistemini iyileştir
+- [ ] Database migration script'lerini düzenle
+- [ ] API dokümantasyonu oluştur (Swagger/OpenAPI)
 
 ---
 
-## 📝 Notlar
+## 📚 Dokümantasyon
 
-- Her özellik için test yazılması önerilir
-- Production'a geçmeden önce güvenlik audit'i yapılmalı
-- Ödeme entegrasyonu için test ortamında detaylı testler yapılmalı
-- Her faz sonrası kullanıcı testleri yapılabilir
+**Öncelik:** 🔵 DÜŞÜK  
+**Durum:** 💡 Planlama
 
----
+#### Yapılacaklar
 
-## ❓ Sonraki Adım
-
-**ÖNERİLEN:** 🛒 **Sepet ve Checkout Tamamlama**
-
-Bu özellik e-ticaret sitesinin kalbidir ve tamamlanmadan site işlevsel değildir.
-
-**Alternatifler:**
-- 🔒 **Güvenlik İyileştirmeleri** - Güvenlik öncelikliyse
-- ✏️ **Profil Güncelleme** - Kullanıcı deneyimi öncelikliyse
+- [ ] API dokümantasyonu (Swagger/OpenAPI)
+- [ ] Frontend component dokümantasyonu
+- [ ] Deployment guide
+- [ ] Developer onboarding guide
+- [ ] User manual (admin panel için)
 
 ---
 
-**Son Güncelleme:** 2024  
-**Dokümantasyon:** Bu dosya proje ilerledikçe güncellenmelidir.
+**Son Güncelleme:** 2026-01-23  
+**Dokümantasyon Versiyonu:** 2.0

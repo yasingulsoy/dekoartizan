@@ -7,6 +7,8 @@ import { PersistGate } from "redux-persist/integration/react";
 import SpinnerbLoader from "@/components/ui/SpinnerbLoader";
 import { CartSidebarProvider } from "@/context/CartSidebarContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "react-hot-toast";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 type Props = {
   children: React.ReactNode;
@@ -25,11 +27,37 @@ const Providers = ({ children }: Props) => {
         }
         persistor={persistor}
       >
-        <AuthProvider>
-          <CartSidebarProvider>
-            {children}
-          </CartSidebarProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <CartSidebarProvider>
+              {children}
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                  },
+                  success: {
+                    duration: 3000,
+                    iconTheme: {
+                      primary: '#10b981',
+                      secondary: '#fff',
+                    },
+                  },
+                  error: {
+                    duration: 4000,
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
+            </CartSidebarProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </PersistGate>
     </Provider>
   );

@@ -8,7 +8,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { API_URL } from "@/lib/api";
+import { iller, getIlcelerByIlId, getMahallelerByIlceId, type Ilce, type Mahalle } from "@/lib/turkiye-addresses";
 
 export default function EditAddressPage() {
   const { isAuthenticated, isLoading, token } = useAuth();
@@ -24,17 +26,21 @@ export default function EditAddressPage() {
     address_type: "shipping",
     first_name: "",
     last_name: "",
-    company: "",
     phone: "",
     address_line1: "",
     address_line2: "",
+    province: "",
     district: "",
+    neighborhood: "",
     city: "",
     state: "",
     postal_code: "",
     country: "Türkiye",
     is_default: false,
   });
+
+  const [ilceler, setIlceler] = useState<Ilce[]>([]);
+  const [mahalleler, setMahalleler] = useState<Mahalle[]>([]);
 
   useEffect(() => {
     if (isAuthenticated && token && addressId) {
@@ -60,17 +66,36 @@ export default function EditAddressPage() {
           address_type: address.address_type || "shipping",
           first_name: address.first_name || "",
           last_name: address.last_name || "",
-          company: address.company || "",
           phone: address.phone || "",
           address_line1: address.address_line1 || "",
           address_line2: address.address_line2 || "",
+          province: address.province || "",
           district: address.district || "",
+          neighborhood: address.neighborhood || "",
           city: address.city || "",
           state: address.state || "",
           postal_code: address.postal_code || "",
           country: address.country || "Türkiye",
           is_default: address.is_default || false,
         });
+        
+        // İl seçildiyse ilçeleri yükle
+        if (address.province) {
+          const selectedIl = iller.find(il => il.name === address.province);
+          if (selectedIl) {
+            const ilcelerList = getIlcelerByIlId(selectedIl.id);
+            setIlceler(ilcelerList);
+            
+            // İlçe seçildiyse mahalleleri yükle
+            if (address.district) {
+              const selectedIlce = ilcelerList.find(ilce => ilce.name === address.district);
+              if (selectedIlce) {
+                const mahallelerList = getMahallelerByIlceId(selectedIlce.id);
+                setMahalleler(mahallelerList);
+              }
+            }
+          }
+        }
       } else {
         setError(data.error || "Adres bulunamadı");
       }
@@ -92,6 +117,41 @@ export default function EditAddressPage() {
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleIlChange = (ilId: string) => {
+    const selectedIl = iller.find(il => il.id.toString() === ilId);
+    const ilcelerList = getIlcelerByIlId(parseInt(ilId));
+    
+    setFormData({
+      ...formData,
+      province: selectedIl?.name || "",
+      district: "",
+      neighborhood: "",
+    });
+    setIlceler(ilcelerList);
+    setMahalleler([]);
+  };
+
+  const handleIlceChange = (ilceId: string) => {
+    const selectedIlce = ilceler.find(ilce => ilce.id.toString() === ilceId);
+    const mahallelerList = getMahallelerByIlceId(parseInt(ilceId));
+    
+    setFormData({
+      ...formData,
+      district: selectedIlce?.name || "",
+      neighborhood: "",
+    });
+    setMahalleler(mahallelerList);
+  };
+
+  const handleMahalleChange = (mahalleId: string) => {
+    const selectedMahalle = mahalleler.find(m => m.id.toString() === mahalleId);
+    
+    setFormData({
+      ...formData,
+      neighborhood: selectedMahalle?.name || "",
     });
   };
 
@@ -239,22 +299,6 @@ export default function EditAddressPage() {
             </div>
           </div>
 
-          {/* Şirket */}
-          <div>
-            <label className="block text-sm font-medium text-black mb-2">
-              Şirket (Opsiyonel)
-            </label>
-            <InputGroup className="bg-[#F0F0F0] rounded-full">
-              <InputGroup.Input
-                name="company"
-                type="text"
-                value={formData.company}
-                onChange={handleChange}
-                className="bg-transparent placeholder:text-black/40"
-              />
-            </InputGroup>
-          </div>
-
           {/* Telefon */}
           <div>
             <label className="block text-sm font-medium text-black mb-2">
@@ -308,37 +352,89 @@ export default function EditAddressPage() {
             </InputGroup>
           </div>
 
-          {/* İlçe, Şehir */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* İl, İlçe, Mahalle */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-black mb-2">
-                İlçe (Opsiyonel)
+                İl <span className="text-red-500">*</span>
               </label>
-              <InputGroup className="bg-[#F0F0F0] rounded-full">
-                <InputGroup.Input
-                  name="district"
-                  type="text"
-                  value={formData.district}
-                  onChange={handleChange}
-                  className="bg-transparent placeholder:text-black/40"
-                />
-              </InputGroup>
+              <Select
+                value={iller.find(il => il.name === formData.province)?.id.toString() || ""}
+                onValueChange={handleIlChange}
+                required
+              >
+                <SelectTrigger className="bg-[#F0F0F0] rounded-full border-none h-10">
+                  <SelectValue placeholder="İl seçiniz" />
+                </SelectTrigger>
+                <SelectContent>
+                  {iller.map((il) => (
+                    <SelectItem key={il.id} value={il.id.toString()}>
+                      {il.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="block text-sm font-medium text-black mb-2">
-                Şehir <span className="text-red-500">*</span>
+                İlçe <span className="text-red-500">*</span>
               </label>
-              <InputGroup className="bg-[#F0F0F0] rounded-full">
-                <InputGroup.Input
-                  name="city"
-                  type="text"
-                  required
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="bg-transparent placeholder:text-black/40"
-                />
-              </InputGroup>
+              <Select
+                value={ilceler.find(ilce => ilce.name === formData.district)?.id.toString() || ""}
+                onValueChange={handleIlceChange}
+                disabled={!formData.province || ilceler.length === 0}
+                required
+              >
+                <SelectTrigger className="bg-[#F0F0F0] rounded-full border-none h-10">
+                  <SelectValue placeholder="İlçe seçiniz" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ilceler.map((ilce) => (
+                    <SelectItem key={ilce.id} value={ilce.id.toString()}>
+                      {ilce.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Mahalle (Opsiyonel)
+              </label>
+              <Select
+                value={mahalleler.find(m => m.name === formData.neighborhood)?.id.toString() || ""}
+                onValueChange={handleMahalleChange}
+                disabled={!formData.district || mahalleler.length === 0}
+              >
+                <SelectTrigger className="bg-[#F0F0F0] rounded-full border-none h-10">
+                  <SelectValue placeholder="Mahalle seçiniz" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mahalleler.map((mahalle) => (
+                    <SelectItem key={mahalle.id} value={mahalle.id.toString()}>
+                      {mahalle.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Şehir */}
+          <div>
+            <label className="block text-sm font-medium text-black mb-2">
+              Şehir <span className="text-red-500">*</span>
+            </label>
+            <InputGroup className="bg-[#F0F0F0] rounded-full">
+              <InputGroup.Input
+                name="city"
+                type="text"
+                required
+                value={formData.city}
+                onChange={handleChange}
+                className="bg-transparent placeholder:text-black/40"
+              />
+            </InputGroup>
           </div>
 
           {/* Eyalet, Posta Kodu */}

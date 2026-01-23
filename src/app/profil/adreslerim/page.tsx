@@ -15,11 +15,12 @@ interface Address {
   title: string | null;
   first_name: string;
   last_name: string;
-  company: string | null;
   phone: string;
   address_line1: string;
   address_line2: string | null;
+  province: string | null;
   district: string | null;
+  neighborhood: string | null;
   city: string;
   state: string | null;
   postal_code: string;
@@ -273,14 +274,15 @@ export default function AddressesPage() {
                   <p className="font-medium text-gray-900">
                     {address.first_name} {address.last_name}
                   </p>
-                  {address.company && <p>{address.company}</p>}
                   <p>{address.phone}</p>
                   <p className="mt-2">
                     {address.address_line1}
                     {address.address_line2 && `, ${address.address_line2}`}
                   </p>
                   <p>
+                    {address.neighborhood && `${address.neighborhood}, `}
                     {address.district && `${address.district}, `}
+                    {address.province && `${address.province}, `}
                     {address.city}
                     {address.state && `, ${address.state}`}
                   </p>
