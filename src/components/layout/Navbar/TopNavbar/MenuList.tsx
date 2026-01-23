@@ -27,37 +27,34 @@ export function MenuList({ data, label }: MenuListProps) {
       <NavigationMenuTrigger className="font-normal px-2 md:px-3 text-sm md:text-base">
         {label}
       </NavigationMenuTrigger>
-      <NavigationMenuContent className="!w-[calc(100vw-2rem)] md:!w-screen max-w-7xl left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0">
-        <div className="w-full p-4 md:p-6 max-h-[80vh] overflow-y-auto">
+      {/* Mega menu: viewport artık TopNavbar container'ına göre full-width açılıyor */}
+      <NavigationMenuContent className="!w-full !max-w-none !left-0">
+        <div className="w-full p-6 md:p-8 lg:p-10 max-h-[85vh] overflow-y-auto">
           {/* Kategoriler ve Alt Kategoriler */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-8 md:gap-10">
             {categories.map((category) => (
               <div key={category.id} className="flex flex-col min-w-0">
                 {/* Kategori Başlığı */}
                 <Link
-                  href={`/kategori/${category.url?.includes('category=') ? category.url.split('category=')[1]?.split('&')[0] : category.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-sm md:text-base font-bold text-black mb-2 md:mb-3 hover:text-gold-dark transition-colors line-clamp-1"
+                  href={category.url || `/kategori/${category.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-base md:text-lg font-bold text-black mb-3 md:mb-4 hover:text-gold-dark transition-colors uppercase"
                 >
                   {category.label}
                 </Link>
                 
                 {/* Alt Kategoriler */}
-                {category.subCategories && category.subCategories.length > 0 && (
-                  <ul className="space-y-1.5 md:space-y-2 flex-1">
+                {category.subCategories && category.subCategories.length > 0 ? (
+                  <ul className="space-y-2 md:space-y-2.5 flex-1 mb-3">
                     {category.subCategories.map((subCategory) => {
-                      // Category URL'den slug'ı çıkar
-                      const categorySlug = category.url?.includes('category=')
-                        ? category.url.split('category=')[1]?.split('&')[0]
-                        : '';
-                        const subCategoryUrl = categorySlug
-                          ? `/kategori/${categorySlug}?subcategory=${subCategory.slug}`
-                          : `/shop?subcategory=${subCategory.slug}`;
+                      // Category URL zaten /kategori/slug formatında geliyor
+                      const categoryUrl = category.url || `/kategori/${category.label.toLowerCase().replace(/\s+/g, '-')}`;
+                      const subCategoryUrl = `${categoryUrl}?subcategory=${subCategory.slug}`;
                       
                       return (
                         <li key={subCategory.id}>
                           <Link
                             href={subCategoryUrl}
-                            className="text-xs md:text-sm text-black/70 hover:text-black hover:underline transition-colors block line-clamp-1"
+                            className="text-sm md:text-base text-black/70 hover:text-black hover:underline transition-colors block"
                           >
                             {subCategory.name}
                           </Link>
@@ -65,12 +62,14 @@ export function MenuList({ data, label }: MenuListProps) {
                       );
                     })}
                   </ul>
+                ) : (
+                  <div className="flex-1 mb-3"></div>
                 )}
                 
                 {/* Hepsini Göster Linki */}
                 <Link
-                  href={`/kategori/${category.url?.includes('category=') ? category.url.split('category=')[1]?.split('&')[0] : category.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-xs md:text-sm text-gold-dark hover:text-gold-medium font-medium mt-2 md:mt-3 pt-2 md:pt-3 border-t border-gray-200"
+                  href={category.url || `/kategori/${category.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-sm md:text-base text-gold-dark hover:text-gold-medium font-medium mt-auto pt-3 md:pt-4 border-t border-gray-200"
                 >
                   Hepsini Göster →
                 </Link>

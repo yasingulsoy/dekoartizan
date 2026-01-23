@@ -100,13 +100,30 @@ const SortableCategoryItem: React.FC<{
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
         {editingCategory === category.id ? (
           <form onSubmit={(e) => onUpdate(category.id, e)} className="space-y-4">
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => onSetFormData({ ...formData, name: e.target.value })}
-              className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
-            />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Kategori Adı *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => onSetFormData({ ...formData, name: e.target.value })}
+                className="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Kısa Açıklama
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => onSetFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+              />
+            </div>
             <div className="flex gap-2">
               <button
                 type="submit"

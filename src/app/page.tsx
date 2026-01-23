@@ -69,7 +69,7 @@ export default async function Home() {
       <Brands />
       <main className="my-[50px] sm:my-[72px]">
         <ProductListSec
-          title="YENİ GELENLER"
+          title="YENİ TASARIMLAR"
           data={newArrivalsData}
           viewAllLink="/shop#new-arrivals"
         />
@@ -78,7 +78,7 @@ export default async function Home() {
         </div>
         <div className="mb-[50px] sm:mb-20">
           <ProductListSec
-            title="Çok Satanlar"
+            title="POPÜLER ÜRÜNLER"
             data={topSellingData}
             viewAllLink="/shop#top-selling"
           />

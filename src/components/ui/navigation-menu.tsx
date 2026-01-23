@@ -12,7 +12,11 @@ const NavigationMenu = React.forwardRef<
   <NavigationMenuPrimitive.Root
     ref={ref}
     className={cn(
-      "relative z-10 flex max-w-max flex-1 items-center justify-center",
+      // IMPORTANT:
+      // Navbar mega-menu için Root'u "relative/max-w-max" yapmıyoruz.
+      // Viewport wrapper'ı absolute olduğu için, en yakın "relative" ancestor'a (TopNavbar container) göre
+      // konumlanıp tam genişlikte açılabilsin.
+      "z-10 flex items-center justify-center",
       className
     )}
     {...props}
@@ -83,10 +87,12 @@ const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
 >(({ className, ...props }, ref) => (
-  <div className={cn("absolute left-0 top-full flex justify-center w-full")}>
+  <div className={cn("absolute left-0 top-full flex w-full justify-start")}>
     <NavigationMenuPrimitive.Viewport
       className={cn(
-        "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]",
+        // Mega-menu: viewport genişliği container ile aynı olmalı.
+        // Radix'in md:w-[var(--radix-navigation-menu-viewport-width)] kısıtı mega menüyü daraltabiliyordu.
+        "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full max-w-none overflow-hidden rounded-none border bg-popover text-popover-foreground shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90",
         className
       )}
       ref={ref}
