@@ -210,7 +210,7 @@ function MenuItem({
             }
             return currentPrev;
           });
-        }, 2000); // Transition süresi kadar bekle
+        }, 1200); // Transition süresi kadar bekle
         
         return nextIndex;
       });

@@ -50,7 +50,7 @@ const Header = () => {
       return {
         ...item,
         slideImages: slideImages,
-        slideInterval: 6000, // 6 saniyede bir değişsin
+        slideInterval: 4000, // 4 saniyede bir değişsin
       };
     }
     return item;
