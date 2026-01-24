@@ -169,7 +169,7 @@ const PaperTypeForm: React.FC<PaperTypeFormProps> = ({
             id="price"
             name="price"
             type="number"
-            step="0.01"
+            step={0.01}
             value={formData.price}
             onChange={handleInputChange}
             required
@@ -183,7 +183,7 @@ const PaperTypeForm: React.FC<PaperTypeFormProps> = ({
             id="price_per_m2"
             name="price_per_m2"
             type="number"
-            step="0.01"
+            step={0.01}
             value={formData.price_per_m2}
             onChange={handleInputChange}
             required
