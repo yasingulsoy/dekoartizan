@@ -11,6 +11,9 @@ interface FlowingMenuProps {
     text: string;
     subTexts?: string[];
     image: string;
+    slideImages?: string[]; // Arkaplan slide için resimler
+    slideInterval?: number; // Slide değişim süresi (ms)
+    backgroundImage?: string; // Arkaplan resmi (slide olmayan kareler için)
   }>;
   layout?: 'default' | 'leftMerged3';
   speed?: number;
@@ -32,6 +35,9 @@ interface MenuItemProps {
   marqueeBgColor: string;
   marqueeTextColor: string;
   borderColor: string;
+  slideImages?: string[]; // Arkaplan slide için resimler
+  slideInterval?: number; // Slide değişim süresi (ms)
+  backgroundImage?: string; // Arkaplan resmi (slide olmayan kareler için)
 }
 
 function FlowingMenu({
@@ -63,6 +69,9 @@ function FlowingMenu({
             marqueeBgColor={marqueeBgColor}
             marqueeTextColor={marqueeTextColor}
             borderColor={borderColor}
+            slideImages={item.slideImages}
+            slideInterval={item.slideInterval}
+            backgroundImage={item.backgroundImage}
           />
         ))}
       </nav>
@@ -80,15 +89,26 @@ function MenuItem({
   textColor,
   marqueeBgColor,
   marqueeTextColor,
-  borderColor
+  borderColor,
+  slideImages = [],
+  slideInterval = 3000,
+  backgroundImage
 }: MenuItemProps) {
   const itemRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeInnerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.core.Tween | null>(null);
+  const slideRef = useRef<HTMLDivElement>(null);
+  const slideIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [repetitions, setRepetitions] = useState(4);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [prevSlideIndex, setPrevSlideIndex] = useState(-1);
   const isStacked = !!subTexts?.length;
+  const isMerged = className?.includes('menu__item--merged');
   const marqueeText = [text, ...(subTexts ?? [])].join(' • ');
+  
+  // Slide resimleri varsa ve merged kare ise slide özelliğini aktif et
+  const hasSlideImages = slideImages.length > 0 && isMerged;
 
   const animationDefaults = { duration: 0.6, ease: 'expo' };
 
@@ -133,7 +153,7 @@ function MenuItem({
       const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part');
       if (!marqueeContent) return;
 
-      const contentWidth = marqueeContent.offsetWidth;
+      const contentWidth = (marqueeContent as HTMLElement).offsetWidth;
       if (contentWidth === 0) return;
 
       if (animationRef.current) {
@@ -159,6 +179,55 @@ function MenuItem({
       }
     };
   }, [marqueeText, image, repetitions, speed]);
+
+  // Slide animasyonu için effect
+  useEffect(() => {
+    if (!hasSlideImages || !slideRef.current || slideImages.length === 0) return;
+
+    // İlk slide'ı göster ve prevSlideIndex'i temizle
+    setCurrentSlideIndex(0);
+    setPrevSlideIndex(-1);
+
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const changeSlide = () => {
+      // Önceki timeout'u temizle
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      setCurrentSlideIndex((prev) => {
+        const nextIndex = (prev + 1) % slideImages.length;
+        // Önceki index'i ayarla
+        setPrevSlideIndex(prev);
+        
+        // Animasyon bittikten sonra prevSlideIndex'i temizle
+        timeoutId = setTimeout(() => {
+          setPrevSlideIndex((currentPrev) => {
+            // Sadece hala aynı prev index ise temizle
+            if (currentPrev === prev) {
+              return -1;
+            }
+            return currentPrev;
+          });
+        }, 2000); // Transition süresi kadar bekle
+        
+        return nextIndex;
+      });
+    };
+
+    // İlk slide'ı göster
+    slideIntervalRef.current = setInterval(changeSlide, slideInterval);
+
+    return () => {
+      if (slideIntervalRef.current) {
+        clearInterval(slideIntervalRef.current);
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [hasSlideImages, slideImages.length, slideInterval]);
 
   const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
@@ -188,7 +257,41 @@ function MenuItem({
   };
 
   return (
-    <div className={`menu__item ${className ?? ''}`.trim()} ref={itemRef} style={{ borderColor }}>
+    <div 
+      className={`menu__item ${className ?? ''}`.trim()} 
+      ref={itemRef} 
+      style={{ 
+        borderColor,
+        ...(backgroundImage && !hasSlideImages ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        } : {})
+      }}
+    >
+      {/* Arkaplan slide resimleri (sadece merged kare için) */}
+      {hasSlideImages && (
+        <div className="menu__item-slide-bg" ref={slideRef}>
+          {slideImages.map((slideImage, idx) => {
+            const isActive = idx === currentSlideIndex;
+            const isPrev = idx === prevSlideIndex && prevSlideIndex !== -1;
+            
+            return (
+              <div
+                key={idx}
+                className={`menu__item-slide-image ${isActive ? 'active' : ''} ${isPrev ? 'prev' : ''}`}
+                style={{
+                  backgroundImage: `url(${slideImage})`,
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
       <a
         className={`menu__item-link ${isStacked ? 'menu__item-link--stacked' : ''}`.trim()}
         href={link}
