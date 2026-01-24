@@ -148,6 +148,7 @@ app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/paper-types', require('./routes/paperTypes'));
 app.use('/api/customers', require('./routes/customers'));
 app.use('/api/files', require('./routes/files'));
+app.use('/api/chatbot', require('./routes/chatbot'));
 
 app.use('*', (req, res) => {
   res.status(404).json({

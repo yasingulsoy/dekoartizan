@@ -47,6 +47,12 @@ SMTP_USER=dekoartizan@dekoartizan.com
 SMTP_PASSWORD=your_app_password_here
 SMTP_FROM=dekoartizan@dekoartizan.com
 SMTP_FROM_NAME=dekoartizan
+
+# Chatbot Configuration (Opsiyonel - OpenAI API)
+# OpenAI API kullanmak için aşağıdaki değişkenleri ekleyin
+# OPENAI_API_KEY=your_openai_api_key_here
+# OPENAI_MODEL=gpt-3.5-turbo
+# Not: OpenAI API key yoksa, basit yanıt sistemi kullanılacaktır
 ```
 
 ## Veritabanı Bağlantısını Test Etme
@@ -92,6 +98,10 @@ Bu proje PostgreSQL kullanır ve Sequelize ORM ile pool yönetimi yapılır. Poo
 - `GET /api/auth/google` - Google OAuth başlatma
 - `GET /api/auth/google/callback` - Google OAuth callback
 - `POST /api/auth/test-email` - Test e-postası gönderme (development)
+
+### Chatbot
+- `POST /api/chatbot` - Chatbot mesajı gönderme (marka bilgilerine göre tasarım önerileri)
+- `GET /api/chatbot/health` - Chatbot servis durumu kontrolü
 
 ### Diğer Endpoint'ler
 - `GET /api/products` - Ürün listesi

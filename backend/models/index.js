@@ -11,6 +11,8 @@ const Address = require('./Address');
 const Blog = require('./Blog');
 const Wishlist = require('./Wishlist');
 const PaperType = require('./PaperType');
+const ChatConversation = require('./ChatConversation');
+const ChatMessage = require('./ChatMessage');
 
 // Model ilişkileri
 Product.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
@@ -47,6 +49,13 @@ Product.hasMany(Wishlist, { foreignKey: 'product_id', as: 'wishlistItems' });
 
 Blog.belongsTo(User, { foreignKey: 'author_id', as: 'author' });
 
+// Chatbot model ilişkileri
+ChatConversation.belongsTo(Customer, { foreignKey: 'customer_id', as: 'customer' });
+Customer.hasMany(ChatConversation, { foreignKey: 'customer_id', as: 'conversations' });
+
+ChatConversation.hasMany(ChatMessage, { foreignKey: 'conversation_id', as: 'messages' });
+ChatMessage.belongsTo(ChatConversation, { foreignKey: 'conversation_id', as: 'conversation' });
+
 module.exports = {
   Product,
   ProductImage,
@@ -60,5 +69,7 @@ module.exports = {
   Address,
   Blog,
   Wishlist,
-  PaperType
+  PaperType,
+  ChatConversation,
+  ChatMessage
 };

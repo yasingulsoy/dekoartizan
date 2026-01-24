@@ -17,6 +17,7 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
+  ChatIcon,
 } from "../icons/index";
 
 type NavItem = {
@@ -74,6 +75,11 @@ const navItems: NavItem[] = [
     icon: <FolderIcon />,
     name: "Dosya Yöneticisi",
     path: "/files",
+  },
+  {
+    icon: <ChatIcon />,
+    name: "Chatbot",
+    path: "/chatbot",
   },
 ];
 

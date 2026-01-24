@@ -5,6 +5,7 @@ import { satoshi } from "@/styles/fonts";
 import TopNavbar from "@/components/layout/Navbar/TopNavbar";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import Chatbot from "@/components/chatbot/Chatbot";
 import HolyLoader from "holy-loader";
 import Providers from "./providers";
 import ComingSoon from "@/components/ComingSoon";
@@ -42,6 +43,7 @@ export default function RootLayout({
             </Providers>
             <Footer />
             <WhatsAppButton />
+            <Chatbot />
           </>
         )}
       </body>
