@@ -22,14 +22,27 @@ const nextConfig = {
   },
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || process.env.API_URL || '';
-    const backendHost = new URL(backendUrl).host;
     
-    return [
-      {
-        source: '/uploads/:path*',
-        destination: `${backendUrl}/uploads/:path*`,
-      },
-    ];
+    // Eğer backendUrl boşsa veya geçersizse rewrites ekleme
+    if (!backendUrl || backendUrl.trim() === '') {
+      return [];
+    }
+    
+    try {
+      // URL'in geçerli olup olmadığını kontrol et
+      new URL(backendUrl);
+      
+      return [
+        {
+          source: '/uploads/:path*',
+          destination: `${backendUrl}/uploads/:path*`,
+        },
+      ];
+    } catch (error) {
+      // Geçersiz URL durumunda boş array döndür
+      console.warn('Invalid BACKEND_URL, skipping rewrites:', backendUrl);
+      return [];
+    }
   },
 };
 
