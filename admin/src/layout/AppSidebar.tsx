@@ -8,6 +8,7 @@ import {
   CalenderIcon,
   ChevronDownIcon,
   FileIcon,
+  FolderIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
@@ -68,6 +69,11 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "Müşteriler",
     path: "/customers",
+  },
+  {
+    icon: <FolderIcon />,
+    name: "Dosya Yöneticisi",
+    path: "/files",
   },
 ];
 

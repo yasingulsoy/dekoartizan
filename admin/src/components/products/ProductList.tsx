@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "../ui/button/Button";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/lib/api";
+import { API_URL, apiGet, apiPatch, apiDelete } from "@/lib/api";
 
 interface Product {
   id: number;
@@ -35,10 +35,9 @@ const ProductList: React.FC = () => {
       if (filter === "active") params.append("is_active", "true");
       if (filter === "archived") params.append("is_archived", "true");
 
-      const response = await fetch(
-        `${API_URL}/api/products?${params.toString()}`
+      const result = await apiGet<{ success: boolean; data: Product[] }>(
+        `/api/products?${params.toString()}`
       );
-      const result = await response.json();
 
       if (result.success) {
         setProducts(result.data);
@@ -52,16 +51,11 @@ const ProductList: React.FC = () => {
 
   const handleArchive = async (productId: number, isArchived: boolean) => {
     try {
-      const response = await fetch(
-        `${API_URL}/api/products/${productId}/archive`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ is_archived: !isArchived }),
-        }
+      const result = await apiPatch<{ success: boolean }>(
+        `/api/products/${productId}/archive`,
+        { is_archived: !isArchived }
       );
 
-      const result = await response.json();
       if (result.success) {
         fetchProducts();
       }
@@ -72,16 +66,11 @@ const ProductList: React.FC = () => {
 
   const handleStatus = async (productId: number, isActive: boolean) => {
     try {
-      const response = await fetch(
-        `${API_URL}/api/products/${productId}/status`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ is_active: !isActive }),
-        }
+      const result = await apiPatch<{ success: boolean }>(
+        `/api/products/${productId}/status`,
+        { is_active: !isActive }
       );
 
-      const result = await response.json();
       if (result.success) {
         fetchProducts();
       }
@@ -96,14 +85,10 @@ const ProductList: React.FC = () => {
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/products/${productId}`,
-        {
-          method: "DELETE",
-        }
+      const result = await apiDelete<{ success: boolean }>(
+        `/api/products/${productId}`
       );
 
-      const result = await response.json();
       if (result.success) {
         fetchProducts();
       }

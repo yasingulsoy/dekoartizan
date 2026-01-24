@@ -78,7 +78,7 @@ router.post('/auth/login', async (req, res) => {
       });
     }
 
-    // JWT token oluştur
+    // JWT token oluştur (6 saat geçerli)
     const token = jwt.sign(
       {
         id: user.id,
@@ -87,7 +87,7 @@ router.post('/auth/login', async (req, res) => {
         role: 'admin'
       },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '6h' }
     );
 
     // last_login güncelle

@@ -96,21 +96,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Login zamanını kontrol et ve otomatik logout zamanla
       checkAutoLogout();
+      
+      // Her dakika kontrol et (sayfa açıkken)
+      const intervalId = setInterval(() => {
+        checkAutoLogout();
+      }, 60000); // 1 dakika
+      
+      setIsLoading(false);
+      
+      // Cleanup function
+      return () => {
+        if (autoLogoutTimerRef.current) {
+          clearTimeout(autoLogoutTimerRef.current);
+        }
+        clearInterval(intervalId);
+      };
     } else {
       // Eğer giriş yapılmamışsa login zamanını temizle
       if (typeof window !== 'undefined') {
         localStorage.removeItem(LOGIN_TIME_KEY);
       }
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-
-    // Cleanup function
-    return () => {
-      if (autoLogoutTimerRef.current) {
-        clearTimeout(autoLogoutTimerRef.current);
-      }
-    };
   }, [checkAutoLogout]);
 
   const login = React.useCallback(async (usernameOrEmail: string, password: string) => {

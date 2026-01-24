@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Customer } = require('../models');
+const { Customer, User } = require('../models');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -56,7 +56,45 @@ const authorizeSelf = (req, res, next) => {
   next();
 };
 
+/**
+ * Admin authentication middleware
+ * Token'ı doğrular ve admin kontrolü yapar
+ */
+const authenticateAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: 'Token bulunamadı'
+      });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user || !user.is_admin || !user.is_active) {
+      return res.status(401).json({
+        success: false,
+        error: 'Geçersiz token veya admin yetkisi yok'
+      });
+    }
+
+    req.user = user;
+    req.userId = user.id;
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      error: 'Geçersiz token'
+    });
+  }
+};
+
 module.exports = {
   authenticateToken,
-  authorizeSelf
+  authorizeSelf,
+  authenticateAdmin
 };

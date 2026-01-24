@@ -141,10 +141,35 @@ export const apiPut = async <T = any>(endpoint: string, data?: any): Promise<T> 
 };
 
 /**
+ * API PATCH request
+ */
+export const apiPatch = async <T = any>(endpoint: string, data?: any): Promise<T> => {
+  const response = await apiRequest(endpoint, {
+    method: 'PATCH',
+    body: data ? JSON.stringify(data) : undefined,
+  });
+  
+  if (!response.ok) {
+    if (response.status === 401) {
+      removeAuthToken();
+      window.location.href = '/signin';
+      throw new Error('Unauthorized');
+    }
+    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+    throw new Error(error.message || 'Request failed');
+  }
+  
+  return response.json();
+};
+
+/**
  * API DELETE request
  */
-export const apiDelete = async <T = any>(endpoint: string): Promise<T> => {
-  const response = await apiRequest(endpoint, { method: 'DELETE' });
+export const apiDelete = async <T = any>(endpoint: string, data?: any): Promise<T> => {
+  const response = await apiRequest(endpoint, {
+    method: 'DELETE',
+    body: data ? JSON.stringify(data) : undefined,
+  });
   
   if (!response.ok) {
     if (response.status === 401) {
