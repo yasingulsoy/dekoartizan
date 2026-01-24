@@ -264,8 +264,8 @@ function MenuItem({
         borderColor,
         ...(backgroundImage && !hasSlideImages && !isMerged ? {
           backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
+          backgroundSize: 'var(--flowing-menu-bg-size, contain)',
+          backgroundPosition: 'var(--flowing-menu-bg-position, center)',
           backgroundRepeat: 'no-repeat'
         } : {})
       }}
@@ -283,8 +283,8 @@ function MenuItem({
                 className={`menu__item-slide-image ${isActive ? 'active' : ''} ${isPrev ? 'prev' : ''}`}
                 style={{
                   backgroundImage: `url(${slideImage})`,
-                  backgroundSize: 'contain',
-                  backgroundPosition: 'center',
+                  backgroundSize: 'var(--flowing-menu-bg-size, contain)',
+                  backgroundPosition: 'var(--flowing-menu-bg-position, center)',
                   backgroundRepeat: 'no-repeat'
                 }}
               />

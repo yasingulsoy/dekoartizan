@@ -2,6 +2,9 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  /* Varsayılan: tüm görsel görünsün (letterbox olabilir) */
+  --flowing-menu-bg-size: contain;
+  --flowing-menu-bg-position: center;
 }
 
 .menu {
@@ -298,5 +301,13 @@
     height: 4vh;
     margin: 0.5em 0.75vw;
     padding: 0.25em 0;
+  }
+}
+
+/* Düşük ekran yüksekliğinde (ör. 1366x768 gibi) soldaki görsellerde "üstte boşluk" oluşmasın */
+@media (max-height: 820px) and (min-width: 769px) {
+  .menu-wrap {
+    --flowing-menu-bg-size: cover;
+    --flowing-menu-bg-position: center;
   }
 }

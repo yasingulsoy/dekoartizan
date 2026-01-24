@@ -114,7 +114,7 @@ const TopNavbar = () => {
   }, []);
   return (
     <nav className="sticky top-0 bg-white z-20">
-      <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-2 xl:px-0 gap-2 md:gap-0">
+      <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-3 md:py-4 px-2 xl:px-0 gap-2 md:gap-0">
         <div className="flex items-center">
           <div className="block md:hidden mr-2 md:mr-4 flex-shrink-0">
             <ResTopNavbar data={menuData} />
@@ -122,7 +122,7 @@ const TopNavbar = () => {
           <Link
             href="/"
             className={cn([
-              "flex items-center gap-3 md:gap-4 mb-2 mr-1 md:mr-2 lg:mr-6 flex-shrink-0",
+              "flex items-center gap-2 md:gap-3 mb-2 mr-1 md:mr-2 lg:mr-6 flex-shrink-0",
             ])}
           >
             <Image
@@ -130,13 +130,13 @@ const TopNavbar = () => {
               alt="dekoartizan logo"
               width={1000}
               height={1000}
-              className="w-[60px] md:w-20 lg:w-[100px] h-[60px] md:h-20 lg:h-[100px] flex-shrink-0"
+              className="w-[50px] md:w-16 lg:w-[80px] h-[50px] md:h-16 lg:h-[80px] flex-shrink-0"
               priority
             />
             <span
               className={cn([
                 poppins.className,
-                "text-lg sm:text-xl md:text-2xl lg:text-[32px] whitespace-nowrap",
+                "text-base sm:text-lg md:text-xl lg:text-2xl whitespace-nowrap",
               ])}
             >
               DEKOARTİZAN

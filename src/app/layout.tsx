@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
 import { satoshi } from "@/styles/fonts";
-import TopBanner from "@/components/layout/Banner/TopBanner";
+// import TopBanner from "@/components/layout/Banner/TopBanner";
 import TopNavbar from "@/components/layout/Navbar/TopNavbar";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
@@ -35,7 +35,7 @@ export default function RootLayout({
           <ComingSoon />
         ) : (
           <>
-            <TopBanner />
+            {/* <TopBanner /> */}
             <Providers>
               <TopNavbar />
               {children}
