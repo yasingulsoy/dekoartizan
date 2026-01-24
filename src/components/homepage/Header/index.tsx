@@ -12,16 +12,13 @@ const demoItems = [
   },
   { 
     link: "/shop#top-selling", 
-    text: "",
-    image: "https://picsum.photos/600/400?random=2",
-    backgroundImage: "/header-3/1.png"
+    text: "Çok Satanlar",
+    image: "https://picsum.photos/600/400?random=2"
   },
-  { link: "/shop", text: "", image: "https://picsum.photos/600/400?random=4" },
+  { link: "/shop", text: "Sezon Sonu Fırsatları", image: "https://picsum.photos/600/400?random=4" },
   { link: "/shop", 
-    text: "", 
-    image: "https://picsum.photos/600/400?random=6",
-    backgroundImage: "/header-3/2.png"
-
+    text: "Yeni Tasarımlar", 
+    image: "https://picsum.photos/600/400?random=6"
   },
 ];
 

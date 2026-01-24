@@ -82,11 +82,13 @@
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
-  font-weight: 600;
-  font-size: clamp(1rem, 2.5vw, 2.5vh);
+  font-weight: 300;
+  font-size: clamp(1.5rem, 4vw, 4vh);
   padding: 1rem;
   line-height: 1.2;
   transition: opacity 0.15s ease-out;
+  letter-spacing: 0.05em;
+  font-family: var(--font-poppins), sans-serif;
 }
 
 .menu__item-link--stacked {
@@ -179,6 +181,14 @@
 .menu--leftMerged3 .menu__item--right {
   grid-column: 2;
   border-right: none;
+  background: linear-gradient(135deg, #FCE7A2 0%, #F8E7B1 50%, #E8D5A0 100%);
+}
+
+.menu--leftMerged3 .menu__item--right .menu__item-link {
+  color: #1c1515 !important;
+  font-size: clamp(1.75rem, 5vw, 5vh);
+  font-weight: 300;
+  letter-spacing: 0.1em;
 }
 
 .menu--leftMerged3 .menu__item--right-1 {
@@ -234,8 +244,16 @@
   }
 
   .menu__item-link {
-    font-size: clamp(0.875rem, 3vw, 1.25rem);
+    font-size: clamp(1.25rem, 4vw, 2rem);
     padding: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+  
+  .menu--leftMerged3 .menu__item--right .menu__item-link {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    letter-spacing: 0.1em;
+    font-weight: 300;
   }
 
   .marquee span {
@@ -258,8 +276,16 @@
   }
 
   .menu__item-link {
-    font-size: clamp(0.75rem, 2.5vw, 1rem);
+    font-size: clamp(1rem, 3.5vw, 1.5rem);
     padding: 0.5rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+  
+  .menu--leftMerged3 .menu__item--right .menu__item-link {
+    font-size: clamp(1.25rem, 4.5vw, 2rem);
+    letter-spacing: 0.1em;
+    font-weight: 300;
   }
 
   .marquee span {

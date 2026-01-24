@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
+import { poppins } from '@/styles/fonts';
 
 import './FlowingMenu.css';
 
@@ -105,6 +106,7 @@ function MenuItem({
   const [prevSlideIndex, setPrevSlideIndex] = useState(-1);
   const isStacked = !!subTexts?.length;
   const isMerged = className?.includes('menu__item--merged');
+  const isRightItem = className?.includes('menu__item--right');
   const marqueeText = [text, ...(subTexts ?? [])].join(' • ');
   
   // Slide resimleri varsa ve merged kare ise slide özelliğini aktif et
@@ -135,8 +137,6 @@ function MenuItem({
       const contentWidth = marqueeContent.offsetWidth;
       const viewportWidth = window.innerWidth;
 
-      // Calculate how many copies we need to fill viewport + extra for seamless loop
-      // We need at least 2, but calculate based on content vs viewport
       const needed = Math.ceil(viewportWidth / contentWidth) + 2;
       setRepetitions(Math.max(4, needed));
     };
@@ -262,7 +262,7 @@ function MenuItem({
       ref={itemRef} 
       style={{ 
         borderColor,
-        ...(backgroundImage && !hasSlideImages ? {
+        ...(backgroundImage && !hasSlideImages && !isMerged ? {
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'contain',
           backgroundPosition: 'center',
@@ -293,11 +293,11 @@ function MenuItem({
         </div>
       )}
       <a
-        className={`menu__item-link ${isStacked ? 'menu__item-link--stacked' : ''}`.trim()}
+        className={`menu__item-link ${isStacked ? 'menu__item-link--stacked' : ''} ${poppins.className}`.trim()}
         href={link}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        style={{ color: textColor }}
+        style={{ color: isRightItem ? '#1c1515' : textColor }}
       >
         <span className="menu__item-text">{text}</span>
         {subTexts?.map((t, i) => (
