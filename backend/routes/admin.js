@@ -11,11 +11,6 @@ router.post('/auth/login', async (req, res) => {
   try {
     const { usernameOrEmail, password } = req.body;
 
-    console.log('🔐 Admin login attempt:', { 
-      usernameOrEmail: usernameOrEmail?.substring(0, 10) + '...',
-      passwordLength: password?.length 
-    });
-
     if (!usernameOrEmail || !password) {
       return res.status(400).json({
         success: false,
@@ -24,7 +19,6 @@ router.post('/auth/login', async (req, res) => {
     }
 
     const searchTerm = usernameOrEmail.toLowerCase().trim();
-    console.log('📧 Searching for user with email or username:', searchTerm);
 
     // Email veya username ile kullanıcıyı bul (case-insensitive)
     const user = await User.findOne({
@@ -37,26 +31,14 @@ router.post('/auth/login', async (req, res) => {
     });
 
     if (!user) {
-      console.log('❌ User not found with email or username:', searchTerm);
       return res.status(401).json({
         success: false,
         error: 'Kullanıcı adı veya şifre hatalı'
       });
     }
 
-    console.log('✅ User found:', {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      is_admin: user.is_admin,
-      is_active: user.is_active,
-      has_password: !!user.password_hash,
-      password_hash_length: user.password_hash?.length
-    });
-
     // Admin kontrolü
     if (!user.is_admin) {
-      console.log('❌ User is not admin');
       return res.status(403).json({
         success: false,
         error: 'Bu hesap admin yetkisine sahip değil'
@@ -65,7 +47,6 @@ router.post('/auth/login', async (req, res) => {
 
     // Aktif kullanıcı kontrolü
     if (!user.is_active) {
-      console.log('❌ User is not active');
       return res.status(403).json({
         success: false,
         error: 'Hesabınız pasif durumda'
@@ -74,16 +55,12 @@ router.post('/auth/login', async (req, res) => {
 
     // Şifre kontrolü
     if (!user.password_hash) {
-      console.log('❌ No password hash found');
       return res.status(401).json({
         success: false,
         error: 'Bu hesap için şifre tanımlanmamış'
       });
     }
 
-    console.log('🔑 Comparing password...');
-    console.log('🔑 Password hash starts with:', user.password_hash.substring(0, 10));
-    
     // Eğer şifre hash'lenmemişse (düz metin), direkt karşılaştır
     let isPasswordValid = false;
     if (user.password_hash.startsWith('$2a$') || user.password_hash.startsWith('$2b$') || user.password_hash.startsWith('$2y$')) {
@@ -91,14 +68,10 @@ router.post('/auth/login', async (req, res) => {
       isPasswordValid = await bcrypt.compare(password, user.password_hash);
     } else {
       // Düz metin şifre (geçici - production'da olmamalı)
-      console.log('⚠️ WARNING: Password is not hashed! Using plain text comparison');
       isPasswordValid = user.password_hash === password;
     }
-    
-    console.log('🔑 Password valid:', isPasswordValid);
 
     if (!isPasswordValid) {
-      console.log('❌ Invalid password');
       return res.status(401).json({
         success: false,
         error: 'Kullanıcı adı veya şifre hatalı'

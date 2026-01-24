@@ -64,6 +64,11 @@ const footerLinksData: FooterLinks[] = [
         label: "gizlilik ve güvenlik",
         url: "/gizlilik-ve-guvenlik",
       },
+      {
+        id: 27,
+        label: "uygulama talimatları",
+        url: "/tekstil-duvar-kagidi-uygulama",
+      },
     ],
   },
   {

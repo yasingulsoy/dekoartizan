@@ -3,7 +3,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const { createUploadMiddleware, createUpdateImageMiddleware, deleteProductFolder, uploadsDir } = require('../middleware/upload');
-const { Product, ProductImage, Category, SubCategory } = require('../models');
+const { Product, ProductImage, Category, SubCategory, Wishlist, OrderItem } = require('../models');
 const { Op } = require('sequelize');
 
 const createSlug = (text) => {
@@ -650,6 +650,13 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
     }
     
+    await Wishlist.destroy({ where: { product_id: product.id } });
+    
+    // 2. OrderItem kayıtlarını sil (sipariş geçmişi korunması için opsiyonel - şimdilik siliyoruz)
+    // Not: Sipariş geçmişini korumak istiyorsanız bu satırı kaldırın ve OrderItem'da product_id'yi nullable yapın
+    await OrderItem.destroy({ where: { product_id: product.id } });
+    
+    // 3. Ürün resimlerini sil
     if (product.slug) {
       const images = await ProductImage.findAll({ where: { product_id: product.id } });
       for (const image of images) {
@@ -663,9 +670,10 @@ router.delete('/:id', async (req, res) => {
       deleteProductFolder(product.slug);
     }
     
+    // 4. Ürünü sil
     await product.destroy();
     
-    res.json({ success: true, message: 'Ürün ve tüm resimleri silindi' });
+    res.json({ success: true, message: 'Ürün ve tüm ilişkili kayıtlar silindi' });
   } catch (error) {
     console.error('Ürün silme hatası:', error);
     res.status(500).json({ success: false, error: error.message });

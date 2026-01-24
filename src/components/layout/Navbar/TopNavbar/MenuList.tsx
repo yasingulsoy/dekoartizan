@@ -19,9 +19,6 @@ export function MenuList({ data, label }: MenuListProps) {
     return (cat as any).is_active !== false;
   });
   
-  // Debug: Gösterilecek kategorileri konsola yazdır
-  console.log("MenuList - Gösterilecek kategoriler:", categories.length, "toplam:", data.length);
-  
   return (
     <NavigationMenuItem>
       <NavigationMenuTrigger className="font-normal px-2 md:px-3 text-sm md:text-base">

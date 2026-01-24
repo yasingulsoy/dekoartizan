@@ -113,7 +113,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.success && data.data) {
           // Sequelize model instance'ını plain object'e çevir
           const customerData = data.data.toJSON ? data.data.toJSON() : data.data;
-          console.log("Güncellenmiş customer verisi:", customerData);
           setCustomer(customerData);
         } else {
           console.error("refreshCustomer: Başarısız response", data);

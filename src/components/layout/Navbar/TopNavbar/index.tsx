@@ -79,9 +79,6 @@ const TopNavbar = () => {
         // Tüm aktif kategorileri çek (is_active=true olanlar)
         const response = await apiGet<{ success: boolean; data: Category[] }>("/api/categories");
         
-        // Debug: Gelen kategorileri konsola yazdır
-        console.log("Gelen kategoriler:", response.data?.map(c => ({ id: c.id, name: c.name, is_active: (c as any).is_active })));
-        
         if (response.success && response.data && response.data.length > 0) {
           const categoriesMenu: NavMenu = [
             {

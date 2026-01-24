@@ -131,7 +131,7 @@ const Footer = () => {
             <Link href="#" className="hover:text-white transition-colors">
               SIKÇA SORULAN SORULAR
             </Link>
-            <Link href="#" className="hover:text-white transition-colors">
+            <Link href="/tekstil-duvar-kagidi-uygulama" className="hover:text-white transition-colors">
               UYGULAMA TALİMATLARI
             </Link>
           </div>
