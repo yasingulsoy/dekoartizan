@@ -303,66 +303,9 @@ router.get('/health', (req, res) => {
 });
 
 /**
- * GET /api/chatbot/conversations/:sessionId
- * Belirli bir session'a ait conversation ve mesajları getir
- */
-router.get('/conversations/:sessionId', async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-
-    // Eğer sessionId bir sayıysa (conversation ID), ID ile ara
-    const isNumeric = /^\d+$/.test(sessionId);
-    const where = isNumeric 
-      ? { id: parseInt(sessionId) }
-      : { session_id: sessionId };
-
-    const conversation = await ChatConversation.findOne({
-      where: where,
-      include: [
-        {
-          model: ChatMessage,
-          as: 'messages',
-          order: [['message_order', 'ASC']]
-        }
-      ],
-      order: [[{ model: ChatMessage, as: 'messages' }, 'message_order', 'ASC']]
-    });
-
-    if (!conversation) {
-      return res.status(404).json({
-        error: 'Konuşma bulunamadı'
-      });
-    }
-
-    res.json({
-      success: true,
-      conversation: {
-        id: conversation.id,
-        sessionId: conversation.session_id,
-        status: conversation.status,
-        metadata: conversation.metadata,
-        createdAt: conversation.created_at,
-        messages: conversation.messages.map(msg => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          messageOrder: msg.message_order,
-          createdAt: msg.created_at
-        }))
-      }
-    });
-  } catch (error) {
-    console.error('Conversation getirme hatası:', error);
-    res.status(500).json({
-      error: 'Konuşma getirilirken bir hata oluştu',
-      message: error.message,
-    });
-  }
-});
-
-/**
  * GET /api/chatbot/conversations
  * Tüm conversation'ları listele (admin için)
+ * NOT: Bu route, /conversations/:sessionId route'undan ÖNCE tanımlanmalı
  */
 router.get('/conversations', async (req, res) => {
   try {
@@ -414,6 +357,65 @@ router.get('/conversations', async (req, res) => {
     console.error('Conversation listeleme hatası:', error);
     res.status(500).json({
       error: 'Konuşmalar listelenirken bir hata oluştu',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/chatbot/conversations/:sessionId
+ * Belirli bir session'a ait conversation ve mesajları getir
+ * NOT: Bu route, /conversations route'undan SONRA tanımlanmalı
+ */
+router.get('/conversations/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    // Eğer sessionId bir sayıysa (conversation ID), ID ile ara
+    const isNumeric = /^\d+$/.test(sessionId);
+    const where = isNumeric 
+      ? { id: parseInt(sessionId) }
+      : { session_id: sessionId };
+
+    const conversation = await ChatConversation.findOne({
+      where: where,
+      include: [
+        {
+          model: ChatMessage,
+          as: 'messages',
+          order: [['message_order', 'ASC']]
+        }
+      ],
+      order: [[{ model: ChatMessage, as: 'messages' }, 'message_order', 'ASC']]
+    });
+
+    if (!conversation) {
+      return res.status(404).json({
+        error: 'Konuşma bulunamadı'
+      });
+    }
+
+    res.json({
+      success: true,
+      conversation: {
+        id: conversation.id,
+        sessionId: conversation.session_id,
+        status: conversation.status,
+        metadata: conversation.metadata,
+        createdAt: conversation.created_at,
+        messages: conversation.messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          messageOrder: msg.message_order,
+          createdAt: msg.created_at
+        }))
+      }
+    });
+  } catch (error) {
+    console.error('Conversation getirme hatası:', error);
+    res.status(500).json({
+      error: 'Konuşma getirilirken bir hata oluştu',
       message: error.message,
     });
   }
