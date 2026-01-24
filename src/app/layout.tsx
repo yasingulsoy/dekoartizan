@@ -8,7 +8,7 @@ import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import Chatbot from "@/components/chatbot/Chatbot";
 import HolyLoader from "holy-loader";
 import Providers from "./providers";
-import ComingSoon from "@/components/ComingSoon";
+// import ComingSoon from "@/components/ComingSoon";
 
 export const metadata: Metadata = {
   title: "dekoartizan - Duvar Kağıdı",
@@ -24,28 +24,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isProduction = process.env.NODE_ENV === "production";
-  const port = process.env.PORT || process.env.NEXT_PUBLIC_PORT || "3000";
-  const showComingSoon = isProduction && port === "3000";
-
   return (
     <html lang="tr" suppressHydrationWarning>
       <body className={satoshi.className}>
         <HolyLoader color="#868686" />
-        {showComingSoon ? (
-          <ComingSoon />
-        ) : (
-          <>
-            {/* <TopBanner /> */}
-            <Providers>
-              <TopNavbar />
-              {children}
-            </Providers>
-            <Footer />
-            <WhatsAppButton />
-            <Chatbot />
-          </>
-        )}
+        {/* <TopBanner /> */}
+        <Providers>
+          <TopNavbar />
+          {children}
+        </Providers>
+        <Footer />
+        <WhatsAppButton />
+        <Chatbot />
       </body>
     </html>
   );
