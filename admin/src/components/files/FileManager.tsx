@@ -42,15 +42,23 @@ const FileManager: React.FC = () => {
     try {
       setLoading(true);
       setError("");
+      
+      // Geçersiz karakterleri temizle
+      const cleanPath = path.replace(/[<>:"|?*\x00-\x1f]/g, '').trim();
+      
       const response = await apiGet<FileListResponse>(
-        `/api/files/list?folder=${encodeURIComponent(path)}`
+        `/api/files/list?folder=${encodeURIComponent(cleanPath)}`
       );
       if (response.success) {
         setItems(response.data.items);
-        setCurrentPath(response.data.currentPath);
+        // Backend'den gelen path'i de temizle
+        const cleanCurrentPath = response.data.currentPath.replace(/[<>:"|?*\x00-\x1f]/g, '').trim();
+        setCurrentPath(cleanCurrentPath === '/' ? '' : cleanCurrentPath);
       }
     } catch (err: any) {
       setError(err.message || "Dosyalar yüklenemedi");
+      // Hata durumunda root'a dön
+      setCurrentPath("");
     } finally {
       setLoading(false);
     }

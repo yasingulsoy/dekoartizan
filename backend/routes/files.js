@@ -11,12 +11,42 @@ const uploadsBaseDir = path.join(__dirname, '../uploads');
 router.get('/list', authenticateAdmin, async (req, res) => {
   try {
     const { folder = '' } = req.query;
-    const targetPath = folder ? path.join(uploadsBaseDir, folder) : uploadsBaseDir;
+    
+    // Geçersiz karakterleri temizle ve normalize et
+    const cleanFolder = String(folder).replace(/[<>:"|?*\x00-\x1f]/g, '').trim();
+    const targetPath = cleanFolder ? path.join(uploadsBaseDir, cleanFolder) : uploadsBaseDir;
     
     // Güvenlik: uploadsBaseDir dışına çıkışı engelle
     const normalizedPath = path.normalize(targetPath);
     if (!normalizedPath.startsWith(path.normalize(uploadsBaseDir))) {
       return res.status(403).json({ success: false, error: 'Yetkisiz erişim' });
+    }
+
+    // Klasörün var olup olmadığını kontrol et
+    let stats;
+    try {
+      stats = await fs.stat(targetPath);
+      if (!stats.isDirectory()) {
+        // Klasör değilse boş liste döndür
+        return res.json({
+          success: true,
+          data: {
+            items: [],
+            currentPath: cleanFolder || '/',
+            basePath: '/',
+          },
+        });
+      }
+    } catch (error) {
+      // Klasör yoksa boş liste döndür
+      return res.json({
+        success: true,
+        data: {
+          items: [],
+          currentPath: cleanFolder || '/',
+          basePath: '/',
+        },
+      });
     }
 
     const items = [];
@@ -53,15 +83,20 @@ router.get('/list', authenticateAdmin, async (req, res) => {
       success: true,
       data: {
         items,
-        currentPath: folder || '/',
+        currentPath: cleanFolder || '/',
         basePath: '/',
       },
     });
   } catch (error) {
     console.error('Dosya listesi hatası:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Dosya listesi alınamadı',
+    // Hata durumunda da boş liste döndür (404 yerine)
+    res.json({
+      success: true,
+      data: {
+        items: [],
+        currentPath: req.query.folder || '/',
+        basePath: '/',
+      },
     });
   }
 });
