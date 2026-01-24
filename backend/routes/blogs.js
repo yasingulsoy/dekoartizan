@@ -5,7 +5,7 @@ const fs = require('fs');
 const { createBlogUploadMiddleware, createBlogWallUploadMiddleware, deleteBlogFolder, deleteBlogWallFolder } = require('../middleware/blogUpload');
 const { Blog, User } = require('../models');
 const { Op } = require('sequelize');
-const { blogsWallDir } = require('../middleware/blogUpload');
+const { blogsWallDir, uploadsDir } = require('../middleware/blogUpload');
 const {
   normalizeBlogHtml,
   persistInlineImagesToBlogsWall,
@@ -194,7 +194,7 @@ router.post('/', async (req, res) => {
       const persisted = persistInlineImagesToBlogsWall({
         html: blog.content,
         blogId: blog.id,
-        blogsWallDir,
+        blogsDir: uploadsDir,
       });
 
       if (persisted.html !== blog.content) {
@@ -202,7 +202,7 @@ router.post('/', async (req, res) => {
       }
 
       // İlk kayıt sonrası gereksiz content_* dosyası varsa temizle (best-effort)
-      cleanupUnreferencedContentImages({ html: blog.content, blogId: blog.id, blogsWallDir });
+      cleanupUnreferencedContentImages({ html: blog.content, blogId: blog.id, blogsDir: uploadsDir });
     } catch (e) {
       console.error('İçerik görsel dönüştürme hatası (create):', e);
       // Blog kaydını tamamen başarısız yapmıyoruz; kullanıcı tekrar güncelleyebilir.
@@ -329,7 +329,7 @@ router.put('/:id', async (req, res) => {
       const persisted = persistInlineImagesToBlogsWall({
         html: normalized,
         blogId: blog.id,
-        blogsWallDir,
+        blogsDir: uploadsDir,
       });
       updateData.content = persisted.html;
     }
@@ -384,7 +384,7 @@ router.put('/:id', async (req, res) => {
 
     // Güncelleme sonrası içerikte referans edilmeyen content_* dosyalarını temizle
     if (updateData.content !== undefined) {
-      cleanupUnreferencedContentImages({ html: blog.content, blogId: blog.id, blogsWallDir });
+      cleanupUnreferencedContentImages({ html: blog.content, blogId: blog.id, blogsDir: uploadsDir });
     }
     
     res.json({ success: true, data: blog, message: 'Blog güncellendi' });

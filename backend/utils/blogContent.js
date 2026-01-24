@@ -32,16 +32,16 @@ function safeDecodeBase64(base64Str) {
 
 /**
  * HTML içindeki data:image/...;base64,... img src'lerini dosyaya yazar ve src'leri
- * /uploads/blogsWall/{blogId}/{filename} şeklinde değiştirir.
+ * /uploads/blogs/{blogId}/{filename} şeklinde değiştirir.
  *
  * @returns {{ html: string, saved: string[] }}
  */
-function persistInlineImagesToBlogsWall({ html, blogId, blogsWallDir }) {
+function persistInlineImagesToBlogsWall({ html, blogId, blogsDir }) {
   if (typeof html !== 'string' || !html) return { html, saved: [] };
   if (!blogId) throw new Error('blogId gerekli');
-  if (!blogsWallDir) throw new Error('blogsWallDir gerekli');
+  if (!blogsDir) throw new Error('blogsDir gerekli');
 
-  const blogDir = path.join(blogsWallDir, blogId.toString());
+  const blogDir = path.join(blogsDir, blogId.toString());
   ensureDir(blogDir);
 
   const saved = [];
@@ -81,7 +81,7 @@ function persistInlineImagesToBlogsWall({ html, blogId, blogsWallDir }) {
     const filePath = path.join(blogDir, name);
     fs.writeFileSync(filePath, buf);
 
-    const publicUrl = `/uploads/blogsWall/${blogId}/${name}`;
+    const publicUrl = `/uploads/blogs/${blogId}/${name}`;
     saved.push(publicUrl);
 
     // Bu match'e kadar olan kısmı yaz
@@ -105,16 +105,16 @@ function persistInlineImagesToBlogsWall({ html, blogId, blogsWallDir }) {
  * Blog klasöründe, içerikte referans edilmeyen content_* dosyalarını siler.
  * Kapak resmi (blogId.*) gibi dosyalara dokunmaz.
  */
-function cleanupUnreferencedContentImages({ html, blogId, blogsWallDir }) {
+function cleanupUnreferencedContentImages({ html, blogId, blogsDir }) {
   if (typeof html !== 'string' || !html) return;
-  if (!blogId || !blogsWallDir) return;
+  if (!blogId || !blogsDir) return;
 
-  const blogDir = path.join(blogsWallDir, blogId.toString());
+  const blogDir = path.join(blogsDir, blogId.toString());
   if (!fs.existsSync(blogDir)) return;
 
   // İçerikte geçen bu blog'a ait url'lerden dosya adlarını çıkar
   const referenced = new Set();
-  const urlRe = new RegExp(`/uploads/blogsWall/${blogId}/([^"'>\\s]+)`, 'gi');
+  const urlRe = new RegExp(`/uploads/blogs/${blogId}/([^"'>\\s]+)`, 'gi');
   let m;
   while ((m = urlRe.exec(html)) !== null) {
     referenced.add(m[1]);

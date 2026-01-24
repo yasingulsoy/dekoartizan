@@ -20,6 +20,17 @@ const nextConfig = {
     ],
     unoptimized: process.env.NODE_ENV === 'development',
   },
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || process.env.API_URL || '';
+    const backendHost = new URL(backendUrl).host;
+    
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

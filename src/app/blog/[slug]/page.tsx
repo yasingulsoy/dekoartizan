@@ -98,6 +98,29 @@ export default async function BlogDetailPage({
       return `${apiUrl}${url.startsWith("/") ? url : `/${url}`}`;
     };
 
+    // Blog içeriğindeki img src'lerini backend URL'ine çevir
+    const processBlogContent = (html: string): string => {
+      if (!html) return html;
+      const backendUrl =
+        process.env.BACKEND_URL ||
+        process.env.API_URL ||
+        "http://127.0.0.1:5000";
+      
+      // HTML içindeki img src'lerini bul ve backend URL'ine çevir
+      return html.replace(
+        /<img([^>]*)\ssrc=["'](\/uploads\/[^"']+)["']([^>]*)>/gi,
+        (match, before, src, after) => {
+          // Eğer zaten tam URL ise değiştirme
+          if (src.startsWith("http://") || src.startsWith("https://")) {
+            return match;
+          }
+          // Relative URL'leri backend URL'ine çevir
+          const fullUrl = `${backendUrl}${src}`;
+          return `<img${before} src="${fullUrl}"${after}>`;
+        }
+      );
+    };
+
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       return date.toLocaleDateString("tr-TR", {
@@ -189,7 +212,7 @@ export default async function BlogDetailPage({
                 prose-strong:font-bold prose-strong:text-black
                 prose-ul:list-disc prose-ol:list-decimal prose-li:mb-2 prose-li:text-black/80
                 prose-blockquote:border-l-4 prose-blockquote:border-black/20 prose-blockquote:pl-4 prose-blockquote:italic"
-              dangerouslySetInnerHTML={{ __html: blog.content }}
+              dangerouslySetInnerHTML={{ __html: processBlogContent(blog.content) }}
               style={{
                 lineHeight: "1.8",
               }}
