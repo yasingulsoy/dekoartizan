@@ -10,7 +10,7 @@
 .menu {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   height: 100%;
   margin: 0;
   padding: 0;
@@ -174,10 +174,10 @@
   background-position: 50% 50%;
 }
 
-/* 1-3-5 birleşik büyük blok düzeni (desktop) */
+/* 1-3 birleşik büyük blok düzeni (desktop) */
 .menu--leftMerged3 .menu__item--merged {
   grid-column: 1;
-  grid-row: 1 / span 3;
+  grid-row: 1 / span 2;
   border-bottom: none; /* dış çerçevede alt çizgi yok */
 }
 
@@ -200,10 +200,6 @@
 
 .menu--leftMerged3 .menu__item--right-2 {
   grid-row: 2;
-}
-
-.menu--leftMerged3 .menu__item--right-3 {
-  grid-row: 3;
   border-bottom: none;
 }
 
@@ -224,25 +220,30 @@
     border-bottom: none;
   }
 
-  /* birleşik düzen mobilde normal akışa dönsün */
+  /* birleşik düzen mobilde: büyük kare gizlensin, sadece 2 kare gösterilsin */
   .menu--leftMerged3 {
-    grid-template-rows: repeat(4, 1fr);
-  }
-
-  .menu--leftMerged3 .menu__item--merged,
-  .menu--leftMerged3 .menu__item--right,
-  .menu--leftMerged3 .menu__item--right-1,
-  .menu--leftMerged3 .menu__item--right-2,
-  .menu--leftMerged3 .menu__item--right-3 {
-    grid-column: auto;
-    grid-row: auto;
+    grid-template-rows: auto auto;
+    height: auto;
   }
 
   .menu--leftMerged3 .menu__item--merged {
+    display: none;
+  }
+
+  .menu--leftMerged3 .menu__item--right,
+  .menu--leftMerged3 .menu__item--right-1,
+  .menu--leftMerged3 .menu__item--right-2 {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: auto;
+    height: 60px;
+  }
+
+  .menu--leftMerged3 .menu__item--right-1 {
     border-bottom: 1px solid;
   }
 
-  .menu--leftMerged3 .menu__item--right-3 {
+  .menu--leftMerged3 .menu__item--right-2 {
     border-bottom: none;
   }
 
@@ -276,6 +277,13 @@
 @media (max-width: 480px) {
   .menu__item {
     min-height: 70px;
+  }
+
+  .menu--leftMerged3 .menu__item--right,
+  .menu--leftMerged3 .menu__item--right-1,
+  .menu--leftMerged3 .menu__item--right-2 {
+    min-height: auto;
+    height: 50px;
   }
 
   .menu__item-link {

@@ -18,6 +18,10 @@ export default function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
+  const forgotPasswordUrl =
+    process.env.NEXT_PUBLIC_SITE_URL
+      ? `${process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")}/forgot-password`
+      : "https://dekoartizan.com/forgot-password";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,12 +111,14 @@ export default function SignInForm() {
                       Beni hatırla
                     </span>
                   </div>
-                  <Link
-                    href="/reset-password"
+                  <a
+                    href={forgotPasswordUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
                     Şifremi unuttum?
-                  </Link>
+                  </a>
                 </div>
                 <div>
                   <Button className="w-full" size="sm" type="submit" disabled={isLoading}>

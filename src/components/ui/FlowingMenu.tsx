@@ -135,10 +135,14 @@ function MenuItem({
       if (!marqueeContent) return;
 
       const contentWidth = marqueeContent.offsetWidth;
+      if (contentWidth === 0) return; // Sıfıra bölme hatasını önle
+      
       const viewportWidth = window.innerWidth;
 
       const needed = Math.ceil(viewportWidth / contentWidth) + 2;
-      setRepetitions(Math.max(4, needed));
+      // Geçersiz değerleri kontrol et ve maksimum sınır koy
+      if (!Number.isFinite(needed) || needed < 0) return;
+      setRepetitions(Math.min(Math.max(4, needed), 20)); // Maksimum 20 tekrar
     };
 
     calculateRepetitions();
@@ -309,7 +313,7 @@ function MenuItem({
       <div className="marquee" ref={marqueeRef} style={{ backgroundColor: marqueeBgColor }}>
         <div className="marquee__inner-wrap">
           <div className="marquee__inner" ref={marqueeInnerRef} aria-hidden="true">
-            {[...Array(repetitions)].map((_, idx) => (
+            {[...Array(Math.min(Math.max(repetitions, 4), 20))].map((_, idx) => (
               <div className="marquee__part" key={idx} style={{ color: marqueeTextColor }}>
                 <span>{marqueeText}</span>
                 <div className="marquee__img" style={{ backgroundImage: `url(${image})` }} />

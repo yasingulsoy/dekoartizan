@@ -3,12 +3,24 @@ import Script from "next/script";
 import "@/styles/globals.css";
 import { satoshi } from "@/styles/fonts";
 import ComingSoon from "@/components/ComingSoon";
+import TopNavbar from "@/components/layout/Navbar/TopNavbar";
+import Footer from "@/components/layout/Footer";
+import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import Chatbot from "@/components/chatbot/Chatbot";
 import HolyLoader from "holy-loader";
+import Providers from "./providers";
 
-export const metadata: Metadata = {
-  title: "dekoartizan - Yakında Açılıyoruz",
-  description: "dekoartizan olarak yeni deneyimimizi hazırlıyoruz. En kısa sürede sizlerle buluşacağız!",
-};
+const isProduction = process.env.NODE_ENV === "production";
+
+export const metadata: Metadata = isProduction
+  ? {
+      title: "dekoartizan - Yakında Açılıyoruz",
+      description: "dekoartizan olarak yeni deneyimimizi hazırlıyoruz. En kısa sürede sizlerle buluşacağız!",
+    }
+  : {
+      title: "dekoartizan - Duvar Kağıdı",
+      description: "Benzersiz ve çeşitli duvar kağıtlarından sizin için en uygun olanı seçin. Olçünüzü girin, sipariş verin ve keyifle kullanın.",
+    };
 
 export const viewport: Viewport = {
   themeColor: "#000000",
@@ -36,7 +48,19 @@ export default function RootLayout({
           `}
         </Script>
         <HolyLoader color="#868686" />
-        <ComingSoon />
+        {isProduction ? (
+          <ComingSoon />
+        ) : (
+          <>
+            <Providers>
+              <TopNavbar />
+              {children}
+            </Providers>
+            <Footer />
+            <WhatsAppButton />
+            <Chatbot />
+          </>
+        )}
       </body>
     </html>
   );

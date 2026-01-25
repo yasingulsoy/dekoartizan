@@ -7,6 +7,33 @@ const getApiUrl = () => {
 
 export const API_URL = getApiUrl();
 
+const readErrorMessage = async (response: Response): Promise<string> => {
+  const contentType = response.headers.get('content-type') || '';
+
+  // JSON ise mesajı yakala
+  if (contentType.includes('application/json')) {
+    try {
+      const data: any = await response.json();
+      return (
+        data?.message ||
+        data?.error ||
+        data?.details?.message ||
+        JSON.stringify(data)
+      );
+    } catch {
+      // fallthrough
+    }
+  }
+
+  // Değilse text olarak dene (proxy/NGINX/Next 404 gibi durumlarda çok işe yarar)
+  try {
+    const text = await response.text();
+    return text ? text.slice(0, 500) : `${response.status} ${response.statusText}`;
+  } catch {
+    return `${response.status} ${response.statusText}`;
+  }
+};
+
 /**
  * Get auth token from localStorage
  */
@@ -89,8 +116,12 @@ export const apiGet = async <T = any>(endpoint: string): Promise<T> => {
       window.location.href = '/signin';
       throw new Error('Unauthorized');
     }
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.message || 'Request failed');
+    const message = await readErrorMessage(response);
+    throw new Error(
+      `[${response.status}] ${endpoint} - ${message}${
+        response.status === 404 ? ` (API_URL: ${API_URL})` : ''
+      }`
+    );
   }
   
   return response.json();
@@ -111,8 +142,12 @@ export const apiPost = async <T = any>(endpoint: string, data?: any): Promise<T>
       window.location.href = '/signin';
       throw new Error('Unauthorized');
     }
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.message || 'Request failed');
+    const message = await readErrorMessage(response);
+    throw new Error(
+      `[${response.status}] ${endpoint} - ${message}${
+        response.status === 404 ? ` (API_URL: ${API_URL})` : ''
+      }`
+    );
   }
   
   return response.json();
@@ -133,8 +168,12 @@ export const apiPut = async <T = any>(endpoint: string, data?: any): Promise<T> 
       window.location.href = '/signin';
       throw new Error('Unauthorized');
     }
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.message || 'Request failed');
+    const message = await readErrorMessage(response);
+    throw new Error(
+      `[${response.status}] ${endpoint} - ${message}${
+        response.status === 404 ? ` (API_URL: ${API_URL})` : ''
+      }`
+    );
   }
   
   return response.json();
@@ -155,8 +194,12 @@ export const apiPatch = async <T = any>(endpoint: string, data?: any): Promise<T
       window.location.href = '/signin';
       throw new Error('Unauthorized');
     }
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.message || 'Request failed');
+    const message = await readErrorMessage(response);
+    throw new Error(
+      `[${response.status}] ${endpoint} - ${message}${
+        response.status === 404 ? ` (API_URL: ${API_URL})` : ''
+      }`
+    );
   }
   
   return response.json();
@@ -177,8 +220,12 @@ export const apiDelete = async <T = any>(endpoint: string, data?: any): Promise<
       window.location.href = '/signin';
       throw new Error('Unauthorized');
     }
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.message || 'Request failed');
+    const message = await readErrorMessage(response);
+    throw new Error(
+      `[${response.status}] ${endpoint} - ${message}${
+        response.status === 404 ? ` (API_URL: ${API_URL})` : ''
+      }`
+    );
   }
   
   return response.json();

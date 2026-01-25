@@ -15,7 +15,6 @@ const demoItems = [
     text: "Çok Satanlar",
     image: "https://picsum.photos/600/400?random=2"
   },
-  { link: "/shop", text: "Sezon Sonu Fırsatları", image: "https://picsum.photos/600/400?random=4" },
   { link: "/shop", 
     text: "Yeni Tasarımlar", 
     image: "https://picsum.photos/600/400?random=6"
@@ -55,7 +54,7 @@ const Header = () => {
 
   return (
     <header className="relative">
-      <div className="h-[450px] md:h-[600px] lg:h-[675px] relative">
+      <div className="h-auto md:h-[600px] lg:h-[675px] relative">
         <FlowingMenu
           items={items}
           layout="leftMerged3"
