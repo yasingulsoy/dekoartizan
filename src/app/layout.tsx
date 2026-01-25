@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "@/styles/globals.css";
 import { satoshi } from "@/styles/fonts";
 // import TopBanner from "@/components/layout/Banner/TopBanner";
@@ -27,6 +28,19 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <body className={satoshi.className}>
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-0BC4SHGERP"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-0BC4SHGERP');
+          `}
+        </Script>
         <HolyLoader color="#868686" />
         {/* <TopBanner /> */}
         <Providers>
