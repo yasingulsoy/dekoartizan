@@ -28,12 +28,12 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <body className={satoshi.className}>
-        {/* Google tag (gtag.js) */}
+        {/* Google tag (gtag.js) - head içine eklenecek */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0BC4SHGERP"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="beforeInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
