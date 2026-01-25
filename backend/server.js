@@ -21,6 +21,31 @@ const PORT = process.env.PORT || 5000;
 
 app.set('trust proxy', 1);
 
+/**
+ * Request logger (prod debug için)
+ * LOG_REQUESTS=true iken her isteği konsola yazar.
+ */
+if (String(process.env.LOG_REQUESTS || '').toLowerCase() === 'true') {
+  app.use((req, res, next) => {
+    const start = process.hrtime.bigint();
+    const requestId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    res.setHeader('X-Request-Id', requestId);
+
+    res.on('finish', () => {
+      const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
+      const forwardedFor = req.headers['x-forwarded-for'];
+      const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor || req.ip;
+      const ua = req.headers['user-agent'] || '-';
+
+      console.log(
+        `[${requestId}] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${durationMs.toFixed(1)}ms) ip=${ip} ua="${ua}"`
+      );
+    });
+
+    next();
+  });
+}
+
 const corsOrigins = (() => {
   if (process.env.CORS_ORIGINS) {
     return process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean);
@@ -70,6 +95,37 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(compression({
   threshold: 512,
 }));
+
+/**
+ * Route registry logger (prod debug için)
+ * LOG_ROUTES=true iken server start'ta tüm route'ları konsola yazar.
+ */
+const logRegisteredRoutes = () => {
+  try {
+    const routes = [];
+    const stack = app?._router?.stack || [];
+    for (const layer of stack) {
+      if (!layer) continue;
+      if (layer.route && layer.route.path) {
+        const methods = Object.keys(layer.route.methods || {}).map(m => m.toUpperCase()).join(',');
+        routes.push(`${methods.padEnd(10)} ${layer.route.path}`);
+      } else if (layer.name === 'router' && layer.handle?.stack) {
+        const mountPath = layer.regexp?.toString?.() || '';
+        for (const l of layer.handle.stack) {
+          if (l.route && l.route.path) {
+            const methods = Object.keys(l.route.methods || {}).map(m => m.toUpperCase()).join(',');
+            routes.push(`${methods.padEnd(10)} ${mountPath} ${l.route.path}`);
+          }
+        }
+      }
+    }
+    console.log(`🧭 Registered routes (count=${routes.length}):`);
+    routes.slice(0, 500).forEach(r => console.log(` - ${r}`));
+    if (routes.length > 500) console.log(` - ... truncated (${routes.length - 500} more)`);
+  } catch (e) {
+    console.warn('⚠️ Route listesi yazdırılamadı:', e.message);
+  }
+};
 
 const initializeDatabase = async (retries = 3) => {
   for (let i = 0; i < retries; i++) {
@@ -177,6 +233,10 @@ const startServer = async () => {
       const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
       const displayHost = host === '0.0.0.0' ? 'localhost' : host;
       console.log(`📊 Health Check: ${protocol}://${displayHost}:${PORT}/api/health`);
+
+      if (String(process.env.LOG_ROUTES || '').toLowerCase() === 'true') {
+        logRegisteredRoutes();
+      }
     });
 
     server.on('error', (error) => {
