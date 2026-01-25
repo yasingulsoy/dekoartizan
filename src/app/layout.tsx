@@ -2,18 +2,12 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "@/styles/globals.css";
 import { satoshi } from "@/styles/fonts";
-// import TopBanner from "@/components/layout/Banner/TopBanner";
-import TopNavbar from "@/components/layout/Navbar/TopNavbar";
-import Footer from "@/components/layout/Footer";
-import WhatsAppButton from "@/components/layout/WhatsAppButton";
-import Chatbot from "@/components/chatbot/Chatbot";
+import ComingSoon from "@/components/ComingSoon";
 import HolyLoader from "holy-loader";
-import Providers from "./providers";
-// import ComingSoon from "@/components/ComingSoon";
 
 export const metadata: Metadata = {
-  title: "dekoartizan - Duvar Kağıdı",
-  description: "Benzersiz ve çeşitli duvar kağıtlarından sizin için en uygun olanı seçin. Olçünüzü girin, sipariş verin ve keyifle kullanın.",
+  title: "dekoartizan - Yakında Açılıyoruz",
+  description: "dekoartizan olarak yeni deneyimimizi hazırlıyoruz. En kısa sürede sizlerle buluşacağız!",
 };
 
 export const viewport: Viewport = {
@@ -42,14 +36,7 @@ export default function RootLayout({
           `}
         </Script>
         <HolyLoader color="#868686" />
-        {/* <TopBanner /> */}
-        <Providers>
-          <TopNavbar />
-          {children}
-        </Providers>
-        <Footer />
-        <WhatsAppButton />
-        <Chatbot />
+        <ComingSoon />
       </body>
     </html>
   );
